@@ -9,6 +9,7 @@ import wandb
 from torchmetrics import MeanMetric, MaxMetric, Metric, MeanAbsoluteError
 import torch
 from torch import Tensor
+import fcd
 
 from ConStruct.utils import PlaceHolder
 from ConStruct.metrics.metrics_utils import (

@@ -210,3 +210,14 @@ def setup_wandb(cfg):
     wandb.init(**kwargs)
     wandb.save("*.txt")
     return cfg
+    
+# Rana added below just to try
+
+# in ConStruct/utils.py
+from rdkit import Chem
+import random
+
+def random_smiles():
+    # trivial demo: pick a random small alkane
+    smiles_list = ["C", "CC", "CCC", "CCCC", "CC(C)C"]
+    return random.choice(smiles_list)

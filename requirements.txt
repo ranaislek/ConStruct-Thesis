@@ -15,3 +15,6 @@ torch_geometric==2.3.1
 torchmetrics==0.11.4
 tqdm==4.65.0
 wandb==0.15.4
+
+# -------- extras the authors forgot --------
+fcd==1.0.7            # Fréchet ChemNet Distance; exact version isn’t critical

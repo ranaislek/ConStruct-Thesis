@@ -1,0 +1,14 @@
+defaults:
+  - override /dataset: qm9
+  - override /model: mol              # whatever your model group is called
+  - _self_
+
+train:
+  n_epochs: 300
+
+model:
+  rev_proj: planar
+  transition: absorbing_edges
+
+general:
+  name: qm9

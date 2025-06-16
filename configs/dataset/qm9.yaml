@@ -1,0 +1,7 @@
+# QM9 molecular dataset
+name: qm9
+datadir: data/qm9          # path is relative to repo root
+remove_h: true             # strip explicit hydrogens (matches the paper)
+target_prop: null          # no property conditioning
+batch_size: 128
+num_workers: 4             # adjust to your CPU

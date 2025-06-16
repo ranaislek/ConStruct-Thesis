@@ -1,0 +1,38 @@
+the tiny sanity-check run: -> successful
+python3 main.py +experiment=debug.yaml dataset.name=qm9
+
+
+If it finishes (it should), launch the full QM9 training: -> ?
+python3 main.py \
+    dataset.name=qm9 \
+    dataset.datadir=data/qm9 \
+    dataset.remove_h=true \
+    model.rev_proj=planar \
+    model.transition=absorbing_edges \
+    train.n_epochs=300 \
+    train.batch_size=128
+
+
+Silencing stdout/stderr to a file:
+Option A – Unix redirect (quick-n-dirty):
+
+mkdir -p logs
+
+python3 main.py +experiment=debug.yaml dataset.name=qm9 \
+  > logs/qm9_debug_$(date +%Y-%m-%d_%H-%M-%S).log 2>&1
+
+# minimal real run (no fast-dev)
+python3 main.py \
+    dataset.name=qm9 \
+    dataset.datadir=data/qm9 \
+    dataset.remove_h=true \
+    model.rev_proj=planar \
+    model.transition=absorbing_edges \
+    train.n_epochs=5 \
+    train.batch_size=64 \
+    general.name=test_qm9_5ep \
+    > logs/qm9_test5ep_$(date +%Y-%m-%d_%H-%M-%S).log 2>&1
+
+
+click run -> start debugging:
+  dataset.name=qm9 dataset.datadir=data/qm9 dataset.remove_h=true model.rev_proj=planar model.transition=absorbing_edges train.n_epochs=5 train.batch_size=64 general.name=test_qm9_5ep 
