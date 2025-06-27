@@ -311,6 +311,15 @@ class QM9DataModule(MolecularDataModule):
                 transform=transform,
             ),
         }
+        
+        # Rana added subsetting
+        # Optional slicing for fast debugging
+        if hasattr(cfg.dataset, "subset"):
+            k = cfg.dataset.subset
+            print(f"[QM9DataModule] Using only first {k} samples per split for debug.")
+            for split in ["train", "val", "test"]:
+                datasets[split] = datasets[split][:k]
+
 
         self.statistics = {
             "train": datasets["train"].statistics,

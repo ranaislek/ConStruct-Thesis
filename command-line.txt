@@ -34,5 +34,42 @@ python3 main.py \
     > logs/qm9_test5ep_$(date +%Y-%m-%d_%H-%M-%S).log 2>&1
 
 
-click run -> start debugging:
+click run -> start debugging -> put below argument snippet in the "Additional arguments" field while the cursor is in the main.py (since you're debugging starting from there):
   dataset.name=qm9 dataset.datadir=data/qm9 dataset.remove_h=true model.rev_proj=planar model.transition=absorbing_edges train.n_epochs=5 train.batch_size=64 general.name=test_qm9_5ep 
+
+even smaller just to see if it works:
+python main.py \
+  dataset.name=qm9 \
+  dataset.datadir=data/qm9 \
+  dataset.remove_h=true \
+  +dataset.subset=10 \
+  model.rev_proj=planar \
+  model.transition=absorbing_edges \
+  train.n_epochs=1 \
+  train.batch_size=1 \
+  general.name=debug_qm9
+  > logs/qm9_test5ep_$(date +%Y-%m-%d_%H-%M-%S).log 2>&1
+
+arguments:
+ dataset.name=qm9 dataset.datadir=data/qm9 dataset.remove_h=true +dataset.subset=10 model.rev_proj=planar model.transition=absorbing_edges train.n_epochs=1 train.batch_size=1 general.name=debug_qm9
+
+ dataset.name=qm9 dataset.datadir=data/qm9 dataset.remove_h=true model.rev_proj=planar model.transition=absorbing_edges train.n_epochs=1 train.batch_size=1 general.name=debug_qm9
+
+ to try with cpu with minimal dataset:
+
+ python3 main.py \
+  dataset.name=qm9 \
+  dataset.datadir=data/qm9 \
+  dataset.remove_h=true \
+  +dataset.subset=10 \
+  model.rev_proj=planar \
+  model.transition=absorbing_edges \
+  train.n_epochs=1 \
+  train.batch_size=1 \
+  general.name=debug_qm9 \
+  > logs/qm9_test5ep_$(date +%Y-%m-%d_%H-%M-%S).log 2>&1
+
+
+
+  python main.py +experiment=planar.yaml dataset.name=qm9 +dataset.subset=10 train.n_epochs=5 \
+  > logs/qm9_test5ep_$(date +%Y-%m-%d_%H-%M-%S).log 2>&1
