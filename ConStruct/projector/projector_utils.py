@@ -245,3 +245,18 @@ class LobsterProjector(AbstractProjector):
     @property
     def can_block_edges(self):
         return True
+
+
+class RingCountProjector(AbstractProjector):
+    def __init__(self, z_t: PlaceHolder, max_rings: int):
+        self.max_rings = max_rings
+        super().__init__(z_t)
+
+    def valid_graph_fn(self, nx_graph):
+        # Use NetworkX to count cycles (rings)
+        cycles = nx.cycle_basis(nx_graph)
+        return len(cycles) <= self.max_rings
+
+    @property
+    def can_block_edges(self):
+        return True

@@ -37,6 +37,7 @@ from ConStruct.projector.projector_utils import (
     PlanarProjector,
     TreeProjector,
     LobsterProjector,
+    RingCountProjector,
 )
 
 
@@ -640,13 +641,16 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
 
         z_t = z_T
 
-        # Create planarity preserving objects
+        # Create planarity or other constraint preserving objects
         if self.cfg.model.rev_proj == "planar":
             rev_projector = PlanarProjector(z_t)
         elif self.cfg.model.rev_proj == "tree":
             rev_projector = TreeProjector(z_t)
         elif self.cfg.model.rev_proj == "lobster":
             rev_projector = LobsterProjector(z_t)
+        elif self.cfg.model.rev_proj == "ring_count":
+            max_rings = getattr(self.cfg.model, "max_rings", 0)
+            rev_projector = RingCountProjector(z_t, max_rings)
 
         # Iteratively sample p(z_s | z_t) for t = 1, ..., T, with s = t - 1.
         for s_int in reversed(range(0, self.T, self.cfg.general.faster_sampling)):

@@ -160,6 +160,7 @@ class Visualizer:
             # Find the coordinates of nodes in the final graph and align all the molecules
             final_graph = graphs[-1]
 
+            final_pos = None  # Always define final_pos
             if self.is_molecular:
                 final_mol = final_graph.rdkit_mol
                 AllChem.Compute2DCoords(final_mol)
@@ -175,6 +176,7 @@ class Visualizer:
                     for l, atom in enumerate(mol.GetAtoms()):
                         x, y, z = coords[l]
                         conf.SetAtomPosition(l, Point3D(x, y, z))
+                # final_pos remains None for molecules
             elif self.is_tls:
                 final_graph.set_pos()
                 final_pos = final_graph.get_pos()
@@ -186,13 +188,17 @@ class Visualizer:
             for frame in range(len(graphs)):
                 file_name = os.path.join(path, "frame_{}.png".format(frame))
                 if self.is_molecular:
-                    Draw.MolToFile(
-                        graphs[frame].rdkit_mol,
-                        file_name,
-                        size=(300, 300),
-                        legend=f"Frame {frame}",
-                    )
-                if self.is_tls:
+                    try:
+                        Draw.MolToFile(
+                            graphs[frame].rdkit_mol,
+                            file_name,
+                            size=(300, 300),
+                            legend=f"Frame {frame}",
+                        )
+                    except Exception as e:
+                        print(f"Skipping invalid molecule at frame {frame}: {e}")
+                        continue
+                elif self.is_tls:
                     if not graphs[frame].get_pos():  # The last one already has a pos
                         graphs[frame].set_pos(pos=final_pos)
                     graphs[frame].plot_graph(
