@@ -6,7 +6,7 @@
 
 from itertools import islice
 from collections import deque
-from projector.is_planar.fringe_opposed_subset import fringe_opposed_subset as fop
+from ConStruct.projector.is_planar.fringe_opposed_subset import fringe_opposed_subset as fop
 
 
 class fringe:

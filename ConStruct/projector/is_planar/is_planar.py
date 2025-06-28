@@ -7,7 +7,7 @@
 
 from collections import defaultdict
 from itertools import islice
-from projector.is_planar.fringe import fringe
+from ConStruct.projector.is_planar.fringe import fringe
 
 __all__ = ["is_planar"]
 

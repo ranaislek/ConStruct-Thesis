@@ -3,6 +3,10 @@ transition: 'absorbing_edges'                          # uniform or marginal or 
 diffusion_steps: 500
 n_layers: 5
 
+# Constraint settings
+rev_proj: False  # planar or tree or lobster or ring_count or ring_length
+max_rings: 0     # For ring_count constraint: maximum number of rings allowed
+max_ring_length: 6  # For ring_length constraint: maximum ring size allowed
 
 # Extra features
 extra_features: True
@@ -29,7 +33,6 @@ nu:
   e: 1
   y: 1
 
-rev_proj: False  # planar or tree or lobster
 dropout: 0.1
 dropout_in_and_out: False
 cycle_features: True

@@ -183,13 +183,13 @@ class PlaceHolder:
 
     def copy(self):
         return PlaceHolder(
-            X=self.X,
-            charges=self.charges,
-            E=self.E,
-            y=self.y,
-            t_int=self.t_int,
-            t=self.t,
-            node_mask=self.node_mask,
+            X=self.X.clone() if self.X is not None else None,
+            charges=self.charges.clone() if self.charges is not None else None,
+            E=self.E.clone() if self.E is not None else None,
+            y=self.y.clone() if self.y is not None else None,
+            t_int=self.t_int.clone() if self.t_int is not None else None,
+            t=self.t.clone() if self.t is not None else None,
+            node_mask=self.node_mask.clone() if self.node_mask is not None else None,
         )
 
 

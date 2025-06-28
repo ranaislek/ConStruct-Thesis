@@ -1,6 +1,6 @@
 #!/bin/bash
-#SBATCH --job-name=qm9_ring_count_small
-#SBATCH --output=ConStruct/logs/qm9_ring_count_small_%j.out
+#SBATCH --job-name=qm9_ring_length_small
+#SBATCH --output=ConStruct/logs/qm9_ring_length_small_%j.out
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=20G
@@ -15,12 +15,12 @@ source activate construct-env
 # Create logs directory if it doesn't exist
 mkdir -p ConStruct/logs
 
-# Run ConStruct with moderate parameters
+# Run ConStruct with ring length constraint (smaller scale)
 python ConStruct/main.py \
   --config configs/experiment/qm9.yaml \
   --config configs/general/general_default.yaml \
-  model.rev_proj=ring_count \
-  model.max_rings=0 \
+  model.rev_proj=ring_length \
+  model.max_ring_length=4 \
   model.diffusion_steps=200 \
   general.number_chain_steps=50 \
   general.samples_to_generate=200 \
@@ -30,4 +30,4 @@ python ConStruct/main.py \
   general.final_model_samples_to_save=20 \
   general.final_model_chains_to_save=10 \
   train.batch_size=32 \
-  train.n_epochs=200
+  train.n_epochs=200 
