@@ -73,3 +73,7 @@ arguments:
 
   python main.py +experiment=planar.yaml dataset.name=qm9 +dataset.subset=10 train.n_epochs=5 \
   > logs/qm9_test5ep_$(date +%Y-%m-%d_%H-%M-%S).log 2>&1
+
+
+  AFTER CURSOR!!! REVOLUTIONARY!!!
+  python3 main.py +experiment=qm9 2>&1 | tee logs/output_$(date +%Y%m%d_%H%M%S).log
