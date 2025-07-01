@@ -95,12 +95,12 @@ class AbstractProjector(abc.ABC):
         # find added edges
         z_s_adj = get_adj_matrix(z_s)
         diff_adj = z_s_adj - self.z_t_adj
-        print(f"z_t_adj:\n{self.z_t_adj[0].cpu().numpy()}")
-        print(f"z_s_adj:\n{z_s_adj[0].cpu().numpy()}")
+        # print(f"z_t_adj:\n{self.z_t_adj[0].cpu().numpy()}")
+        # print(f"z_s_adj:\n{z_s_adj[0].cpu().numpy()}")
         assert (diff_adj >= 0).all()  # No edges can be removed in the reverse
         new_edges = diff_adj.nonzero(as_tuple=False)
-        print(f"Projector: z_s_adj has {z_s_adj.sum()} edges, z_t_adj has {self.z_t_adj.sum()} edges, diff_adj has {diff_adj.sum()} new edges")
-        print(f"Projector: new_edges = {new_edges}")
+        # print(f"Projector: z_s_adj has {z_s_adj.sum()} edges, z_t_adj has {self.z_t_adj.sum()} edges, diff_adj has {diff_adj.sum()} new edges")
+        # print(f"Projector: new_edges = {new_edges}")
         
         # Process each graph in the batch
         for graph_idx, nx_graph in enumerate(self.nx_graphs_list):
@@ -115,7 +115,7 @@ class AbstractProjector(abc.ABC):
                 .cpu()
                 .numpy()
             )
-            print(f"Graph {graph_idx}, edges_to_add: {edges_to_add}")
+            # print(f"Graph {graph_idx}, edges_to_add: {edges_to_add}")
 
             # If we can block edges, we do it
             if self.can_block_edges:
@@ -182,7 +182,7 @@ class AbstractProjector(abc.ABC):
                     if self.can_block_edges:
                         self.blocked_edges[graph_idx][tuple(edge)] = True
             
-            self.nx_graphs_list[graph_idx] = nx_graph  # save new graph
+                self.nx_graphs_list[graph_idx] = nx_graph  # save new graph
 
             # Check that nx graphs is correctly stored
             # (Removed assertion for tensor/NetworkX adjacency equality)
@@ -409,7 +409,7 @@ class RingLengthProjector(AbstractProjector):
             )
 
             # If we can block edges, we do it
-            print(f"Graph {graph_idx}, edges_to_add: {edges_to_add}")
+            # print(f"Graph {graph_idx}, edges_to_add: {edges_to_add}")
             
             # If we can block edges, we do it
             not_blocked_edges = []
@@ -419,9 +419,9 @@ class RingLengthProjector(AbstractProjector):
                 test_graph = nx.from_numpy_array(self.z_t_adj[graph_idx].cpu().numpy())
                 test_graph.add_edge(edge[0], edge[1])
                 from ConStruct.projector.is_ring_count import has_rings_of_length_at_most
-                print(f"Trying edge {edge}, cycle basis: {nx.cycle_basis(test_graph)}, has_rings_of_length_at_most={has_rings_of_length_at_most(test_graph, self.max_ring_length)}")
+                # print(f"Trying edge {edge}, cycle basis: {nx.cycle_basis(test_graph)}, has_rings_of_length_at_most={has_rings_of_length_at_most(test_graph, self.max_ring_length)}")
                 if not has_rings_of_length_at_most(test_graph, self.max_ring_length):
-                    print(f"Blocking edge {edge} because it creates rings: {nx.cycle_basis(test_graph)}")
+                    # print(f"Blocking edge {edge} because it creates rings: {nx.cycle_basis(test_graph)}")
                     # Block this edge
                     z_s.E[graph_idx, edge[0], edge[1]] = F.one_hot(
                         torch.tensor(0), num_classes=z_s.E.shape[-1]
@@ -429,7 +429,7 @@ class RingLengthProjector(AbstractProjector):
                     z_s.E[graph_idx, edge[1], edge[0]] = F.one_hot(
                         torch.tensor(0), num_classes=z_s.E.shape[-1]
                     )
-                    print(f"  After blocking, edge {edge} value: {z_s.E[graph_idx, edge[0], edge[1], 0].item()}")
+                    # print(f"  After blocking, edge {edge} value: {z_s.E[graph_idx, edge[0], edge[1], 0].item()}")
                     if self.can_block_edges:
                         self.blocked_edges[graph_idx][tuple(edge)] = True
                 else:

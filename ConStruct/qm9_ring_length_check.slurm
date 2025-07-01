@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=qm9_ring_length
-#SBATCH --output=ConStruct/logs/qm9_ring_length_%j.out
+#SBATCH --output=/home/rislek/ConStruct-Thesis/ConStruct/logs/qm9_ring_length_%j.out
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=28G
@@ -9,25 +9,24 @@
 #SBATCH --time=48:00:00
 #SBATCH --partition=allgroups,testing
 
-# Load modules and activate conda environment
-source activate construct-env
+cd /home/rislek/ConStruct-Thesis
+source /conf/shared-software/anaconda/etc/profile.d/conda.sh
+conda activate construct-env
 
-# Create logs directory if it doesn't exist
-mkdir -p ConStruct/logs
+export LD_LIBRARY_PATH="$CONDA_PREFIX/lib:$LD_LIBRARY_PATH"
+export PYTHONPATH=/home/rislek/ConStruct-Thesis:$PYTHONPATH
 
-# Run ConStruct with ring length constraint
-python ConStruct/main.py \
-  --config configs/experiment/qm9.yaml \
-  --config configs/general/general_default.yaml \
+python -c "import torch; print('CUDA available:', torch.cuda.is_available())"
+
+python ConStruct/main.py +experiment=qm9 \
   model.rev_proj=ring_length \
   model.max_ring_length=4 \
   model.diffusion_steps=500 \
-  general.number_chain_steps=200 \
+  train.n_epochs=1000 \
+  train.batch_size=64 \
   general.samples_to_generate=1000 \
   general.samples_to_save=50 \
   general.chains_to_save=10 \
   general.final_model_samples_to_generate=200 \
   general.final_model_samples_to_save=50 \
-  general.final_model_chains_to_save=20 \
-  train.batch_size=64 \
-  train.n_epochs=1000 
+  general.final_model_chains_to_save=20

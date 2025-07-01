@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=qm9_ring_count
-#SBATCH --output=logs/qm9_ring_count_%j.out
+#SBATCH --output=/home/rislek/ConStruct-Thesis/ConStruct/logs/qm9_ring_count_%j.out
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=28G
@@ -9,16 +9,17 @@
 #SBATCH --time=48:00:00
 #SBATCH --partition=allgroups,testing
 
-# Load modules and activate conda environment
-source activate construct-env
+cd /home/rislek/ConStruct-Thesis
+source /conf/shared-software/anaconda/etc/profile.d/conda.sh
+conda activate construct-env
 
-# Create logs directory if it doesn't exist
-mkdir -p logs
+export LD_LIBRARY_PATH="$CONDA_PREFIX/lib:$LD_LIBRARY_PATH"
+export PYTHONPATH=/home/rislek/ConStruct-Thesis:$PYTHONPATH
+
+python -c "import torch; print('CUDA available:', torch.cuda.is_available())"
 
 # Run ConStruct with scaled-up parameters
-python ConStruct/main.py \
-  --config configs/experiment/qm9.yaml \
-  --config configs/general/general_default.yaml \
+python ConStruct/main.py +experiment=qm9 \
   model.rev_proj=ring_count \
   model.max_rings=0 \
   model.diffusion_steps=500 \
