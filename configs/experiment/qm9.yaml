@@ -32,4 +32,4 @@ dataset:
     datadir: 'data/qm9'
     batch_size: 2
     num_workers: 0
-    subset: 2  # Use only 2 samples per split for the fastest CPU test
+    #subset: 2  # Use only 2 samples per split for the fastest CPU test

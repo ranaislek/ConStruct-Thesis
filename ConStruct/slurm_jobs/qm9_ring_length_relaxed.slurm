@@ -11,13 +11,16 @@
 
 cd /home/rislek/ConStruct-Thesis
 source /conf/shared-software/anaconda/etc/profile.d/conda.sh
-conda activate construct-env
+conda activate construct
 
 
 export LD_LIBRARY_PATH="$CONDA_PREFIX/lib:$LD_LIBRARY_PATH"
 export PYTHONPATH=/home/rislek/ConStruct-Thesis:$PYTHONPATH
 
-python -c "import torch; print('CUDA available:', torch.cuda.is_available())"
+python -c "import torch; print('torch version:', torch.__version__); print('CUDA version:', torch.version.cuda)"
+python -c "import torch; print('CUDA available:', torch.cuda.is_available()); print('CUDA device count:', torch.cuda.device_count())"
+nvidia-smi
+which nvcc && nvcc --version
 
 python ConStruct/main.py +experiment=qm9 \
   model.rev_proj=ring_length \

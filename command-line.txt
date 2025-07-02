@@ -112,3 +112,5 @@ python ConStruct/main.py \
   general.final_model_chains_to_save=20 \
   train.batch_size=64 \
   train.n_epochs=1000
+
+  to run:    sbatch ConStruct/qm9_ring_count_check.slurm

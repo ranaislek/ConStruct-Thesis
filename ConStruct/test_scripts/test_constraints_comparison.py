@@ -159,3 +159,12 @@ if __name__ == "__main__":
     print("Starting Constraint Comparison Test...")
     results = compare_all_constraints()
     print("\n🎉 Constraint comparison completed!") 
+    
+    
+# to run:
+
+"""
+  cd /home/rislek/ConStruct-Thesis
+  python test_scripts/test_my_module.py
+  
+"""
