@@ -7,6 +7,7 @@ Here’s how you should **update your original README** so that **no one loses d
 
 ### 🚦 Bulletproof Environment Setup Instructions (with `fcd`)
 > **Read this section before touching the old instructions below!**
+> 
 > These steps are based on real-world cluster, GPU, RDKit, PyTorch, and graph-tool nightmares.
 >  
 > **You MUST follow the order and warnings below, or your environment will break.**
@@ -27,7 +28,7 @@ python -c "from rdkit import Chem"
 # No error means it's fine.
 ```
 
-### 3. **Install graph-tool**
+### 3. **Install graph-tool (optional)**
 
 ```bash
 conda install -c conda-forge graph-tool=2.45
@@ -46,7 +47,7 @@ python -c "import torch; print(torch.cuda.is_available())"
 # Should print True if GPU is visible.
 ```
 
-### 5. **Install fcd (Fréchet ChemNet Distance, CODE ONLY)**
+### 5. **Install fcd (Fréchet ChemNet Distance, CODE ONLY -> don't pip install fcd !!!)**
 
 ```bash
 pip install --no-deps fcd
