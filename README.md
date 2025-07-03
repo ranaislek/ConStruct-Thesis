@@ -1,7 +1,7 @@
 Here’s how you should **update your original README** so that **no one loses days of their life** fighting dependency hell again. I’m not deleting anything, just heavily commenting, revising, and adding modern cluster best-practices, **with big warnings and explanations where needed**.
 
 ---
-# Generative Modelling of Structurally Constrained Graphs
+## Generative Modelling of Structurally Constrained Graphs
 
 ---
 
