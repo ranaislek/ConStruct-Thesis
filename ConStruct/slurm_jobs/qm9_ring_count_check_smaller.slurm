@@ -9,14 +9,21 @@
 #SBATCH --time=24:00:00
 #SBATCH --partition=allgroups,testing
 
+# Load conda and activate environment
 cd /home/rislek/ConStruct-Thesis
 source /conf/shared-software/anaconda/etc/profile.d/conda.sh
 conda activate construct
 
-export LD_LIBRARY_PATH="$CONDA_PREFIX/lib:$LD_LIBRARY_PATH"
-export PYTHONPATH=/home/rislek/ConStruct-Thesis:$PYTHONPATH
+export LD_PRELOAD="$CONDA_PREFIX/lib/libgomp.so.1"
 
-python -c "import torch; print('CUDA available:', torch.cuda.is_available())"
+# Optional: if you want to double-check LD_PRELOAD is set (should be automatic now)
+# echo $LD_PRELOAD
+
+# Confirm CUDA and torch status (optional for debugging)
+python -c 'import torch; print("torch version:", torch.__version__); print("CUDA version:", torch.version.cuda)'
+python -c 'import torch; print("CUDA available:", torch.cuda.is_available()); print("CUDA device count:", torch.cuda.device_count())'
+nvidia-smi
+which nvcc && nvcc --version
 
 # Run ConStruct with moderate parameters
 python ConStruct/main.py +experiment=qm9 \

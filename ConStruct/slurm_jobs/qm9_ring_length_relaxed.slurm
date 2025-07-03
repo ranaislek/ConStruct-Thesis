@@ -9,19 +9,23 @@
 #SBATCH --time=24:00:00
 #SBATCH --partition=allgroups,testing
 
+# Load conda and activate environment
 cd /home/rislek/ConStruct-Thesis
 source /conf/shared-software/anaconda/etc/profile.d/conda.sh
 conda activate construct
 
+export LD_PRELOAD="$CONDA_PREFIX/lib/libgomp.so.1"
 
-export LD_LIBRARY_PATH="$CONDA_PREFIX/lib:$LD_LIBRARY_PATH"
-export PYTHONPATH=/home/rislek/ConStruct-Thesis:$PYTHONPATH
+# Optional: if you want to double-check LD_PRELOAD is set (should be automatic now)
+# echo $LD_PRELOAD
 
-python -c "import torch; print('torch version:', torch.__version__); print('CUDA version:', torch.version.cuda)"
-python -c "import torch; print('CUDA available:', torch.cuda.is_available()); print('CUDA device count:', torch.cuda.device_count())"
+# Confirm CUDA and torch status (optional for debugging)
+python -c 'import torch; print("torch version:", torch.__version__); print("CUDA version:", torch.version.cuda)'
+python -c 'import torch; print("CUDA available:", torch.cuda.is_available()); print("CUDA device count:", torch.cuda.device_count())'
 nvidia-smi
 which nvcc && nvcc --version
 
+# Run your actual experiment
 python ConStruct/main.py +experiment=qm9 \
   model.rev_proj=ring_length \
   model.max_ring_length=6 \
@@ -34,4 +38,4 @@ python ConStruct/main.py +experiment=qm9 \
   general.final_model_samples_to_save=20 \
   general.final_model_chains_to_save=10 \
   train.batch_size=32 \
-  train.n_epochs=200 
+  train.n_epochs=200

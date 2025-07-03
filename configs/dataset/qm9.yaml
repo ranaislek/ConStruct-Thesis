@@ -6,3 +6,14 @@ datadir: 'data/qm9'
 target_prop: null          # no property conditioning
 batch_size: 128
 num_workers: 4             # adjust to your CPU
+
+
+"""
+from digress:
+
+name: 'qm9'            # qm9, qm9_positional
+datadir: 'data/qm9/qm9_pyg/'
+remove_h: True
+random_subset: null
+pin_memory: False
+"""
