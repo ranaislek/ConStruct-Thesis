@@ -27,7 +27,7 @@ python -c "from rdkit import Chem"
 # No error means it's fine.
 ```
 
-### 3. **Install graph-tool**
+### 3. **Install graph-tool (optional)**
 
 ```bash
 conda install -c conda-forge graph-tool=2.45
