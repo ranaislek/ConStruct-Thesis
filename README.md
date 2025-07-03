@@ -46,7 +46,7 @@ python -c "import torch; print(torch.cuda.is_available())"
 # Should print True if GPU is visible.
 ```
 
-### 5. **Install fcd (Fréchet ChemNet Distance, CODE ONLY)**
+### 5. **Install fcd (Fréchet ChemNet Distance, CODE ONLY -> don't pip install fcd !!!)**
 
 ```bash
 pip install --no-deps fcd
