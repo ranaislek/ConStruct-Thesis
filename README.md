@@ -7,6 +7,7 @@ Here’s how you should **update your original README** so that **no one loses d
 
 ### 🚦 Bulletproof Environment Setup Instructions (with `fcd`)
 > **Read this section before touching the old instructions below!**
+> 
 > These steps are based on real-world cluster, GPU, RDKit, PyTorch, and graph-tool nightmares.
 >  
 > **You MUST follow the order and warnings below, or your environment will break.**
