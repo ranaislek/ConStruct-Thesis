@@ -15,13 +15,11 @@ Here’s how you should **update your original README** so that **no one loses d
 
 ---
 
-
-
 ### 1. **Create and Activate Your Conda Environment**
 ```bash
 conda create -y -c conda-forge -n construct python=3.9 rdkit=2023.03.2
 conda activate construct
-````
+```
 
 ### 2. **Check RDKit Works**
 
