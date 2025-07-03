@@ -15,6 +15,8 @@ Here’s how you should **update your original README** so that **no one loses d
 
 ---
 
+
+
 ### 1. **Create and Activate Your Conda Environment**
 ```bash
 conda create -y -c conda-forge -n construct python=3.9 rdkit=2023.03.2
@@ -226,7 +228,7 @@ This code was tested with PyTorch 2.0.1, cuda 11.8 and torch\_geometrics 2.3.1
   `python3 -c 'import graph_tool as gt' `
 
 ⚠️ NOTE:
-* graph-tool is only required for non-molecular datasets (e.g., tree, planar, lobster).
+* *graph-tool* is **only required for non-molecular datasets** (e.g., tree, planar, lobster).
 * If you work only with molecular datasets (QM9, etc.), you can skip installing graph-tool to avoid compatibility headaches.
 
 * ~~Install the nvcc drivers for your cuda version. For example:~~
