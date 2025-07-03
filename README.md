@@ -198,9 +198,9 @@ If all these work: **your env is cluster-proof**.
 
 ---
 
-# --- Original README instructions below (kept for reference, see above for robust setup) ---
+## --- Original README instructions below (kept for reference, see above for robust setup) ---
 
-## \[LEGACY/REFERENCE] Environment installation
+### \[LEGACY/REFERENCE] Environment installation
 
 > **WARNING:** The below steps are error-prone on modern clusters.
 > **Follow the bulletproof steps above for reliable cluster installs!**
