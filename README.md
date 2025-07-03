@@ -33,6 +33,9 @@ python -c "from rdkit import Chem"
 conda install -c conda-forge graph-tool=2.45
 python -c "import graph_tool as gt"
 ```
+⚠️ NOTE:
+* *graph-tool* is **only required for non-molecular datasets** (e.g., tree, planar, lobster).
+* If you work only with molecular datasets (QM9, etc.), you can skip installing graph-tool to avoid compatibility headaches.
 
 ### 4. **Install PyTorch (CUDA 11.8), then torch-geometric**
 
@@ -223,10 +226,6 @@ This code was tested with PyTorch 2.0.1, cuda 11.8 and torch\_geometrics 2.3.1
 * Check that this line does not return an error:
 
   `python3 -c 'import graph_tool as gt' `
-
-⚠️ NOTE:
-* *graph-tool* is **only required for non-molecular datasets** (e.g., tree, planar, lobster).
-* If you work only with molecular datasets (QM9, etc.), you can skip installing graph-tool to avoid compatibility headaches.
 
 * ~~Install the nvcc drivers for your cuda version. For example:~~
   **(DO NOT DO THIS ON A CLUSTER, drivers are managed by the system)**
