@@ -114,3 +114,20 @@ python ConStruct/main.py \
   train.n_epochs=1000
 
   to run:    sbatch ConStruct/qm9_ring_count_check.slurm
+
+  ###### HOW TO DEBUG LOCALLY: !!!!! ###########
+  click run -> start debugging -> put below argument snippet in the "Additional arguments" field while the cursor is in the main.py (since you're debugging starting from there):
+  arguments: --> didnt work
+  +experiment=qm9 model.rev_proj=ring_count model.max_rings=0 model.diffusion_steps=2 general.number_chain_steps=1 train.n_epochs=1 train.batch_size=8 general.samples_to_generate=8
+
+  paste in launch.json and click Run with debugging:
+  "args": [
+    "+experiment=qm9",
+    "model.rev_proj=ring_count",
+    "model.max_rings=0",
+    "model.diffusion_steps=2",
+    "general.number_chain_steps=1",
+    "train.n_epochs=1",
+    "train.batch_size=8",
+    "general.samples_to_generate=8"
+  ],
