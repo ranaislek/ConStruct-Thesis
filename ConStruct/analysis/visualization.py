@@ -129,9 +129,9 @@ class Visualizer:
                     except (UnidentifiedImageError, Exception) as e:
                         print(f"[Warning] Image file {file_path} is not a valid image: {e}. Skipping wandb log.")
                         continue
-                if i < 3:
-                    print(f"Saving {file_path} to wandb")
-                wandb.log({log: [wandb.Image(file_path)]}, commit=False)
+                    if i < 3:
+                        print(f"Saving {file_path} to wandb")
+                    wandb.log({log: [wandb.Image(file_path)]}, commit=False)
                 except Exception as e:
                     print(f"[Warning] Exception when logging {file_path} to wandb: {e}. Skipping.")
 
