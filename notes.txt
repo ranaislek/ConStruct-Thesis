@@ -48,3 +48,103 @@ AŞAĞIDAKİ JOB'LARIN HEPSİ GPU KULLANIYO VE PIPELINE BAŞTAN SONA ÇALIŞIYO 
 
 # Validation test (15 minutes)
 ./ConStruct/slurm_jobs/submit_experiments.sh test both
+
+----------------------------------------------------------------
+
+Great question! Let me explain the **different goals and what you'll see** from each type of SLURM file:
+
+## **1. Debug Tests (10 minutes each)**
+
+### **Goal:** Quick validation that everything works
+### **What you'll see:**
+- **1 epoch** of training (very fast)
+- **5 samples** generated
+- **Constraint checking** in logs: `[Constraint Check] X/Y molecules satisfy ring_count ≤ 0`
+- **Pipeline validation** - confirms no crashes, configs work, constraint checking works
+- **Quick feedback** - you'll know in 10 minutes if everything is set up correctly
+
+### **Use case:** "Does my constraint implementation work?"
+
+---
+
+## **2. Real Experiments (24 hours each)**
+
+### **Goal:** Full research experiments with meaningful results
+### **What you'll see:**
+- **1000 epochs** of training (full training)
+- **1000 samples** generated (statistically significant)
+- **Detailed metrics** - validity, uniqueness, novelty, FCD scores
+- **Constraint satisfaction rates** - how well your constraints work
+- **Visualizations** - molecule images, GIFs of generation chains
+- **Publishable results** - enough data for analysis and comparison
+
+### **Use case:** "How well do my constraints perform compared to baseline?"
+
+---
+
+## **3. Validation Tests (15 minutes)**
+
+### **Goal:** Comprehensive testing of both constraints
+### **What you'll see:**
+- **Both constraints tested** in sequence (ring_count AND ring_length)
+- **Comparison** between the two constraint types
+- **Quick validation** that both work correctly
+- **Side-by-side results** for both constraints
+
+### **Use case:** "Which constraint works better for my use case?"
+
+---
+
+## **What Each Tells You:**
+
+| Type | Time | Purpose | What You Learn |
+|------|------|---------|----------------|
+| **Debug** | 10min | "Does it work?" | ✅ Pipeline works, constraints implemented |
+| **Real** | 24h | "How well does it work?" | 📊 Performance metrics, constraint effectiveness |
+| **Validation** | 15min | "Which is better?" | �� Comparison between constraint types |
+
+---
+
+## **Recommended Strategy:**
+
+### **Phase 1: Quick Validation (30 minutes total)**
+```bash
+./ConStruct/slurm_jobs/submit_experiments.sh debug ring_count
+./ConStruct/slurm_jobs/submit_experiments.sh debug ring_length
+./ConStruct/slurm_jobs/submit_experiments.sh test both
+```
+**Goal:** Confirm everything works before investing 24 hours
+
+### **Phase 2: Real Experiments (48 hours total)**
+```bash
+./ConStruct/slurm_jobs/submit_experiments.sh real ring_count
+./ConStruct/slurm_jobs/submit_experiments.sh real ring_length
+```
+**Goal:** Get meaningful research results
+
+---
+
+## **What You'll See in Logs:**
+
+### **Debug Test Output:**
+```
+=== Testing Ring Count Constraint (Quick Debug) ===
+Using qm9_debug config: 1 epoch, batch_size=4, 5 samples, max_rings=0
+Epoch 0: val/epoch_NLL: 49.04
+[Constraint Check] 2/5 molecules satisfy ring_count ≤ 0
+=== Test Complete ===
+```
+
+### **Real Experiment Output:**
+```
+=== Running QM9 Ring Count Real Experiment ===
+Config: 1000 epochs, batch_size=64, 1000 samples, max_rings=0
+Epoch 0: val/epoch_NLL: 118.18
+...
+Epoch 999: val/epoch_NLL: 45.23
+[Constraint Check] 156/1000 molecules satisfy ring_count ≤ 0
+FCD score: 7.471
+Molecular metrics computed.
+```
+
+**Would you like to start with the debug tests to validate everything works, or go straight to the real experiments?**

@@ -6,7 +6,7 @@
 #SBATCH --mem=20G
 #SBATCH --gres=gpu:1
 #SBATCH --constraint=A6000|A5000
-#SBATCH --time=24:00:00
+#SBATCH --time=30:00:00
 #SBATCH --partition=allgroups,testing
 
 cd /home/rislek/ConStruct-Thesis

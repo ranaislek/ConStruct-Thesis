@@ -6,7 +6,7 @@
 #SBATCH --mem=4G
 #SBATCH --gres=gpu:1
 #SBATCH --partition=debug
-#SBATCH --time=00:10:00    # 10 minutes max
+#SBATCH --time=00:30:00    # 15 minutes max
 
 cd /home/rislek/ConStruct-Thesis
 source /conf/shared-software/anaconda/etc/profile.d/conda.sh
