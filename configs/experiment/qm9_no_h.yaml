@@ -2,21 +2,39 @@
 from digress:
 
 # @package _global_
+# QM9 experiment without hydrogen atoms (remove_h: true)
 general:
     name : 'qm9_no_h'
-    gpus : 1
-    wandb: 'online'
+    wandb: 'offline'
+    resume: null
     test_only: null
-    evaluate_all_checkpoints: False
+    check_val_every_n_epochs: 1
+    sample_every_val: 1
+    samples_to_generate: 1000
+    samples_to_save: 50
+    chains_to_save: 10
+    final_model_samples_to_generate: 200
+    final_model_samples_to_save: 50
+    final_model_chains_to_save: 20
+    number_chain_steps: 200
 train:
     n_epochs: 1000
-    batch_size: 1024
-    save_model: True
+    batch_size: 64
+    save_model: False
 model:
-    n_layers: 9
-    lambda_train: [5, 0]
+    diffusion_steps: 500
+    n_layers: 1
+    hidden_mlp_dims: { 'X': 8, 'E': 4, 'y': 4 }
+    hidden_dims: { 'dx': 8, 'de': 4, 'dy': 4, 'n_head': 2, 'dim_ffX': 8, 'dim_ffE': 4, 'dim_ffy': 8 }
+    # Constraint settings - choose one:
+    rev_proj: ring_count  # Options: planar, tree, lobster, ring_count, ring_length
+    max_rings: 0         # For ring_count constraint: maximum number of rings allowed
+    max_ring_length: 6   # For ring_length constraint: maximum ring size allowed
+    transition: absorbing_edges
 dataset:
-    remove_h: True
-    pin_memory: True
-    num_workers: 16
+    name: qm9
+    remove_h: true        # No hydrogen atoms
+    datadir: 'data/qm9'
+    batch_size: 64
+    num_workers: 4
 """

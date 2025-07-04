@@ -126,11 +126,12 @@ class Molecule:
 
 
 class SamplingMolecularMetrics(nn.Module):
-    def __init__(self, dataset_infos, test):
+    def __init__(self, dataset_infos, test, cfg=None):
         super().__init__()
         self.dataset_infos = dataset_infos
         self.is_molecular = dataset_infos.is_molecular
         self.atom_decoder = dataset_infos.atom_decoder
+        self.cfg = cfg
 
         self.test = test
 
@@ -271,6 +272,19 @@ class SamplingMolecularMetrics(nn.Module):
         all_generated_smiles, metrics = self.evaluate(molecules)
         if len(all_generated_smiles) > 0 and local_rank == 0:
             print("Some generated smiles: " + " ".join(all_generated_smiles[:10]))
+            # --- Constraint check integration ---
+            constraint_type = getattr(self.dataset_infos, "constraint_type", None)
+            constraint_value = getattr(self.dataset_infos, "constraint_value", None)
+            # Fallback: try to infer from self.cfg if available
+            if constraint_type is None and hasattr(self, "cfg"):
+                constraint_type = getattr(self.cfg.model, "rev_proj", None)
+                if constraint_type == "ring_length":
+                    constraint_value = getattr(self.cfg.model, "max_ring_length", None)
+                elif constraint_type == "ring_count":
+                    constraint_value = getattr(self.cfg.model, "max_rings", None)
+            print(f"DEBUG: Calling check_ring_constraints with {len(all_generated_smiles)} smiles, type={constraint_type}, value={constraint_value}")
+            if constraint_type and constraint_value is not None:
+                check_ring_constraints(all_generated_smiles, constraint_type, constraint_value)
 
         to_log_fcd = self.compute_fcd(generated_smiles=all_generated_smiles)
         metrics.update(to_log_fcd)
@@ -324,6 +338,7 @@ class SamplingMolecularMetrics(nn.Module):
         #     print(f"Sampling metrics", {k: round(val, 3) for k, val in metrics.items()})
         if local_rank == 0:
             print(f"Molecular metrics computed.")
+
         return metrics
 
     def compute_fcd(self, generated_smiles):
@@ -644,6 +659,29 @@ def smiles_from_generated_samples_file(generated_samples_file, atom_decoder):
             for smiles in smiles_list:
                 f.write(smiles + "\n")
     return smiles
+
+
+def check_ring_constraints(smiles_list, constraint_type, constraint_value, logger=print):
+    total = 0
+    passed = 0
+    for smi in smiles_list:
+        if smi is None or smi == "error":
+            continue
+        mol = Chem.MolFromSmiles(smi)
+        if mol is None:
+            continue
+        total += 1
+        if constraint_type == "ring_length":
+            ring_info = mol.GetRingInfo()
+            max_len = max((len(r) for r in ring_info.AtomRings()), default=0)
+            if max_len <= constraint_value:
+                passed += 1
+        elif constraint_type == "ring_count":
+            ring_info = mol.GetRingInfo()
+            n_rings = ring_info.NumRings() if ring_info else 0
+            if n_rings <= constraint_value:
+                passed += 1
+    logger(f"[Constraint Check] {passed}/{total} molecules satisfy {constraint_type} ≤ {constraint_value}")
 
 
 if __name__ == "__main__":

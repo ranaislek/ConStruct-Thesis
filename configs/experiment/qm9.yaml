@@ -6,18 +6,19 @@ general:
     test_only: null
     check_val_every_n_epochs: 1
     sample_every_val: 1
-    samples_to_generate: 1
-    samples_to_save: 1
-    chains_to_save: 1
-    final_model_samples_to_generate: 1
-    final_model_samples_to_save: 1
-    final_model_chains_to_save: 1
+    samples_to_generate: 1000
+    samples_to_save: 50
+    chains_to_save: 10
+    final_model_samples_to_generate: 200
+    final_model_samples_to_save: 50
+    final_model_chains_to_save: 20
+    number_chain_steps: 200
 train:
-    n_epochs: 1
-    batch_size: 2
+    n_epochs: 1000
+    batch_size: 64
     save_model: False
 model:
-    diffusion_steps: 2
+    diffusion_steps: 500
     n_layers: 1
     hidden_mlp_dims: { 'X': 8, 'E': 4, 'y': 4 }
     hidden_dims: { 'dx': 8, 'de': 4, 'dy': 4, 'n_head': 2, 'dim_ffX': 8, 'dim_ffE': 4, 'dim_ffy': 8 }
@@ -30,6 +31,6 @@ dataset:
     name: qm9
     remove_h: true
     datadir: 'data/qm9'
-    batch_size: 2
+    batch_size: 64
     num_workers: 0
     #subset: 2  # Use only 2 samples per split for the fastest CPU test

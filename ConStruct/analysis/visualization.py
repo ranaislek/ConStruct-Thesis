@@ -1,4 +1,5 @@
 import os
+from PIL import UnidentifiedImageError
 
 from rdkit import Chem
 from rdkit.Chem import Draw, AllChem
@@ -116,9 +117,23 @@ class Visualizer:
                 self.visualize_non_molecule(graph=nx_graph, pos=None, path=file_path)
 
             if wandb.run and log is not None:
+                try:
+                    if not os.path.exists(file_path) or os.path.getsize(file_path) == 0:
+                        print(f"[Warning] Image file {file_path} does not exist or is empty. Skipping wandb log.")
+                        continue
+                    # Try to open with PIL to check validity
+                    from PIL import Image
+                    try:
+                        with Image.open(file_path) as img:
+                            img.verify()  # Will raise if not a valid image
+                    except (UnidentifiedImageError, Exception) as e:
+                        print(f"[Warning] Image file {file_path} is not a valid image: {e}. Skipping wandb log.")
+                        continue
                 if i < 3:
                     print(f"Saving {file_path} to wandb")
                 wandb.log({log: [wandb.Image(file_path)]}, commit=False)
+                except Exception as e:
+                    print(f"[Warning] Exception when logging {file_path} to wandb: {e}. Skipping.")
 
     def visualize_chains(
         self,

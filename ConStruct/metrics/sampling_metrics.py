@@ -22,10 +22,11 @@ from ConStruct.projector.projector_utils import has_lobster_components
 
 
 class SamplingMetrics(nn.Module):
-    def __init__(self, dataset_infos, test, train_loader=None, val_loader=None):
+    def __init__(self, dataset_infos, test, train_loader=None, val_loader=None, cfg=None):
         super().__init__()
         self.dataset_infos = dataset_infos
         self.test = test
+        self.cfg = cfg
         self.stat = (
             self.dataset_infos.statistics["test"]
             if self.test
@@ -49,7 +50,7 @@ class SamplingMetrics(nn.Module):
             )
 
             self.domain_metrics = SamplingMolecularMetrics(
-                dataset_infos=dataset_infos, test=test
+                dataset_infos=dataset_infos, test=test, cfg=self.cfg
             )
         elif dataset_infos.is_tls:
             from ConStruct.metrics.sampling_tls_metrics import TLSSamplingMetrics

@@ -81,12 +81,14 @@ def main(cfg: DictConfig):
         test=False,
         train_loader=datamodule.train_dataloader(),
         val_loader=datamodule.val_dataloader(),
+        cfg=cfg,
     )
     test_sampling_metrics = SamplingMetrics(
         dataset_infos,
         test=True,
         train_loader=datamodule.train_dataloader(),
         val_loader=datamodule.test_dataloader(),
+        cfg=cfg,
     )
 
     if not hasattr(cfg.model, "is_baseline"):

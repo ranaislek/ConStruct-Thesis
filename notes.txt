@@ -31,3 +31,16 @@ Based on your setup and the recent code/config changes, here’s an assessment:
 - After the job completes, check the generated samples for ring count compliance.
 
 If you encounter any errors or unexpected results, share the relevant log/output snippets and I’ll help you debug further!
+
+
+-------------------------------------------------------------------------------------------
+
+AŞAĞIDAKİ JOB'LARIN HEPSİ GPU KULLANIYO VE PIPELINE BAŞTAN SONA ÇALIŞIYO KONTROL ET!
+İKİNCİ AŞAMA, VALİD MOLECULE VE CONSTRAINT APPLY EDİYOR MU ONU KONTROL ET!! -> Drive doc bak!!
+
+(construct) (base) rislek@labsrv8:~/ConStruct-Thesis$ squeue -u rislek
+   JOBID               NAME  PARTITION      USER    STATE        TIME  TIME_LIMIT CPUS MIN_M  NODES NODELIST(REASON) TRES_PER_NODE            
+  901354 debug_qm9_ring_len      debug    rislek  RUNNING        0:11  1-00:00:00    4   20G      1      debug02 gpu:1                    
+  901353 debug_qm9_ring_cou      debug    rislek  RUNNING        0:17  1-00:00:00    4   20G      1      debug01 gpu:1                    
+  901352 debug_qm9_ring_len      debug    rislek  RUNNING        0:39  1-00:00:00    4   20G      1      debug00 gpu:1                    
+  901351 debug_qm9_ring_cou      debug    rislek  RUNNING        0:46  1-00:00:00    4   20G      1      debug04 gpu:1  
