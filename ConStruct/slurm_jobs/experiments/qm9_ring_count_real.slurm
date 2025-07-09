@@ -18,9 +18,9 @@ export LD_PRELOAD="$CONDA_PREFIX/lib/libgomp.so.1"
 # CUDA verification
 python -c 'import torch; print("torch version:", torch.__version__); print("CUDA available:", torch.cuda.is_available()); print("CUDA device:", torch.cuda.get_device_name(0) if torch.cuda.is_available() else "None")'
 
-# Real experiment: Ring Count Constraint (max 0 rings)
+# Real experiment: Ring Count Constraint (max 1 ring)
 echo "=== Running QM9 Ring Count Real Experiment ==="
-echo "Config: 1000 epochs, batch_size=64, 1000 samples, max_rings=0"
+echo "Config: 1000 epochs, batch_size=64, 1000 samples, max_rings=1"
 python ConStruct/main.py +experiment=qm9 \
   model.rev_proj=ring_count \
-  model.max_rings=0 
+  model.max_rings=1 

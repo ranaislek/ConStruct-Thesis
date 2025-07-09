@@ -283,8 +283,34 @@ class SamplingMolecularMetrics(nn.Module):
                 elif constraint_type == "ring_count":
                     constraint_value = getattr(self.cfg.model, "max_rings", None)
             print(f"DEBUG: Calling check_ring_constraints with {len(all_generated_smiles)} smiles, type={constraint_type}, value={constraint_value}")
-            if constraint_type and constraint_value is not None:
+            # List of constraint types that are enforced
+            enforced_types = ["ring_count", "ring_length", "planar", "tree", "lobster"]
+            if constraint_type in enforced_types and constraint_value is not None:
+                # Constraint is enforced, only print enforcement check
                 check_ring_constraints(all_generated_smiles, constraint_type, constraint_value)
+            else:
+                # No constraint enforced, print natural satisfaction for both
+                if self.is_molecular and hasattr(self, "cfg") and hasattr(self.cfg, "model"):
+                    # Check natural satisfaction for ring_count
+                    max_rings = getattr(self.cfg.model, "max_rings", None)
+                    if max_rings is not None:
+                        print(f"[NATURAL SATISFACTION] Checking how many molecules naturally satisfy ring_count <= {max_rings}")
+                        check_ring_constraints(
+                            all_generated_smiles,
+                            "ring_count",
+                            max_rings,
+                            logger=lambda msg: print(f"[NATURAL SATISFACTION][ring_count] {msg}")
+                        )
+                    # Check natural satisfaction for ring_length
+                    max_ring_length = getattr(self.cfg.model, "max_ring_length", None)
+                    if max_ring_length is not None:
+                        print(f"[NATURAL SATISFACTION] Checking how many molecules naturally satisfy ring_length <= {max_ring_length}")
+                        check_ring_constraints(
+                            all_generated_smiles,
+                            "ring_length",
+                            max_ring_length,
+                            logger=lambda msg: print(f"[NATURAL SATISFACTION][ring_length] {msg}")
+                        )
 
         to_log_fcd = self.compute_fcd(generated_smiles=all_generated_smiles)
         metrics.update(to_log_fcd)

@@ -24,7 +24,7 @@ model:
     hidden_dims: { 'dx': 8, 'de': 4, 'dy': 4, 'n_head': 2, 'dim_ffX': 8, 'dim_ffE': 4, 'dim_ffy': 8 }
     # Constraint settings - choose one:
     rev_proj: ring_count  # Options: planar, tree, lobster, ring_count, ring_length
-    max_rings: 0         # For ring_count constraint: maximum number of rings allowed
+    max_rings: 1         # For ring_count constraint: maximum number of rings allowed
     max_ring_length: 6   # For ring_length constraint: maximum ring size allowed
     transition: absorbing_edges
 dataset:
