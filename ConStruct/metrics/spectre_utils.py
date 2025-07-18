@@ -873,27 +873,28 @@ def eval_fraction_unique_non_isomorphic_valid(
     return frac_unique, frac_unique_non_isomorphic, frac_unique_non_isomorphic_valid
 
 
-def timeout_handler(signum, frame):
-    raise TimeoutError("Function call timed out")
-
-
 def test_isomorphism(G1, G2):
     # Added function to deal with cases where NetworkX is unable to conclude isomorphism within a reasonable time (it stalls...)
     try:
-        # Set a timeout for the isomorphism check with NetworkX (10 seconds in this example)
-        signal.signal(signal.SIGALRM, timeout_handler)
-        signal.alarm(5)  # Set a 5-second timeout
-
-        isomorphic = nx.is_isomorphic(G1, G2)
-        signal.alarm(0)  # Cancel the alarm if the function completes within the timeout
-        return isomorphic
+        # Use ThreadPoolExecutor for timeout handling without signals
+        from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeoutError
+        
+        with ThreadPoolExecutor(max_workers=1) as executor:
+            future = executor.submit(nx.is_isomorphic, G1, G2)
+            try:
+                isomorphic = future.result(timeout=5)  # 5-second timeout
+                return isomorphic
+            except FutureTimeoutError:
+                print("NetworkX stalled in isomorphism check. Using graph-tool instead")
+                # Continue to graph-tool if NetworkX doesn't conclude within the timeout
+                pass
     except (nx.NetworkXError, nx.exception.ExceededMaxIterations):
-        signal.alarm(0)  # Cancel the alarm if an exception occurs
+        print("NetworkX stalled in isomorphism check. Using graph-tool instead")
         pass  # Continue to graph-tool if NetworkX doesn't conclude within the timeout
-    except TimeoutError as e:
-        pass  # Function call timed out, continue to graph-tool
+    except Exception as e:
+        print(f"NetworkX isomorphism check failed: {e}. Using graph-tool instead")
+        pass
 
-    print("NetworkX stalled in isomorphism check. Using graph-tool instead")
     # Convert NetworkX graphs to graph-tool graphs
     gt_g1 = gt_graph(directed=False)
     gt_g2 = gt_graph(directed=False)

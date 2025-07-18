@@ -5,9 +5,42 @@ import numpy as np
 import time
 import torch
 import torch.nn.functional as F
+from rdkit import Chem
 
 from ConStruct.projector.is_planar import is_planar
+from ConStruct.projector.is_ring.is_ring_count import ring_count_projector
+from ConStruct.projector.is_ring.is_ring_length import has_rings_of_length_at_most
 from ConStruct.utils import PlaceHolder
+
+
+def is_chemically_valid_graph(nx_graph, atom_types, atom_decoder):
+    """
+    Check if a NetworkX graph can be converted to a chemically valid RDKit molecule.
+    This ensures that the graph structure is chemically meaningful.
+    """
+    try:
+        # Convert NetworkX graph to RDKit molecule
+        mol = Chem.RWMol()
+        
+        # Add atoms
+        for i, atom_type in enumerate(atom_types):
+            if atom_type == -1:
+                continue
+            a = Chem.Atom(atom_decoder[int(atom_type.item())])
+            mol.AddAtom(a)
+        
+        # Add bonds
+        for edge in nx_graph.edges():
+            u, v = edge
+            if u != v:  # No self-loops
+                mol.AddBond(int(u), int(v), Chem.rdchem.BondType.SINGLE)
+        
+        # Try to convert to a valid molecule
+        mol = mol.GetMol()
+        Chem.SanitizeMol(mol)
+        return True
+    except:
+        return False
 
 
 def do_zero_prob_forbidden_edges(pred, z_t, clean_data):
@@ -161,7 +194,6 @@ class AbstractProjector(abc.ABC):
             # After adding all possible edges, check if we need to remove edges from existing rings
             if not self.valid_graph_fn(nx_graph):
                 # Apply ring count projection to remove excess rings
-                from ConStruct.projector.is_ring_count import ring_count_projector
                 nx_graph = ring_count_projector(nx_graph, self.max_rings)
                 
                 # Find which edges were removed and update the tensor accordingly
@@ -263,8 +295,9 @@ class LobsterProjector(AbstractProjector):
 
 
 class RingCountProjector(AbstractProjector):
-    def __init__(self, z_t: PlaceHolder, max_rings: int):
+    def __init__(self, z_t: PlaceHolder, max_rings: int, atom_decoder=None):
         self.max_rings = max_rings
+        self.atom_decoder = atom_decoder
         super().__init__(z_t)
 
     def valid_graph_fn(self, nx_graph):
@@ -326,7 +359,16 @@ class RingCountProjector(AbstractProjector):
                 for edge in edges_to_add:
                     old_nx_graph = nx_graph.copy()
                     nx_graph.add_edge(edge[0], edge[1])
-                    if not self.valid_graph_fn(nx_graph):
+                    
+                    # Check both ring constraint AND chemical validity
+                    ring_valid = self.valid_graph_fn(nx_graph)
+                    chem_valid = True
+                    if self.atom_decoder is not None:
+                        # Get atom types for this graph
+                        atom_types = z_s.X[graph_idx]
+                        chem_valid = is_chemically_valid_graph(nx_graph, atom_types, self.atom_decoder)
+                    
+                    if not ring_valid or not chem_valid:
                         nx_graph = old_nx_graph
                         # deleting edge from edges tensor (changes z_s in place)
                         z_s.E[graph_idx, edge[0], edge[1]] = F.one_hot(
@@ -340,46 +382,72 @@ class RingCountProjector(AbstractProjector):
                             self.blocked_edges[graph_idx][tuple(edge)] = True
             
             # After adding all possible edges, check if we need to remove edges from existing rings
-            if not self.valid_graph_fn(nx_graph):
-                # Apply ring count projection to remove excess rings
-                from ConStruct.projector.is_ring_count import ring_count_projector
-                nx_graph = ring_count_projector(nx_graph, self.max_rings)
-                
-                # Find which edges were removed and update the tensor accordingly
-                old_edges = set(old_nx_graph.edges())
-                new_edges_set = set(nx_graph.edges())
-                removed_edges = old_edges - new_edges_set
-                
-                # Remove these edges from the tensor
-                for edge in removed_edges:
-                    u, v = edge
-                    z_s.E[graph_idx, u, v] = F.one_hot(
-                        torch.tensor(0), num_classes=z_s.E.shape[-1]
-                    )
-                    z_s.E[graph_idx, v, u] = F.one_hot(
-                        torch.tensor(0), num_classes=z_s.E.shape[-1]
-                    )
-                    # Mark as blocked for future iterations
-                    if self.can_block_edges:
-                        self.blocked_edges[graph_idx][tuple(edge)] = True
+            atom_types = z_s.X[graph_idx] if self.atom_decoder is not None else None
+            
+            # Reconstruct NetworkX graph from current tensor to ensure synchronization
+            current_adj = get_adj_matrix(z_s)[graph_idx].cpu().numpy()
+            reconstructed_graph = nx.from_numpy_array(current_adj)
+            # print(f"[DEBUG] Before ring_count_projector: {list(nx.cycle_basis(reconstructed_graph))}")
+            
+            # Apply ring count projection until the graph is valid
+            while not self.valid_graph_fn(reconstructed_graph):
+                reconstructed_graph = ring_count_projector(reconstructed_graph, self.max_rings)
+                # print(f"[DEBUG] After ring_count_projector: {list(nx.cycle_basis(reconstructed_graph))}")
+            
+            # Synchronize z_s.E with reconstructed_graph after projection is complete
+            # Set all edges to zero, then set to 1 for all edges in the projected graph (single bond type)
+            z_s.E[graph_idx] = torch.zeros_like(z_s.E[graph_idx])
+            for u, v in reconstructed_graph.edges():
+                if u != v:
+                    z_s.E[graph_idx, u, v, 1] = 1  # single bond
+                    z_s.E[graph_idx, v, u, 1] = 1  # undirected
+            # Mark as blocked for all non-edges
+            n = reconstructed_graph.number_of_nodes()
+            current_edges = set(reconstructed_graph.edges())
+            for u in range(n):
+                for v in range(n):
+                    if u != v and (u, v) not in current_edges and (v, u) not in current_edges:
+                        if self.can_block_edges:
+                            self.blocked_edges[graph_idx][(u, v)] = True
+            
+            # Update the nx_graph to match the reconstructed graph
+            nx_graph = reconstructed_graph
+            
+            # Final check: ensure the graph is both ring-compliant and chemically valid
+            if self.atom_decoder is not None:
+                atom_types = z_s.X[graph_idx]
+                if not is_chemically_valid_graph(nx_graph, atom_types, self.atom_decoder):
+                    # If chemically invalid, remove edges until valid
+                    while not is_chemically_valid_graph(nx_graph, atom_types, self.atom_decoder) and nx_graph.number_of_edges() > 0:
+                        # Remove a random edge
+                        edge_to_remove = list(nx_graph.edges())[0]
+                        nx_graph.remove_edge(*edge_to_remove)
+                        # Update tensor
+                        u, v = edge_to_remove
+                        z_s.E[graph_idx, u, v] = F.one_hot(
+                            torch.tensor(0), num_classes=z_s.E.shape[-1]
+                        )
+                        z_s.E[graph_idx, v, u] = F.one_hot(
+                            torch.tensor(0), num_classes=z_s.E.shape[-1]
+                        )
+                        # Mark as blocked
+                        if self.can_block_edges:
+                            self.blocked_edges[graph_idx][(u, v)] = True
             
             self.nx_graphs_list[graph_idx] = nx_graph  # save new graph
-
-            # Check that nx graphs is correctly stored
-            # (Removed assertion for tensor/NetworkX adjacency equality)
 
         # store modified z_s
         self.z_t_adj = get_adj_matrix(z_s)
 
 
 class RingLengthProjector(AbstractProjector):
-    def __init__(self, z_t: PlaceHolder, max_ring_length: int):
+    def __init__(self, z_t: PlaceHolder, max_ring_length: int, atom_decoder=None):
         self.max_ring_length = max_ring_length
+        self.atom_decoder = atom_decoder
         super().__init__(z_t)
 
     def valid_graph_fn(self, nx_graph):
         # Use NetworkX to check if all rings have length at most max_ring_length
-        from ConStruct.projector.is_ring_count import has_rings_of_length_at_most
         return has_rings_of_length_at_most(nx_graph, self.max_ring_length)
 
     @property
@@ -409,19 +477,22 @@ class RingLengthProjector(AbstractProjector):
             )
 
             # If we can block edges, we do it
-            # print(f"Graph {graph_idx}, edges_to_add: {edges_to_add}")
-            
-            # If we can block edges, we do it
             not_blocked_edges = []
             for edge in edges_to_add:
                 # Check if adding this edge would create a ring longer than allowed
                 # Build test graph from current adjacency matrix to ensure all existing edges are present
                 test_graph = nx.from_numpy_array(self.z_t_adj[graph_idx].cpu().numpy())
                 test_graph.add_edge(edge[0], edge[1])
-                from ConStruct.projector.is_ring_count import has_rings_of_length_at_most
-                # print(f"Trying edge {edge}, cycle basis: {nx.cycle_basis(test_graph)}, has_rings_of_length_at_most={has_rings_of_length_at_most(test_graph, self.max_ring_length)}")
-                if not has_rings_of_length_at_most(test_graph, self.max_ring_length):
-                    # print(f"Blocking edge {edge} because it creates rings: {nx.cycle_basis(test_graph)}")
+                
+                # Check both ring length constraint AND chemical validity
+                ring_valid = has_rings_of_length_at_most(test_graph, self.max_ring_length)
+                chem_valid = True
+                if self.atom_decoder is not None:
+                    # Get atom types for this graph
+                    atom_types = z_s.X[graph_idx]
+                    chem_valid = is_chemically_valid_graph(test_graph, atom_types, self.atom_decoder)
+                
+                if not ring_valid or not chem_valid:
                     # Block this edge
                     z_s.E[graph_idx, edge[0], edge[1]] = F.one_hot(
                         torch.tensor(0), num_classes=z_s.E.shape[-1]
@@ -429,7 +500,6 @@ class RingLengthProjector(AbstractProjector):
                     z_s.E[graph_idx, edge[1], edge[0]] = F.one_hot(
                         torch.tensor(0), num_classes=z_s.E.shape[-1]
                     )
-                    # print(f"  After blocking, edge {edge} value: {z_s.E[graph_idx, edge[0], edge[1], 0].item()}")
                     if self.can_block_edges:
                         self.blocked_edges[graph_idx][tuple(edge)] = True
                 else:
@@ -441,27 +511,75 @@ class RingLengthProjector(AbstractProjector):
                 nx_graph.add_edges_from(edges_to_add)
 
             # After adding all possible edges, check if we need to remove edges from existing rings
-            from ConStruct.projector.is_ring_count import ring_length_projector
-            if not self.valid_graph_fn(nx_graph):
-                nx_graph = ring_length_projector(nx_graph, self.max_ring_length)
-                # Find which edges were removed and update the tensor accordingly
-                old_edges = set(old_nx_graph.edges())
-                new_edges_set = set(nx_graph.edges())
-                removed_edges = old_edges - new_edges_set
-                for edge in removed_edges:
-                    u, v = edge
-                    z_s.E[graph_idx, u, v] = F.one_hot(
-                        torch.tensor(0), num_classes=z_s.E.shape[-1]
-                    )
-                    z_s.E[graph_idx, v, u] = F.one_hot(
-                        torch.tensor(0), num_classes=z_s.E.shape[-1]
-                    )
-                    if self.can_block_edges:
-                        self.blocked_edges[graph_idx][tuple(edge)] = True
+            from ConStruct.projector.is_ring.is_ring_length import ring_length_projector
+            
+            # Reconstruct NetworkX graph from current tensor to ensure synchronization
+            current_adj = get_adj_matrix(z_s)[graph_idx].cpu().numpy()
+            reconstructed_graph = nx.from_numpy_array(current_adj)
+            # print(f"[DEBUG] Before ring_length_projector: {list(nx.cycle_basis(reconstructed_graph))}")
+            
+            # Apply ring length projection until the graph is valid
+            while not self.valid_graph_fn(reconstructed_graph):
+                reconstructed_graph = ring_length_projector(reconstructed_graph, self.max_ring_length)
+                # print(f"[DEBUG] After ring_length_projector: {list(nx.cycle_basis(reconstructed_graph))}")
+            
+            # Synchronize z_s.E with reconstructed_graph after projection is complete
+            # Set all edges to zero, then set to 1 for all edges in the projected graph (single bond type)
+            z_s.E[graph_idx] = torch.zeros_like(z_s.E[graph_idx])
+            for u, v in reconstructed_graph.edges():
+                if u != v:
+                    z_s.E[graph_idx, u, v, 1] = 1  # single bond
+                    z_s.E[graph_idx, v, u, 1] = 1  # undirected
+            # Mark as blocked for all non-edges
+            n = reconstructed_graph.number_of_nodes()
+            current_edges = set(reconstructed_graph.edges())
+            for u in range(n):
+                for v in range(n):
+                    if u != v and (u, v) not in current_edges and (v, u) not in current_edges:
+                        if self.can_block_edges:
+                            self.blocked_edges[graph_idx][(u, v)] = True
+            
+            # Update the nx_graph to match the reconstructed graph
+            nx_graph = reconstructed_graph
+            
+            # Final check: ensure the graph is both ring-compliant and chemically valid
+            if self.atom_decoder is not None:
+                atom_types = z_s.X[graph_idx]
+                if not is_chemically_valid_graph(nx_graph, atom_types, self.atom_decoder):
+                    # If chemically invalid, remove edges until valid
+                    while not is_chemically_valid_graph(nx_graph, atom_types, self.atom_decoder) and nx_graph.number_of_edges() > 0:
+                        # Remove a random edge
+                        edge_to_remove = list(nx_graph.edges())[0]
+                        nx_graph.remove_edge(*edge_to_remove)
+                        # Update tensor
+                        u, v = edge_to_remove
+                        z_s.E[graph_idx, u, v] = F.one_hot(
+                            torch.tensor(0), num_classes=z_s.E.shape[-1]
+                        )
+                        z_s.E[graph_idx, v, u] = F.one_hot(
+                            torch.tensor(0), num_classes=z_s.E.shape[-1]
+                        )
+                        # Mark as blocked
+                        if self.can_block_edges:
+                            self.blocked_edges[graph_idx][(u, v)] = True
+            
+            # Synchronize z_s.E with nx_graph after projection is complete
+            # Set all edges to zero, then set to 1 for all edges in the projected graph (single bond type)
+            z_s.E[graph_idx] = torch.zeros_like(z_s.E[graph_idx])
+            for u, v in nx_graph.edges():
+                if u != v:
+                    z_s.E[graph_idx, u, v, 1] = 1  # single bond
+                    z_s.E[graph_idx, v, u, 1] = 1  # undirected
+            # Mark as blocked for all non-edges
+            n = nx_graph.number_of_nodes()
+            current_edges = set(nx_graph.edges())
+            for u in range(n):
+                for v in range(n):
+                    if u != v and (u, v) not in current_edges and (v, u) not in current_edges:
+                        if self.can_block_edges:
+                            self.blocked_edges[graph_idx][(u, v)] = True
+            
             self.nx_graphs_list[graph_idx] = nx_graph  # save new graph
-
-            # Check that nx graphs is correctly stored
-            # (Removed assertion for tensor/NetworkX adjacency equality)
 
         # store modified z_s
         self.z_t_adj = get_adj_matrix(z_s)

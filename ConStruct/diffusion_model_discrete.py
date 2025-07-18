@@ -631,7 +631,7 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
         assert (z_T.E == torch.transpose(z_T.E, 1, 2)).all()
         
         # Ensure number_chain_steps doesn't exceed diffusion steps
-        print(f"DEBUG: number_chain_steps: {number_chain_steps}, self.T: {self.T}")
+        # print(f"DEBUG: number_chain_steps: {number_chain_steps}, self.T: {self.T}")
         # assert number_chain_steps < self.T
         if number_chain_steps >= self.T:
             # For debug configs with small diffusion steps, adjust chain steps
@@ -658,10 +658,12 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
             rev_projector = LobsterProjector(z_t)
         elif self.cfg.model.rev_proj == "ring_count":
             max_rings = getattr(self.cfg.model, "max_rings", 0)
-            rev_projector = RingCountProjector(z_t, max_rings)
+            atom_decoder = getattr(self.dataset_infos, "atom_decoder", None)
+            rev_projector = RingCountProjector(z_t, max_rings, atom_decoder)
         elif self.cfg.model.rev_proj == "ring_length":
             max_ring_length = getattr(self.cfg.model, "max_ring_length", 6)
-            rev_projector = RingLengthProjector(z_t, max_ring_length)
+            atom_decoder = getattr(self.dataset_infos, "atom_decoder", None)
+            rev_projector = RingLengthProjector(z_t, max_ring_length, atom_decoder)
         else:
             assert ValueError(
                 f"Planarity projection type '{self.cfg.model.rev_proj}' not implemented."

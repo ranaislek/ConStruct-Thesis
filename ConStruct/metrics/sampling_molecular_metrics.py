@@ -10,6 +10,8 @@ import torch.nn as nn
 from ConStruct.utils import PlaceHolder
 import fcd
 import numpy as np
+import signal
+import time
 
 allowed_bonds = {
     "H": {0: 1, 1: 0, -1: 0},
@@ -282,34 +284,35 @@ class SamplingMolecularMetrics(nn.Module):
                     constraint_value = getattr(self.cfg.model, "max_ring_length", None)
                 elif constraint_type == "ring_count":
                     constraint_value = getattr(self.cfg.model, "max_rings", None)
-            print(f"DEBUG: Calling check_ring_constraints with {len(all_generated_smiles)} smiles, type={constraint_type}, value={constraint_value}")
+            # print(f"DEBUG: Calling check_ring_constraints with {len(all_generated_smiles)} smiles, type={constraint_type}, value={constraint_value}")
             # List of constraint types that are enforced
             enforced_types = ["ring_count", "ring_length", "planar", "tree", "lobster"]
             if constraint_type in enforced_types and constraint_value is not None:
                 # Constraint is enforced, only print enforcement check
                 check_ring_constraints(all_generated_smiles, constraint_type, constraint_value)
             else:
-                # No constraint enforced, print natural satisfaction for both
+                # No constraint enforced, print natural satisfaction for all constraint values
                 if self.is_molecular and hasattr(self, "cfg") and hasattr(self.cfg, "model"):
-                    # Check natural satisfaction for ring_count
-                    max_rings = getattr(self.cfg.model, "max_rings", None)
-                    if max_rings is not None:
-                        print(f"[NATURAL SATISFACTION] Checking how many molecules naturally satisfy ring_count <= {max_rings}")
+                    # Check natural satisfaction for all ring_count values
+                    ring_count_values = [0, 1, 2, 3, 4, 5]
+                    print(f"[NATURAL SATISFACTION] Checking ring_count satisfaction for all values:")
+                    for max_rings in ring_count_values:
                         check_ring_constraints(
                             all_generated_smiles,
                             "ring_count",
                             max_rings,
-                            logger=lambda msg: print(f"[NATURAL SATISFACTION][ring_count] {msg}")
+                            logger=lambda msg: print(f"[NATURAL SATISFACTION][ring_count≤{max_rings}] {msg}")
                         )
-                    # Check natural satisfaction for ring_length
-                    max_ring_length = getattr(self.cfg.model, "max_ring_length", None)
-                    if max_ring_length is not None:
-                        print(f"[NATURAL SATISFACTION] Checking how many molecules naturally satisfy ring_length <= {max_ring_length}")
+                    
+                    # Check natural satisfaction for all ring_length values
+                    ring_length_values = [3, 4, 5, 6]
+                    print(f"[NATURAL SATISFACTION] Checking ring_length satisfaction for all values:")
+                    for max_ring_length in ring_length_values:
                         check_ring_constraints(
                             all_generated_smiles,
                             "ring_length",
                             max_ring_length,
-                            logger=lambda msg: print(f"[NATURAL SATISFACTION][ring_length] {msg}")
+                            logger=lambda msg: print(f"[NATURAL SATISFACTION][ring_length≤{max_ring_length}] {msg}")
                         )
 
         to_log_fcd = self.compute_fcd(generated_smiles=all_generated_smiles)
@@ -687,26 +690,80 @@ def smiles_from_generated_samples_file(generated_samples_file, atom_decoder):
     return smiles
 
 
-def check_ring_constraints(smiles_list, constraint_type, constraint_value, logger=print):
+def check_ring_constraints(smiles_list, constraint_type, constraint_value, logger=print, timeout_seconds=30):
     total = 0
     passed = 0
-    for smi in smiles_list:
+    
+    # Use a more robust approach without signal handling
+    import time
+    from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeoutError
+    
+    def check_single_molecule(smi):
+        """Check a single molecule for constraint satisfaction without signal handling."""
         if smi is None or smi == "error":
-            continue
-        mol = Chem.MolFromSmiles(smi)
-        if mol is None:
-            continue
-        total += 1
-        if constraint_type == "ring_length":
-            ring_info = mol.GetRingInfo()
-            max_len = max((len(r) for r in ring_info.AtomRings()), default=0)
-            if max_len <= constraint_value:
-                passed += 1
-        elif constraint_type == "ring_count":
-            ring_info = mol.GetRingInfo()
-            n_rings = ring_info.NumRings() if ring_info else 0
-            if n_rings <= constraint_value:
-                passed += 1
+            return None
+            
+        try:
+            mol = Chem.MolFromSmiles(smi)
+            if mol is None:
+                return None
+                
+            if constraint_type == "ring_length":
+                try:
+                    ring_info = mol.GetRingInfo()
+                    max_len = max((len(r) for r in ring_info.AtomRings()), default=0)
+                    return max_len <= constraint_value
+                except Exception as e:
+                    logger(f"[WARNING] Ring length calculation failed for SMILES: {smi}, error: {e}")
+                    return None
+                    
+            elif constraint_type == "ring_count":
+                try:
+                    ring_info = mol.GetRingInfo()
+                    n_rings = ring_info.NumRings() if ring_info else 0
+                    return n_rings <= constraint_value
+                except Exception as e:
+                    logger(f"[WARNING] Ring count calculation failed for SMILES: {smi}, error: {e}")
+                    return None
+            else:
+                return None
+                
+        except Exception as e:
+            logger(f"[WARNING] RDKit parsing failed for SMILES: {smi}, error: {e}")
+            return None
+    
+    # Process molecules in batches to avoid overwhelming the system
+    batch_size = 50
+    for i in range(0, len(smiles_list), batch_size):
+        batch = smiles_list[i:i + batch_size]
+        
+        # Use ThreadPoolExecutor for timeout handling without signals
+        with ThreadPoolExecutor(max_workers=4) as executor:
+            try:
+                # Submit all molecules in the batch
+                future_to_smi = {executor.submit(check_single_molecule, smi): smi for smi in batch}
+                
+                # Process results with timeout
+                for future in future_to_smi:
+                    try:
+                        result = future.result(timeout=timeout_seconds)
+                        if result is not None:
+                            total += 1
+                            if result:
+                                passed += 1
+                    except FutureTimeoutError:
+                        smi = future_to_smi[future]
+                        logger(f"[WARNING] Constraint check timed out for SMILES: {smi}")
+                        continue
+                    except Exception as e:
+                        smi = future_to_smi[future]
+                        logger(f"[WARNING] Constraint check failed for SMILES: {smi}, error: {e}")
+                        continue
+                        
+            except Exception as e:
+                logger(f"[WARNING] Batch processing failed: {e}")
+                continue
+    
     logger(f"[Constraint Check] {passed}/{total} molecules satisfy {constraint_type} ≤ {constraint_value}")
 
 

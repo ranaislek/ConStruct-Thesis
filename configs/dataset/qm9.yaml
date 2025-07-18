@@ -3,7 +3,9 @@ name: qm9
 remove_h: true
 datadir: 'data/qm9'
 target_prop: null          # no property conditioning
-batch_size: 64             # consistent with experiment config
+batch_size: 128             # consistent with experiment config
 num_workers: 4             # adjust to your CPU
+adaptive_loader: False
+fraction: 1.0
 
 
