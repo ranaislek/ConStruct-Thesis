@@ -159,6 +159,11 @@ class QM9Dataset(InMemoryDataset):
         """
         Download raw qm9 files. Taken from PyG QM9 class
         """
+        # Check if files already exist to avoid re-downloading
+        if files_exist(self.raw_paths) and files_exist(self.split_paths):
+            print("QM9 raw files already exist, skipping download.")
+            return
+            
         try:
             import rdkit  # noqa
 
@@ -273,9 +278,8 @@ class QM9DataModule(MolecularDataModule):
     def __init__(self, cfg):
         self.cfg = cfg
         self.datadir = cfg.dataset.datadir
-        # base_path = pathlib.Path(get_original_cwd()).parents[0]
-        # root_path = os.path.join(base_path, self.datadir)
-        root_path = self.datadir
+        base_path = pathlib.Path(get_original_cwd()).parents[0]
+        root_path = os.path.join(base_path, self.datadir)
 
         target = getattr(cfg.general, "guidance_target", None)
         regressor = getattr(self, "regressor", None)

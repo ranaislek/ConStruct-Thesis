@@ -8,6 +8,17 @@ from ConStruct.diffusion import diffusion_utils
 
 
 class NoiseModel:
+    """
+    Base noise model for discrete diffusion processes.
+    
+    This class provides the foundation for different transition mechanisms:
+    - **Edge-Deletion Transitions**: Edges absorb to no-edge state (index 0)
+    - **Edge-Insertion Transitions**: Edges absorb to edge state (index 1)
+    - **Marginal Transitions**: Use dataset marginals without artificial bias
+    
+    Only ONE transition mechanism should be active at runtime to preserve
+    theoretical soundness of the diffusion process.
+    """
     def __init__(self, cfg):
         self.mapping = ["x", "c", "e", "y"]
         self.inverse_mapping = {m: i for i, m in enumerate(self.mapping)}
@@ -33,14 +44,19 @@ class NoiseModel:
         self.timesteps = cfg.model.diffusion_steps
         self.T = cfg.model.diffusion_steps
 
-        if cfg.model.transition in ["uniform", "marginal", "planar", "absorbing_edges"]:
+        # ===== TRANSITION MECHANISM SELECTION =====
+        # Different transition types require different beta schedules
+        # This ensures proper separation of mechanisms
+        if cfg.model.transition in ["uniform", "marginal", "planar", "absorbing_edges", "edge_insertion"]:
+            # Standard cosine schedule for most transitions
             betas = diffusion_utils.cosine_beta_schedule_discrete(
                 self.timesteps, self.nu_arr
             )
         elif cfg.model.transition in ["absorbing"]:
+            # Linear schedule for absorbing transitions
             betas = diffusion_utils.linear_beta_schedule(self.timesteps, self.nu_arr)
         else:
-            raise NotImplementedError(self.model.transition)
+            raise NotImplementedError(f"Transition type '{cfg.model.transition}' not implemented.")
 
         self._betas = torch.from_numpy(betas)
         self._alphas = 1 - torch.clamp(self._betas, min=0, max=0.9999)
@@ -426,12 +442,26 @@ class AbsorbingTransition(NoiseModel):
 
 
 class AbsorbingEdgesTransition(MarginalTransition):
+    """
+    Edge-Deletion Transition: Edges absorb to no-edge state (index 0).
+    
+    This transition is designed for "at most" constraints (e.g., max_rings).
+    - Forward diffusion: Edges progressively disappear toward no-edge state
+    - Reverse diffusion: Edges are added back while respecting constraints
+    - Use with projectors like RingCountAtMostProjector
+    
+    Mathematical properties:
+    - Absorbing state: no-edge (index 0)
+    - Natural bias: toward acyclic graphs
+    - Constraint type: "at most" (e.g., at most N rings)
+    """
     def __init__(self, cfg, x_marginals, e_marginals, charges_marginals, y_classes):
         super().__init__(cfg, x_marginals, e_marginals, charges_marginals, y_classes)
-        # Absorbing only on edges
+        # ===== EDGE-DELETION MECHANISM =====
+        # Edges absorb to no-edge state (index 0)
         self.E_marginals = torch.zeros(self.E_marginals.shape)
-        self.E_marginals[0] = 1
-        super().complete_init()
+        self.E_marginals[0] = 1  # Edge-deletion: absorb to no-edge state
+        self.complete_init()
 
         # Schedule for absorbing scheme is different
         betas_abs = diffusion_utils.linear_beta_schedule(self.timesteps, self.nu_arr)
@@ -455,6 +485,9 @@ class AbsorbingEdgesTransition(MarginalTransition):
         dev = t_int.device
         Pe = self.Pe.float().to(dev)
         be_abs = self.get_beta_abs(t_int=t_int, key="e").unsqueeze(1)
+        
+        # ===== EDGE-DELETION TRANSITION MATRIX =====
+        # Standard absorbing transition: edges absorb to no-edge state (index 0)
         q_e = be_abs * Pe + (1 - be_abs) * torch.eye(
             self.E_classes, device=dev
         ).unsqueeze(0)
@@ -467,6 +500,9 @@ class AbsorbingEdgesTransition(MarginalTransition):
         dev = t_int.device
         Pe = self.Pe.float().to(dev)
         a_e_abs = self.get_alpha_abs_bar(t_int=t_int, key="e").unsqueeze(1)
+        
+        # ===== EDGE-DELETION TRANSITION MATRIX (cumulative) =====
+        # Standard absorbing transition: edges absorb to no-edge state (index 0)
         q_e = (
             a_e_abs * torch.eye(self.E_classes, device=dev).unsqueeze(0)
             + (1 - a_e_abs) * Pe
@@ -474,3 +510,246 @@ class AbsorbingEdgesTransition(MarginalTransition):
 
         assert ((q_e.sum(dim=2) - 1.0).abs() < 1e-4).all()
         return utils.PlaceHolder(X=Qt_bar.X, charges=Qt_bar.charges, E=q_e, y=Qt_bar.y)
+
+
+class EdgeInsertionTransition(MarginalTransition):
+    """
+    Edge-Insertion Transition: Edges absorb to edge state (index 1).
+    
+    This transition is designed for "at least" constraints (e.g., min_rings).
+    - Forward diffusion: Edges progressively appear toward edge state
+    - Reverse diffusion: Edges are removed while preserving constraints
+    - Use with projectors like RingCountAtLeastProjector
+    
+    Mathematical properties:
+    - Absorbing state: edge (index 1)
+    - Natural bias: toward connected graphs
+    - Constraint type: "at least" (e.g., at least N rings)
+    
+    CRITICAL: This mechanism is separate from edge-deletion and should not
+    be mixed with AbsorbingEdgesTransition in the same experiment.
+    """
+    
+    def __init__(self, cfg, x_marginals, e_marginals, charges_marginals, y_classes):
+        super().__init__(cfg, x_marginals, e_marginals, charges_marginals, y_classes)
+        # ===== EDGE-INSERTION MECHANISM =====
+        # Edges absorb to edge state (index 1) instead of no-edge state (index 0)
+        self.E_marginals = torch.zeros(self.E_marginals.shape)
+        self.E_marginals[1] = 1  # Edge-insertion: absorb to edge state
+        self.complete_init()
+
+        # Schedule for absorbing scheme is different
+        betas_abs = diffusion_utils.linear_beta_schedule(self.timesteps, self.nu_arr)
+        self._betas_abs = torch.from_numpy(betas_abs)
+        self._alphas_abs = 1 - torch.clamp(self._betas_abs, min=0, max=0.9999)
+        # FIX: For edge-insertion, cumulative probability of being in edge state should INCREASE with time
+        # This is the CORRECT calculation for edge-insertion
+        self._alphas_abs_bar = 1 - torch.cumprod(self._alphas_abs, dim=0)
+
+    def get_beta_abs(self, t_normalized=None, t_int=None, key=None):
+        return self._get(
+            self._betas_abs, t_normalized=t_normalized, t_int=t_int, key=key
+        )
+
+    def get_alpha_abs_bar(self, t_normalized=None, t_int=None, key=None):
+        return self._get(
+            self._alphas_abs_bar, t_normalized=t_normalized, t_int=t_int, key=key
+        )
+
+    def get_Qt(self, t_int):
+        Qt = super().get_Qt(t_int)
+
+        dev = t_int.device
+        Pe = self.Pe.float().to(dev)
+        be_abs = self.get_beta_abs(t_int=t_int, key="e").unsqueeze(1)
+        
+        # ===== EDGE-INSERTION TRANSITION MATRIX =====
+        # For QM9: 5 edge types [0=no_edge, 1=single, 2=double, 3=triple, 4=aromatic]
+        # State 0 (no edge): can transition to any edge type with probability be_abs
+        # States 1-4 (edge types): absorbing (stay as edge)
+        # This is DIFFERENT from edge-deletion: edges absorb to edge state (index 1)
+        batch_size = be_abs.shape[0]
+        q_e = torch.zeros(batch_size, self.E_classes, self.E_classes, device=dev)
+        
+        # State 0 (no edge): can transition to any edge type
+        q_e[:, 0, 0] = 1 - be_abs.squeeze()  # 0->0: stay no edge
+        q_e[:, 0, 1:] = be_abs.squeeze().unsqueeze(-1) / (self.E_classes - 1)  # 0->1,2,3,4: become edge (uniform)
+        
+        # States 1-4 (edge types): absorbing (stay as edge)
+        for i in range(1, self.E_classes):
+            q_e[:, i, i] = 1  # i->i: stay as edge type i (absorbing)
+            q_e[:, i, :i] = 0  # i->j (j<i): never go back
+            q_e[:, i, i+1:] = 0  # i->j (j>i): never go back
+
+        return utils.PlaceHolder(X=Qt.X, charges=Qt.charges, E=q_e, y=Qt.y)
+
+    def get_Qt_bar(self, t_int):
+        # ===== EDGE-INSERTION TRANSITION MATRIX (cumulative) =====
+        # For edge-insertion, we need to override the entire method to use absorbing schedules
+        dev = t_int.device
+        
+        # Get absorbing schedules for all features
+        a_x_abs = self.get_alpha_abs_bar(t_int=t_int, key="x").unsqueeze(1)
+        a_c_abs = self.get_alpha_abs_bar(t_int=t_int, key="c").unsqueeze(1)
+        a_e_abs = self.get_alpha_abs_bar(t_int=t_int, key="e").unsqueeze(1)
+        a_y_abs = self.get_alpha_abs_bar(t_int=t_int, key="y").unsqueeze(1)
+        
+        P = self.move_P_device(t_int)
+        
+        # For X, C, Y: use standard absorbing transition
+        q_x = a_x_abs * torch.eye(self.X_classes, device=dev).unsqueeze(0) + (1 - a_x_abs) * P.X
+        q_c = a_c_abs * torch.eye(self.charges_classes, device=dev).unsqueeze(0) + (1 - a_c_abs) * P.charges
+        q_y = a_y_abs * torch.eye(self.y_classes, device=dev).unsqueeze(0) + (1 - a_y_abs) * P.y
+        
+        # For E: use edge-insertion specific transition
+        # For QM9: 5 edge types [0=no_edge, 1=single, 2=double, 3=triple, 4=aromatic]
+        # This is the cumulative transition from t=0 to t
+        # This is DIFFERENT from edge-deletion: edges absorb to edge state (index 1)
+        batch_size = a_e_abs.shape[0]
+        q_e = torch.zeros(batch_size, self.E_classes, self.E_classes, device=dev)
+        
+        # State 0 (no edge): can transition to any edge type
+        q_e[:, 0, 0] = 1 - a_e_abs.squeeze()  # 0->0: probability of staying no edge
+        q_e[:, 0, 1:] = a_e_abs.squeeze().unsqueeze(-1) / (self.E_classes - 1)  # 0->1,2,3,4: become edge (uniform)
+        
+        # States 1-4 (edge types): absorbing (stay as edge)
+        for i in range(1, self.E_classes):
+            q_e[:, i, i] = 1  # i->i: always stay as edge type i (absorbing)
+            q_e[:, i, :i] = 0  # i->j (j<i): never go back
+            q_e[:, i, i+1:] = 0  # i->j (j>i): never go back
+
+        # Verify transition matrices sum to 1
+        assert ((q_x.sum(dim=2) - 1.0).abs() < 1e-4).all()
+        assert ((q_e.sum(dim=2) - 1.0).abs() < 1e-4).all()
+        assert ((q_c.sum(dim=2) - 1.0).abs() < 1e-4).all()
+        
+        return utils.PlaceHolder(X=q_x, charges=q_c, E=q_e, y=q_y)
+
+    def sample_zs_from_zt_and_pred(self, z_t, pred, s_int):
+        """Custom reverse process for edge-insertion transition.
+        This method overrides the parent method to properly handle edge preservation."""
+        
+        bs, n, dxs = z_t.X.shape
+        node_mask = z_t.node_mask
+        t_int = z_t.t_int
+
+        # Retrieve transitions matrix
+        Qtb = self.get_Qt_bar(t_int=t_int)
+        Qsb = self.get_Qt_bar(t_int=s_int)
+        Qt = self.get_Qt(t_int)
+
+        # Normalize predictions for the categorical features
+        pred_X = F.softmax(pred.X, dim=-1)  # bs, n, d0
+        pred_E = F.softmax(pred.E, dim=-1)  # bs, n, n, d0
+        pred_charges = F.softmax(pred.charges, dim=-1)
+
+        # ===== EDGE-INSERTION SPECIFIC POSTERIOR COMPUTATION =====
+        # For edge-insertion, we need to ensure edges are preserved during reverse process
+        # The key insight: edges should be preserved with higher probability during reverse
+        
+        # Standard posterior computation for X and charges
+        p_s_and_t_given_0_X = (
+            diffusion_utils.compute_batched_over0_posterior_distribution(
+                X_t=z_t.X, Qt=Qt.X, Qsb=Qsb.X, Qtb=Qtb.X
+            )
+        )
+        p_s_and_t_given_0_c = (
+            diffusion_utils.compute_batched_over0_posterior_distribution(
+                X_t=z_t.charges, Qt=Qt.charges, Qsb=Qsb.charges, Qtb=Qtb.charges
+            )
+        )
+
+        # ===== CUSTOM EDGE POSTERIOR FOR EDGE-INSERTION =====
+        # For edge-insertion, we want to preserve edges during reverse process
+        # This is the key fix: bias towards edge preservation
+        
+        # Get current edge probabilities
+        current_edge_probs = z_t.E.sum(dim=-1)  # bs, n, n (sum over edge types)
+        
+        # Create edge preservation bias
+        # If current state has edges, preserve them with higher probability
+        edge_preservation_bias = torch.zeros_like(pred_E)
+        
+        # For each edge type (1-4), if current state has edges, bias towards preserving them
+        for edge_type in range(1, self.E_classes):
+            # Check if current state has this edge type
+            has_edge_type = z_t.E[:, :, :, edge_type] > 0.5  # bs, n, n
+            
+            # If has edge, bias towards preserving it
+            if has_edge_type.any():
+                # Increase probability of this edge type in prediction
+                edge_preservation_bias[:, :, :, edge_type] = has_edge_type.float() * 0.3  # 30% bias
+        
+        # Apply bias to predictions
+        pred_E_biased = pred_E + edge_preservation_bias
+        pred_E_biased = F.softmax(pred_E_biased, dim=-1)  # Renormalize
+        
+        # Use biased predictions for edge posterior
+        p_s_and_t_given_0_E = (
+            diffusion_utils.compute_batched_over0_posterior_distribution(
+                X_t=z_t.E, Qt=Qt.E, Qsb=Qsb.E, Qtb=Qtb.E
+            )
+        )
+
+        # ===== STANDARD POSTERIOR COMPUTATION =====
+        # Dim of these two tensors: bs, N, d0, d_t-1
+        weighted_X = pred_X.unsqueeze(-1) * p_s_and_t_given_0_X  # bs, n, d0, d_t-1
+        unnormalized_prob_X = weighted_X.sum(dim=2)  # bs, n, d_t-1
+        unnormalized_prob_X[torch.sum(unnormalized_prob_X, dim=-1) == 0] = 1e-5
+        prob_X = unnormalized_prob_X / torch.sum(
+            unnormalized_prob_X, dim=-1, keepdim=True
+        )  # bs, n, d_t-1
+
+        weighted_c = (
+            pred_charges.unsqueeze(-1) * p_s_and_t_given_0_c
+        )  # bs, n, d0, d_t-1
+        unnormalized_prob_c = weighted_c.sum(dim=2)  # bs, n, d_t-1
+        unnormalized_prob_c[torch.sum(unnormalized_prob_c, dim=-1) == 0] = 1e-5
+        prob_c = unnormalized_prob_c / torch.sum(
+            unnormalized_prob_c, dim=-1, keepdim=True
+        )  # bs, n, d_t-1
+
+        # Use biased edge predictions
+        pred_E_biased_reshaped = pred_E_biased.reshape((bs, -1, pred_E_biased.shape[-1]))
+        weighted_E = pred_E_biased_reshaped.unsqueeze(-1) * p_s_and_t_given_0_E  # bs, N, d0, d_t-1
+        unnormalized_prob_E = weighted_E.sum(dim=-2)
+        unnormalized_prob_E[torch.sum(unnormalized_prob_E, dim=-1) == 0] = 1e-5
+        prob_E = unnormalized_prob_E / torch.sum(
+            unnormalized_prob_E, dim=-1, keepdim=True
+        )
+        prob_E = prob_E.reshape(bs, n, n, pred_E_biased.shape[-1])
+
+        assert ((prob_X.sum(dim=-1) - 1).abs() < 1e-4).all()
+        assert ((prob_E.sum(dim=-1) - 1).abs() < 1e-4).all()
+
+        if prob_c.numel() > 0:
+            assert ((prob_c.sum(dim=-1) - 1).abs() < 1e-4).all()
+
+        sampled_s = diffusion_utils.sample_discrete_features(
+            prob_X, prob_E, prob_c, node_mask=z_t.node_mask
+        )
+
+        X_s = F.one_hot(sampled_s.X, num_classes=self.X_classes).float()
+        E_s = F.one_hot(sampled_s.E, num_classes=self.E_classes).float()
+
+        if prob_c.numel() > 0:
+            charges_s = F.one_hot(
+                sampled_s.charges, num_classes=self.charges_classes
+            ).float()
+        else:
+            charges_s = X_s.new_zeros((bs, n, 0))
+
+        assert (E_s == torch.transpose(E_s, 1, 2)).all()
+        assert (z_t.X.shape == X_s.shape) and (z_t.E.shape == E_s.shape)
+
+        z_s = utils.PlaceHolder(
+            X=X_s,
+            charges=charges_s,
+            E=E_s,
+            y=torch.zeros(z_t.y.shape[0], 0, device=X_s.device),
+            t_int=s_int,
+            t=s_int / self.T,
+            node_mask=node_mask,
+        ).mask(node_mask)
+
+        return z_s

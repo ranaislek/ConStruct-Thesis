@@ -280,15 +280,21 @@ class SamplingMolecularMetrics(nn.Module):
             # Fallback: try to infer from self.cfg if available
             if constraint_type is None and hasattr(self, "cfg"):
                 constraint_type = getattr(self.cfg.model, "rev_proj", None)
-                if constraint_type == "ring_length":
+                # Map old names to explicit ones
+                if constraint_type == "ring_length_at_most":
                     constraint_value = getattr(self.cfg.model, "max_ring_length", None)
-                elif constraint_type == "ring_count":
+                elif constraint_type == "ring_length_at_least":
+                    constraint_value = getattr(self.cfg.model, "min_ring_length", None)
+                elif constraint_type == "ring_count_at_most":
                     constraint_value = getattr(self.cfg.model, "max_rings", None)
-            # print(f"DEBUG: Calling check_ring_constraints with {len(all_generated_smiles)} smiles, type={constraint_type}, value={constraint_value}")
+                elif constraint_type == "ring_count_at_least":
+                    constraint_value = getattr(self.cfg.model, "min_rings", None)
+            print(f"DEBUG: Calling check_ring_constraints with {len(all_generated_smiles)} smiles, type={constraint_type}, value={constraint_value}")
             # List of constraint types that are enforced
-            enforced_types = ["ring_count", "ring_length", "planar", "tree", "lobster"]
+            enforced_types = ["ring_count_at_most", "ring_count_at_least", "ring_length_at_most", "ring_length_at_least", "planar", "tree", "lobster"]
             if constraint_type in enforced_types and constraint_value is not None:
                 # Constraint is enforced, only print enforcement check
+                print(f"DEBUG: Constraint detected! Type: {constraint_type}, Value: {constraint_value}")
                 check_ring_constraints(all_generated_smiles, constraint_type, constraint_value)
             else:
                 # No constraint enforced, print natural satisfaction for all constraint values
@@ -299,7 +305,7 @@ class SamplingMolecularMetrics(nn.Module):
                     for max_rings in ring_count_values:
                         check_ring_constraints(
                             all_generated_smiles,
-                            "ring_count",
+                            "ring_count_at_most",
                             max_rings,
                             logger=lambda msg: print(f"[NATURAL SATISFACTION][ring_count≤{max_rings}] {msg}")
                         )
@@ -310,7 +316,7 @@ class SamplingMolecularMetrics(nn.Module):
                     for max_ring_length in ring_length_values:
                         check_ring_constraints(
                             all_generated_smiles,
-                            "ring_length",
+                            "ring_length_at_most",
                             max_ring_length,
                             logger=lambda msg: print(f"[NATURAL SATISFACTION][ring_length≤{max_ring_length}] {msg}")
                         )
@@ -691,6 +697,7 @@ def smiles_from_generated_samples_file(generated_samples_file, atom_decoder):
 
 
 def check_ring_constraints(smiles_list, constraint_type, constraint_value, logger=print, timeout_seconds=30):
+    print(f"DEBUG: check_ring_constraints called with {len(smiles_list)} smiles, type={constraint_type}, value={constraint_value}")
     total = 0
     passed = 0
     
@@ -708,7 +715,7 @@ def check_ring_constraints(smiles_list, constraint_type, constraint_value, logge
             if mol is None:
                 return None
                 
-            if constraint_type == "ring_length":
+            if constraint_type == "ring_length_at_most":
                 try:
                     ring_info = mol.GetRingInfo()
                     max_len = max((len(r) for r in ring_info.AtomRings()), default=0)
@@ -716,12 +723,28 @@ def check_ring_constraints(smiles_list, constraint_type, constraint_value, logge
                 except Exception as e:
                     logger(f"[WARNING] Ring length calculation failed for SMILES: {smi}, error: {e}")
                     return None
+            elif constraint_type == "ring_length_at_least":
+                try:
+                    ring_info = mol.GetRingInfo()
+                    min_len = min((len(r) for r in ring_info.AtomRings()), default=float('inf'))
+                    return min_len >= constraint_value
+                except Exception as e:
+                    logger(f"[WARNING] Ring length calculation failed for SMILES: {smi}, error: {e}")
+                    return None
                     
-            elif constraint_type == "ring_count":
+            elif constraint_type == "ring_count_at_most":
                 try:
                     ring_info = mol.GetRingInfo()
                     n_rings = ring_info.NumRings() if ring_info else 0
                     return n_rings <= constraint_value
+                except Exception as e:
+                    logger(f"[WARNING] Ring count calculation failed for SMILES: {smi}, error: {e}")
+                    return None
+            elif constraint_type == "ring_count_at_least":
+                try:
+                    ring_info = mol.GetRingInfo()
+                    n_rings = ring_info.NumRings() if ring_info else 0
+                    return n_rings >= constraint_value
                 except Exception as e:
                     logger(f"[WARNING] Ring count calculation failed for SMILES: {smi}, error: {e}")
                     return None
@@ -764,7 +787,12 @@ def check_ring_constraints(smiles_list, constraint_type, constraint_value, logge
                 logger(f"[WARNING] Batch processing failed: {e}")
                 continue
     
-    logger(f"[Constraint Check] {passed}/{total} molecules satisfy {constraint_type} ≤ {constraint_value}")
+    # Determine the correct operator based on constraint type
+    if constraint_type in ["ring_count_at_least", "ring_length_at_least"]:
+        operator = "≥"
+    else:
+        operator = "≤"
+    logger(f"[Constraint Check] {passed}/{total} molecules satisfy {constraint_type} {operator} {constraint_value}")
 
 
 if __name__ == "__main__":

@@ -18,6 +18,7 @@ from diffusion.noise_model import (
     MarginalTransition,
     AbsorbingTransition,
     AbsorbingEdgesTransition,
+    EdgeInsertionTransition,
 )
 from ConStruct.diffusion import diffusion_utils
 from metrics.train_metrics import TrainLoss
@@ -37,8 +38,10 @@ from ConStruct.projector.projector_utils import (
     PlanarProjector,
     TreeProjector,
     LobsterProjector,
-    RingCountProjector,
-    RingLengthProjector,
+    RingCountAtMostProjector,
+    RingLengthAtMostProjector,
+    RingCountAtLeastProjector,
+    RingLengthAtLeastProjector,
 )
 
 
@@ -123,6 +126,16 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
             dropout_in_and_out=cfg.model.dropout_in_and_out,
         )
 
+        # ===== TRANSITION MECHANISM INSTANTIATION =====
+        # Different transition types implement different diffusion mechanisms:
+        # - Edge-Deletion: Edges absorb to no-edge state (for "at most" constraints)
+        # - Edge-Insertion: Edges absorb to edge state (for "at least" constraints)  
+        # - Marginal: Uses dataset marginals (no artificial bias)
+        # - Uniform: Uniform distribution (baseline)
+        #
+        # CRITICAL: Only ONE mechanism should be active at runtime to preserve
+        # theoretical soundness of the diffusion process.
+        
         if cfg.model.transition == "uniform":
             self.noise_model = DiscreteUniformTransition(
                 output_dims=self.output_dims, cfg=cfg
@@ -148,8 +161,27 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
                 output_dims=self.output_dims,
             )
         elif cfg.model.transition == "absorbing_edges":
-            print("Absorbing transition model with edges")
+            print("Edge-deletion transition model (for 'at most' constraints)")
             self.noise_model = AbsorbingEdgesTransition(
+                cfg=cfg,
+                x_marginals=self.dataset_infos.atom_types,
+                e_marginals=self.dataset_infos.edge_types,
+                charges_marginals=self.dataset_infos.charges_marginals,
+                y_classes=self.output_dims.y,
+            )
+        elif cfg.model.transition == "edge_insertion":
+            print("Edge-insertion transition model (for 'at least' constraints)")
+            self.noise_model = EdgeInsertionTransition(
+                cfg=cfg,
+                x_marginals=self.dataset_infos.atom_types,
+                e_marginals=self.dataset_infos.edge_types,
+                charges_marginals=self.dataset_infos.charges_marginals,
+                y_classes=self.output_dims.y,
+            )
+        # Backward compatibility for old transition names
+        elif cfg.model.transition == "edge_insertion":
+            print("Edge-insertion transition model with edges (legacy name)")
+            self.noise_model = EdgeInsertionTransition(
                 cfg=cfg,
                 x_marginals=self.dataset_infos.atom_types,
                 e_marginals=self.dataset_infos.edge_types,
@@ -161,6 +193,12 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
                 f"Transition type '{cfg.model.transition}' not implemented."
             )
 
+        # ===== TRANSITION-PROJECTOR VALIDATION =====
+        # Ensure proper combinations of transitions and projectors
+        # This prevents mixing incompatible mechanisms
+        if hasattr(cfg.model, 'rev_proj') and cfg.model.rev_proj:
+            self._validate_transition_projector_compatibility(cfg)
+
         self.log_every_steps = cfg.general.log_every_steps
         self.number_chain_steps = cfg.general.number_chain_steps
 
@@ -171,6 +209,50 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
             if hasattr(self.dataset_infos, "collapse_charges")
             else None
         )
+
+    def _validate_transition_projector_compatibility(self, cfg):
+        """
+        Validate that transition and projector combinations are compatible.
+        
+        This prevents mixing edge-deletion and edge-insertion mechanisms
+        which would violate the theoretical soundness of the diffusion process.
+        """
+        transition = cfg.model.transition
+        rev_proj = cfg.model.rev_proj
+        
+        # Edge-deletion transitions should use "at most" projectors
+        edge_deletion_transitions = ["absorbing_edges"]
+        at_most_projectors = ["ring_count_at_most", "ring_length_at_most"]
+        
+        # Edge-insertion transitions should use "at least" projectors  
+        edge_insertion_transitions = ["edge_insertion"]
+        at_least_projectors = ["ring_count_at_least", "ring_length_at_least"]
+        
+        # Marginal transitions can use any projector
+        marginal_transitions = ["marginal", "uniform", "absorbing"]
+        
+        # Check for incompatible combinations
+        if transition in edge_deletion_transitions and rev_proj in at_least_projectors:
+            raise ValueError(
+                f"INCOMPATIBLE: Edge-deletion transition '{transition}' cannot be used "
+                f"with 'at least' projector '{rev_proj}'. Use 'at most' projectors instead."
+            )
+        
+        if transition in edge_insertion_transitions and rev_proj in at_most_projectors:
+            raise ValueError(
+                f"INCOMPATIBLE: Edge-insertion transition '{transition}' cannot be used "
+                f"with 'at most' projector '{rev_proj}'. Use 'at least' projectors instead."
+            )
+        
+        # Log successful validation
+        if transition in edge_deletion_transitions:
+            print(f"✓ Validated: Edge-deletion transition '{transition}' with '{rev_proj}' projector")
+        elif transition in edge_insertion_transitions:
+            print(f"✓ Validated: Edge-insertion transition '{transition}' with '{rev_proj}' projector")
+        elif transition in marginal_transitions:
+            print(f"✓ Validated: Marginal transition '{transition}' with '{rev_proj}' projector")
+        else:
+            print(f"✓ Validated: Transition '{transition}' with '{rev_proj}' projector")
 
     def forward(self, z_t):
         assert z_t.node_mask is not None
@@ -656,14 +738,22 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
             rev_projector = TreeProjector(z_t)
         elif self.cfg.model.rev_proj == "lobster":
             rev_projector = LobsterProjector(z_t)
-        elif self.cfg.model.rev_proj == "ring_count":
+        elif self.cfg.model.rev_proj == "ring_count_at_most":
             max_rings = getattr(self.cfg.model, "max_rings", 0)
             atom_decoder = getattr(self.dataset_infos, "atom_decoder", None)
-            rev_projector = RingCountProjector(z_t, max_rings, atom_decoder)
-        elif self.cfg.model.rev_proj == "ring_length":
+            rev_projector = RingCountAtMostProjector(z_t, max_rings, atom_decoder)
+        elif self.cfg.model.rev_proj == "ring_count_at_least":
+            min_rings = getattr(self.cfg.model, "min_rings", 2)
+            atom_decoder = getattr(self.dataset_infos, "atom_decoder", None)
+            rev_projector = RingCountAtLeastProjector(z_t, min_rings, atom_decoder)
+        elif self.cfg.model.rev_proj == "ring_length_at_most":
             max_ring_length = getattr(self.cfg.model, "max_ring_length", 6)
             atom_decoder = getattr(self.dataset_infos, "atom_decoder", None)
-            rev_projector = RingLengthProjector(z_t, max_ring_length, atom_decoder)
+            rev_projector = RingLengthAtMostProjector(z_t, max_ring_length, atom_decoder)
+        elif self.cfg.model.rev_proj == "ring_length_at_least":
+            min_ring_length = getattr(self.cfg.model, "min_ring_length", 4)
+            atom_decoder = getattr(self.dataset_infos, "atom_decoder", None)
+            rev_projector = RingLengthAtLeastProjector(z_t, min_ring_length, atom_decoder)
         else:
             assert ValueError(
                 f"Planarity projection type '{self.cfg.model.rev_proj}' not implemented."

@@ -1,0 +1,47 @@
+# @package _global_
+general:
+  name: 'qm9_debug_ring_length_at_least_4'
+  wandb: 'online'
+  resume: null
+  test_only: null
+  check_val_every_n_epochs: 20
+  sample_every_val: 5
+  samples_to_generate: 500
+  samples_to_save: 200
+  chains_to_save: 20
+  final_model_samples_to_generate: 1000
+  final_model_samples_to_save: 500
+  final_model_chains_to_save: 50
+  number_chain_steps: 300
+train:
+  n_epochs: 300
+  batch_size: 128
+  save_model: true
+model:
+  diffusion_steps: 500
+  n_layers: 1
+  hidden_mlp_dims:
+    X: 8
+    E: 4
+    y: 4
+  hidden_dims:
+    dx: 8
+    de: 4
+    dy: 4
+    n_head: 2
+    dim_ffX: 8
+    dim_ffE: 4
+    dim_ffy: 8
+  # Edge-insertion constraint settings:
+  min_rings: 1                    # At least 1 ring required
+  min_ring_length: 4              # At least 4-ring length required
+  rev_proj: ring_length_at_least    # Edge-insertion projector for "at least" constraints
+  transition: edge_insertion      # Edge-insertion transition (flipped edge-deletion)
+dataset:
+  name: qm9
+  remove_h: true
+  datadir: data/qm9
+  batch_size: 128
+  num_workers: 0
+  adaptive_loader: false
+  fraction: 1.0

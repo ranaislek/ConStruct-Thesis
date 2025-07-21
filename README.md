@@ -256,14 +256,94 @@ This code was tested with PyTorch 2.0.1, cuda 11.8 and torch\_geometrics 2.3.1
 
 ## Run the code
 
+### 🚀 **Organized Experiment Structure**
+
+The codebase now includes a comprehensive, organized experiment structure for testing different constraint types:
+
+#### **Directory Structure**
+```
+configs/experiment/
+├── debug/                          # Debug-level experiments (quick testing)
+│   ├── no_constraint/             # No constraint experiments
+│   ├── edge_deletion/             # Edge-deletion constraints ("at most")
+│   │   ├── ring_count_at_most/   # Ring count "at most" constraints
+│   │   └── ring_length_at_most/  # Ring length "at most" constraints
+│   └── edge_insertion/            # Edge-insertion constraints ("at least")
+│       ├── ring_count_at_least/  # Ring count "at least" constraints
+│       └── ring_length_at_least/ # Ring length "at least" constraints
+└── thesis/                         # Thesis-level experiments (full-scale)
+    ├── no_constraint/             # No constraint experiments
+    ├── edge_deletion/             # Edge-deletion constraints ("at most")
+    │   ├── ring_count_at_most/   # Ring count "at most" constraints
+    │   └── ring_length_at_most/  # Ring length "at most" constraints
+    └── edge_insertion/            # Edge-insertion constraints ("at least")
+        ├── ring_count_at_least/  # Ring count "at least" constraints
+        └── ring_length_at_least/ # Ring length "at least" constraints
+
+ConStruct/slurm_jobs/
+├── debug/                          # Debug-level SLURM scripts
+│   ├── no_constraint/             # No constraint scripts
+│   ├── edge_deletion/             # Edge-deletion scripts
+│   └── edge_insertion/            # Edge-insertion scripts
+└── thesis/                         # Thesis-level SLURM scripts
+    ├── no_constraint/             # No constraint scripts
+    ├── edge_deletion/             # Edge-deletion scripts
+    └── edge_insertion/            # Edge-insertion scripts
+```
+
+#### **Constraint Types**
+
+**Edge-Deletion Constraints ("At Most")**:
+- **Purpose**: Limit maximum ring count or ring length
+- **Transition**: `absorbing_edges`
+- **Projectors**: `ring_count_at_most`, `ring_length_at_most`
+- **Use Case**: Generate molecules with limited ring complexity
+
+**Edge-Insertion Constraints ("At Least")**:
+- **Purpose**: Ensure minimum ring count or ring length
+- **Transition**: `edge_insertion`
+- **Projectors**: `ring_count_at_least`, `ring_length_at_least`
+- **Use Case**: Generate molecules with guaranteed ring structures
+
+**No Constraint**:
+- **Purpose**: Baseline training without any constraints
+- **Transition**: `absorbing_edges`
+- **Projector**: `null`
+- **Use Case**: Generate molecules without structural constraints
+
+### 🧪 **Running Experiments**
+
+#### **Direct Python Execution**
+```bash
+# Debug experiments
+python ConStruct/main.py \
+  --config-name experiment/debug/no_constraint/qm9_debug_no_constraint.yaml \
+  --config-path configs/
+
+# Thesis experiments
+python ConStruct/main.py \
+  --config-name experiment/thesis/edge_insertion/ring_count_at_least/qm9_thesis_ring_count_at_least_2.yaml \
+  --config-path configs/
+```
+
+#### **SLURM Job Submission**
+```bash
+# Debug experiments
+sbatch ConStruct/slurm_jobs/debug/edge_insertion/ring_count_at_least/submit_ring_count_at_least_1_debug.sh
+
+# Thesis experiments
+sbatch ConStruct/slurm_jobs/thesis/edge_deletion/ring_count_at_most/submit_ring_count_at_most_3_thesis.sh
+```
+
+#### **Legacy Usage** (for backward compatibility)
 * All code is currently launched through `python3 main.py`. Check hydra documentation ([https://hydra.cc/](https://hydra.cc/)) for overriding default parameters.
 * To run the debugging code: `python3 main.py +experiment=debug.yaml`. We advise to try to run the debug mode first before launching full experiments.
 * To run the diffusion model: `python3 main.py`
 * You can specify the dataset with `python3 main.py dataset=tree`. Look at `configs/dataset` for the list of datasets that are currently available
-* To reproduce the experiments in the paper, please add the flag `+experiment` to  get the correct configuration: `python3 main.py +experiment=<dataset_name>`
+* To reproduce the experiments in the paper, please add the flag `+experiment` to get the correct configuration: `python3 main.py +experiment=<dataset_name>`
 * To test the obtained models, specify the path to a model with the flag `general.test_only`, it will load the model and test it, e.g., `python3 main.py +experiment=tree general.test_only=<path>`
-* The projector is controlled by the flag `model.rev_proj` (options for now: `planar`, `tree`, or `lobster`)
-* The edge-absorbing edge noise model is set through `model.transiton=absorbing_edges`.
+* The projector is controlled by the flag `model.rev_proj` (options: `planar`, `tree`, `lobster`, `ring_count_at_most`, `ring_count_at_least`, `ring_length_at_most`, `ring_length_at_least`)
+* The transition mechanism is set through `model.transition` (options: `absorbing_edges`, `edge_insertion`, `marginal`, `uniform`).
 
 ---
 

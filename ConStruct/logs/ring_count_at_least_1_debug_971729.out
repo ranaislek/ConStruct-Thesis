@@ -1,0 +1,296 @@
+torch version: 2.0.1+cu118
+CUDA available: True
+CUDA device: NVIDIA RTX 2000 Ada Generation
+=== Running Edge-Insertion Ring Count At Least 1 Experiment ===
+Config: 300 epochs, batch_size=128, 500 samples, edge-insertion transition
+Purpose: Generate molecules with AT LEAST 1 ring using edge-insertion mechanism
+Constraint: ring_count_at_least >= 1 (minimum 1 ring required)
+Transition: edge_insertion (adds edges to satisfy minimum ring constraints)
+Job ID: 971729
+Node: debug02
+Time: Mon 21 Jul 2025 04:57:51 PM UTC
+<frozen importlib._bootstrap>:228: RuntimeWarning: to-Python converter for std::pair<double, double> already registered; second conversion method ignored.
+[rank: 0] Global seed set to 0
+Loading reference metrics.
+Edge-insertion transition model (for 'at least' constraints)
+✓ Validated: Edge-insertion transition 'edge_insertion' with 'ring_count_at_least' projector
+GPU available: True (cuda), used: True
+TPU available: False, using: 0 TPU cores
+IPU available: False, using: 0 IPUs
+HPU available: False, using: 0 HPUs
+[rank: 0] Global seed set to 0
+Initializing distributed: GLOBAL_RANK: 0, MEMBER: 1/1
+[2025-07-21 16:57:56,974][torch.distributed.distributed_c10d][INFO] - Added key: store_based_barrier_key:1 to store for rank: 0
+[2025-07-21 16:57:56,974][torch.distributed.distributed_c10d][INFO] - Rank 0: Completed store-based barrier for key:store_based_barrier_key:1 with 1 nodes.
+----------------------------------------------------------------------------------------------------
+distributed_backend=nccl
+All distributed processes registered. Starting with 1 processes
+----------------------------------------------------------------------------------------------------
+
+You are using a CUDA device ('NVIDIA RTX 2000 Ada Generation') that has Tensor Cores. To properly utilize them, you should set `torch.set_float32_matmul_precision('medium' | 'high')` which will trade-off precision for performance. For more details, read https://pytorch.org/docs/stable/generated/torch.set_float32_matmul_precision.html#torch.set_float32_matmul_precision
+LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0]
+
+  | Name                  | Type                  | Params
+----------------------------------------------------------------
+0 | train_loss            | TrainLoss             | 0     
+1 | train_metrics         | TrainMolecularMetrics | 0     
+2 | val_metrics           | MetricCollection      | 0     
+3 | val_nll               | NLL                   | 0     
+4 | val_sampling_metrics  | SamplingMetrics       | 0     
+5 | test_metrics          | MetricCollection      | 0     
+6 | test_nll              | NLL                   | 0     
+7 | test_sampling_metrics | SamplingMetrics       | 0     
+8 | model                 | GraphTransformer      | 1.5 K 
+----------------------------------------------------------------
+1.5 K     Trainable params
+0         Non-trainable params
+1.5 K     Total params
+0.006     Total estimated model params size (MB)
+wandb: Currently logged in as: islekrana (islekrana-universit-di-padova). Use `wandb login --relogin` to force relogin
+wandb: wandb version 0.21.0 is available!  To upgrade, please run:
+wandb:  $ pip install wandb --upgrade
+wandb: Tracking run with wandb version 0.15.4
+wandb: Run data is saved locally in /extra/rislek/ConStruct-Thesis/ConStruct/wandb/run-20250721_165758-7wgepdsd
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run qm9_debug_ring_count_at_least_1
+wandb: ⭐️ View project at https://wandb.ai/islekrana-universit-di-padova/ConStruct_qm9
+wandb: 🚀 View run at https://wandb.ai/islekrana-universit-di-padova/ConStruct_qm9/runs/7wgepdsd
+SLURM auto-requeueing enabled. Setting signal handlers.
+Epoch 0: val/epoch_NLL: 193.98 -- val/X_kl: 65.67 -- val/E_kl: 14.87 -- val/charges_kl: 34.83 
+Val loss: 193.9770 	 Best val loss:  193.9770
+
+Val epoch 0 ends
+Starting epoch 0
+[2025-07-21 16:58:02,823][torch.nn.parallel.distributed][INFO] - Reducer buckets have been rebuilt in this iteration.
+Train epoch 0 ends
+Epoch 0 finished: X: 0.59 -- charges: 0.11 -- E: 0.37 -- y: -1.00 -- 180.6s 
+Epoch 0: {'CarbonCE': 0.444, 'NitroCE': 0.261, 'OxyCE': 0.327, 'FluorCE': 0.023} -- {'NoBondCE': 0.331, 'SingleCE': 0.219, 'DoubleCE': 0.075, 'TripleCE': 0.065, 'AromaticCE': 0.011}
+Starting epoch 1
+Epoch 1: val/epoch_NLL: 220.52 -- val/X_kl: 10.49 -- val/E_kl: 45.01 -- val/charges_kl: 2.09 
+Val loss: 220.5247 	 Best val loss:  193.9770
+
+Sampling start
+Sampling a batch with 5 graphs on local rank 0. Saving 5 visualization and 2 full chains.
+Warning: Adjusted number_chain_steps to 49 to fit within 50 diffusion steps
+Batch sampled. Visualizing chains starts!
+1/2 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch1/batch5_GR0/molecule_5_0.gif to wandb
+2/2 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch1/batch5_GR0/molecule_6_0.gif to wandb
+Visualizing 5 graphs out of 5
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/qm9_debug_ring_count_at_least_1/epoch1_b5/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/qm9_debug_ring_count_at_least_1/epoch1_b5/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/qm9_debug_ring_count_at_least_1/epoch1_b5/graph_2.png to wandb
+Done.
+Sampling a batch with 5 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Warning: Adjusted number_chain_steps to 49 to fit within 50 diffusion steps
+Done.
+Sampled 2 batches on local rank 0. Sampling took 4.03 seconds
+
+Computing sampling metrics on 0...
+Error messages: AtomValence 9, Kekulize 0, other 0,  -- No error 1
+Some generated smiles: error error error error error error error error error CC1CC23NC14C2C34C
+DEBUG: Calling check_ring_constraints with 10 smiles, type=ring_count_at_least, value=1
+DEBUG: Constraint detected! Type: ring_count_at_least, Value: 1
+DEBUG: check_ring_constraints called with 10 smiles, type=ring_count_at_least, value=1
+[Constraint Check] 1/1 molecules satisfy ring_count_at_least ≥ 1
+Not enough (<=1) valid smiles for FCD computation.
+FCD score: -1
+Molecular metrics computed.
+Sampling metrics {'val_sampling/NumNodesW1': 0.207, 'val_sampling/NodeTypesTV': 0.183, 'val_sampling/EdgeTypesTV': 0.126, 'val_sampling/Disconnected': 30.0, 'val_sampling/MeanComponents': 1.3, 'val_sampling/MaxComponents': 2.0, 'val_sampling/planarity': 0.9, 'val_sampling/no_cycles': 0.0, 'val_sampling/lobster_components': 0.0, 'val_sampling/generated_deg_hist': [0.022, 0.111, 0.289, 0.344, 0.178, 0.056, 0.0, 0.0, 0.0], 'val_sampling/diff_deg_hist': [0.022, -0.129, -0.143, 0.072, 0.123, 0.055, 0.0, 0.0, 0.0], 'val_sampling/abs_diff_deg_hist': [0.022, 0.129, 0.143, 0.072, 0.123, 0.055, 0.0, 0.0, 0.0], 'val_sampling/Validity': 10.0, 'val_sampling/Uniqueness': 100.0, 'val_sampling/Novelty': 100.0, 'val_sampling/fcd score': -1, 'val_sampling/ChargeW1': 0.088, 'val_sampling/ValencyW1': 0.321, 'val_ratio/fcd score': -1.159, 'val_ratio/average': -1.159}
+Val epoch 1 ends
+Train epoch 1 ends
+Epoch 1 finished: X: 0.54 -- charges: 0.10 -- E: 0.28 -- y: -1.00 -- 208.1s 
+Epoch 1: {'CarbonCE': 0.418, 'NitroCE': 0.243, 'OxyCE': 0.305, 'FluorCE': 0.015} -- {'NoBondCE': 0.268, 'SingleCE': 0.185, 'DoubleCE': 0.062, 'TripleCE': 0.032, 'AromaticCE': 0.0}
+Starting epoch 2
+Train epoch 2 ends
+Epoch 2 finished: X: 0.54 -- charges: 0.09 -- E: 0.27 -- y: -1.00 -- 174.9s 
+Epoch 2: {'CarbonCE': 0.415, 'NitroCE': 0.243, 'OxyCE': 0.302, 'FluorCE': 0.015} -- {'NoBondCE': 0.265, 'SingleCE': 0.184, 'DoubleCE': 0.06, 'TripleCE': 0.031, 'AromaticCE': 0.0}
+Starting epoch 3
+Epoch 3: val/epoch_NLL: 218.96 -- val/X_kl: 10.25 -- val/E_kl: 43.96 -- val/charges_kl: 1.85 
+Val loss: 218.9592 	 Best val loss:  193.9770
+
+Sampling start
+Sampling a batch with 5 graphs on local rank 0. Saving 5 visualization and 2 full chains.
+Warning: Adjusted number_chain_steps to 49 to fit within 50 diffusion steps
+Batch sampled. Visualizing chains starts!
+1/2 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch3/batch5_GR0/molecule_5_0.gif to wandb
+2/2 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch3/batch5_GR0/molecule_6_0.gif to wandb
+Visualizing 5 graphs out of 5
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/qm9_debug_ring_count_at_least_1/epoch3_b5/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/qm9_debug_ring_count_at_least_1/epoch3_b5/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/qm9_debug_ring_count_at_least_1/epoch3_b5/graph_2.png to wandb
+Done.
+Sampling a batch with 5 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Warning: Adjusted number_chain_steps to 49 to fit within 50 diffusion steps
+Done.
+Sampled 2 batches on local rank 0. Sampling took 12.94 seconds
+
+Computing sampling metrics on 0...
+Error messages: AtomValence 6, Kekulize 0, other 0,  -- No error 4
+Some generated smiles: error CC1(O)[NH+]2CC([NH3+])C21C N[NH2+][NH2+]ON error CCC error error error error CC1N[NH2+]C([NH-])[NH2+]1
+DEBUG: Calling check_ring_constraints with 10 smiles, type=ring_count_at_least, value=1
+DEBUG: Constraint detected! Type: ring_count_at_least, Value: 1
+DEBUG: check_ring_constraints called with 10 smiles, type=ring_count_at_least, value=1
+[Constraint Check] 2/4 molecules satisfy ring_count_at_least ≥ 1
+FCD score: 22.859589357238313
+Molecular metrics computed.
+Sampling metrics {'val_sampling/NumNodesW1': 0.268, 'val_sampling/NodeTypesTV': 0.514, 'val_sampling/EdgeTypesTV': 0.071, 'val_sampling/Disconnected': 50.0, 'val_sampling/MeanComponents': 1.9, 'val_sampling/MaxComponents': 4.0, 'val_sampling/planarity': 1.0, 'val_sampling/no_cycles': 0.2, 'val_sampling/lobster_components': 0.2, 'val_sampling/generated_deg_hist': [0.07, 0.314, 0.209, 0.221, 0.14, 0.047, 0.0, 0.0, 0.0], 'val_sampling/diff_deg_hist': [0.07, 0.073, -0.223, -0.052, 0.085, 0.046, 0.0, 0.0, 0.0], 'val_sampling/abs_diff_deg_hist': [0.07, 0.073, 0.223, 0.052, 0.085, 0.046, 0.0, 0.0, 0.0], 'val_sampling/Validity': 40.0, 'val_sampling/Uniqueness': 100.0, 'val_sampling/Novelty': 100.0, 'val_sampling/fcd score': 22.86, 'val_sampling/ChargeW1': 0.18, 'val_sampling/ValencyW1': 0.516, 'val_ratio/fcd score': 26.492, 'val_ratio/average': 26.492}
+Val epoch 3 ends
+Train epoch 3 ends
+Epoch 3 finished: X: 0.54 -- charges: 0.09 -- E: 0.27 -- y: -1.00 -- 216.5s 
+Epoch 3: {'CarbonCE': 0.412, 'NitroCE': 0.242, 'OxyCE': 0.301, 'FluorCE': 0.014} -- {'NoBondCE': 0.264, 'SingleCE': 0.184, 'DoubleCE': 0.059, 'TripleCE': 0.031, 'AromaticCE': 0.0}
+Starting epoch 4
+Train epoch 4 ends
+Epoch 4 finished: X: 0.53 -- charges: 0.09 -- E: 0.27 -- y: -1.00 -- 176.2s 
+Epoch 4: {'CarbonCE': 0.411, 'NitroCE': 0.241, 'OxyCE': 0.299, 'FluorCE': 0.014} -- {'NoBondCE': 0.263, 'SingleCE': 0.183, 'DoubleCE': 0.058, 'TripleCE': 0.03, 'AromaticCE': 0.0}
+`Trainer.fit` stopped: `max_epochs=5` reached.
+[rank: 0] Global seed set to 0
+You are using a CUDA device ('NVIDIA RTX 2000 Ada Generation') that has Tensor Cores. To properly utilize them, you should set `torch.set_float32_matmul_precision('medium' | 'high')` which will trade-off precision for performance. For more details, read https://pytorch.org/docs/stable/generated/torch.set_float32_matmul_precision.html#torch.set_float32_matmul_precision
+LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0]
+SLURM auto-requeueing enabled. Setting signal handlers.
+wandb: Waiting for W&B process to finish... (success).
+wandb: 
+wandb: Run history:
+wandb:                           epoch ▁▃▅▆█
+wandb:                train/AromaticCE █▆▄▃▃▂▂▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:                  train/CarbonCE █▇▆▅▅▄▄▄▂▂▂▂▂▂▂▂▁▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▁▂▂▂▂▂▂▂
+wandb:                  train/DoubleCE █▇▆▅▄▄▃▃▁▂▂▂▂▂▂▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:                   train/FluorCE █▅▄▃▃▂▂▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:                   train/NitroCE ██▇▆▆▅▅▄▂▂▂▂▂▂▂▂▁▂▂▂▂▂▂▂▃▂▂▂▂▂▂▂▁▂▂▂▂▂▂▂
+wandb:                  train/NoBondCE █▆▄▃▃▂▂▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:                     train/OxyCE ███▇▇▆▅▅▃▂▂▂▂▂▂▂▁▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▁▂▂▁▁▁▁▁
+wandb:                  train/SingleCE ██▆▄▄▃▃▃▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:                  train/TripleCE █▆▄▃▃▃▂▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:                train_epoch/E_CE █▁▁▁▁
+wandb:          train_epoch/charges_CE █▂▂▂▁
+wandb:     train_epoch/epochAromaticCE █▁▁▁▁
+wandb:       train_epoch/epochCarbonCE █▂▂▁▁
+wandb:       train_epoch/epochDoubleCE █▂▂▁▁
+wandb:        train_epoch/epochFluorCE █▂▂▁▁
+wandb:        train_epoch/epochNitroCE █▂▁▁▁
+wandb:       train_epoch/epochNoBondCE █▂▁▁▁
+wandb:          train_epoch/epochOxyCE █▂▂▁▁
+wandb:       train_epoch/epochSingleCE █▁▁▁▁
+wandb:       train_epoch/epochTripleCE █▁▁▁▁
+wandb:                train_epoch/x_CE █▂▂▁▁
+wandb:                train_epoch/y_CE ▁▁▁▁▁
+wandb:                 train_loss/E_CE █▇▅▄▃▃▂▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:                 train_loss/X_CE █▇▆▅▄▄▄▄▂▂▂▂▂▂▂▂▁▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▁▂▂▂▂▂▂▂
+wandb:           train_loss/batch_loss █▆▃▃▂▂▁▂▂▂▃▂▁▂▂▂▂▂▂▂▂▂▂▂▂▂▂▃▂▁▁▂▂▁▂▂▁▂▁▂
+wandb:           train_loss/charges_CE █▆▄▄▃▃▃▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:                 train_loss/y_CE ▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:                        val/E_kl ▁██
+wandb:                        val/X_kl █▁▁
+wandb:                  val/charges_kl █▁▁
+wandb:                   val/epoch_NLL ▁██
+wandb:               val_ratio/average ▁█
+wandb:             val_ratio/fcd score ▁█
+wandb:           val_sampling/ChargeW1 ▁█
+wandb:       val_sampling/Disconnected ▁█
+wandb:        val_sampling/EdgeTypesTV █▁
+wandb:      val_sampling/MaxComponents ▁█
+wandb:     val_sampling/MeanComponents ▁█
+wandb:        val_sampling/NodeTypesTV ▁█
+wandb:            val_sampling/Novelty ▁▁
+wandb:         val_sampling/NumNodesW1 ▁█
+wandb:         val_sampling/Uniqueness ▁▁
+wandb:          val_sampling/ValencyW1 ▁█
+wandb:           val_sampling/Validity ▁█
+wandb:          val_sampling/fcd score ▁█
+wandb: val_sampling/lobster_components ▁█
+wandb:          val_sampling/no_cycles ▁█
+wandb:          val_sampling/planarity ▁█
+wandb: 
+wandb: Run summary:
+wandb:                           epoch 4
+wandb:                train/AromaticCE 2e-05
+wandb:                  train/CarbonCE 0.41093
+wandb:                  train/DoubleCE 0.05813
+wandb:                   train/FluorCE 0.01416
+wandb:                   train/NitroCE 0.24141
+wandb:                  train/NoBondCE 0.26322
+wandb:                     train/OxyCE 0.29912
+wandb:                  train/SingleCE 0.18323
+wandb:                  train/TripleCE 0.03026
+wandb:                train_epoch/E_CE 0.27081
+wandb:          train_epoch/charges_CE 0.09146
+wandb:     train_epoch/epochAromaticCE 2e-05
+wandb:       train_epoch/epochCarbonCE 0.41094
+wandb:       train_epoch/epochDoubleCE 0.05813
+wandb:        train_epoch/epochFluorCE 0.01416
+wandb:        train_epoch/epochNitroCE 0.24137
+wandb:       train_epoch/epochNoBondCE 0.26319
+wandb:          train_epoch/epochOxyCE 0.29914
+wandb:       train_epoch/epochSingleCE 0.18322
+wandb:       train_epoch/epochTripleCE 0.03025
+wandb:                train_epoch/x_CE 0.53493
+wandb:                train_epoch/y_CE -1.0
+wandb:                 train_loss/E_CE 1.3542
+wandb:                 train_loss/X_CE 0.53494
+wandb:           train_loss/batch_loss 2.24715
+wandb:           train_loss/charges_CE 0.18289
+wandb:                 train_loss/y_CE -1.0
+wandb:                        val/E_kl 43.95619
+wandb:                        val/X_kl 10.24675
+wandb:                  val/charges_kl 1.84624
+wandb:                   val/epoch_NLL 218.95923
+wandb:               val_ratio/average 26.49169
+wandb:             val_ratio/fcd score 26.49169
+wandb:           val_sampling/ChargeW1 0.17989
+wandb:       val_sampling/Disconnected 50.0
+wandb:        val_sampling/EdgeTypesTV 0.07119
+wandb:      val_sampling/MaxComponents 4.0
+wandb:     val_sampling/MeanComponents 1.9
+wandb:        val_sampling/NodeTypesTV 0.51417
+wandb:            val_sampling/Novelty 100.0
+wandb:         val_sampling/NumNodesW1 0.26823
+wandb:         val_sampling/Uniqueness 100.0
+wandb:          val_sampling/ValencyW1 0.51647
+wandb:           val_sampling/Validity 40.0
+wandb:          val_sampling/fcd score 22.85959
+wandb: val_sampling/lobster_components 0.2
+wandb:          val_sampling/no_cycles 0.2
+wandb:          val_sampling/planarity 1.0
+wandb: 
+wandb: 🚀 View run qm9_debug_ring_count_at_least_1 at: https://wandb.ai/islekrana-universit-di-padova/ConStruct_qm9/runs/7wgepdsd
+wandb: Synced 6 W&B file(s), 18 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20250721_165758-7wgepdsd/logs
+wandb: - Waiting for wandb.init()...wandb: \ Waiting for wandb.init()...wandb: wandb version 0.21.0 is available!  To upgrade, please run:
+wandb:  $ pip install wandb --upgrade
+wandb: Tracking run with wandb version 0.15.4
+wandb: Run data is saved locally in /extra/rislek/ConStruct-Thesis/ConStruct/wandb/run-20250721_171359-rizmaoff
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run qm9_debug_ring_count_at_least_1
+wandb: ⭐️ View project at https://wandb.ai/islekrana-universit-di-padova/ConStruct_qm9
+wandb: 🚀 View run at https://wandb.ai/islekrana-universit-di-padova/ConStruct_qm9/runs/rizmaoff
+Test loss: 217.6560
+Epoch 5: test/epoch_NLL: 217.6560 -- test/X_kl: 10.5835 -- test/E_kl: 42.8630 -- test/charges_kl: 1.7378 
+Sampling start on GR0
+Samples to generate: 20 for each of the 1 devices
+Samples to save: 10
+Sampling a batch with 10 graphs on local rank 0. Saving 10 visualization and 5 full chains.
+Warning: Adjusted number_chain_steps to 49 to fit within 50 diffusion steps
+Batch sampled. Visualizing chains starts!
+1/5 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch5/batch10_GR0/molecule_10_0.gif to wandb
+2/5 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch5/batch10_GR0/molecule_11_0.gif to wandb
+3/5 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch5/batch10_GR0/molecule_12_0.gif to wandb
+4/5 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch5/batch10_GR0/molecule_13_0.gif to wandb
+5/5 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch5/batch10_GR0/molecule_14_0.gif to wandb
+Visualizing 10 graphs out of 10
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/qm9_debug_ring_count_at_least_1/epoch5_b10/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/qm9_debug_ring_count_at_least_1/epoch5_b10/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/qm9_debug_ring_count_at_least_1/epoch5_b10/graph_2.png to wandb
+Done.
+Sampling a batch with 10 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Warning: Adjusted number_chain_steps to 49 to fit within 50 diffusion steps
+Done.
+Saving the generated graphs
+Saved.
+Computing sampling metrics...
+Error messages: AtomValence 11, Kekulize 0, other 0,  -- No error 9
+Some generated smiles: error error error NC1CCNC[NH2+]C[NH2+]1 [CH2+][NH2+]N1[C+]2CC2[NH+]1CN CC1NC[N-][NH+]1[NH3+] [NH3+]C1NC23C4C5(CC452)[NH+]13 C1N2[NH2+]N2C12C13C[N+]12[NH2+]3 error error
+DEBUG: Calling check_ring_constraints with 20 smiles, type=ring_count_at_least, value=1
+DEBUG: Constraint detected! Type: ring_count_at_least, Value: 1
+DEBUG: check_ring_constraints called with 20 smiles, type=ring_count_at_least, value=1
+[Constraint Check] 9/9 molecules satisfy ring_count_at_least ≥ 1
+[rank: 0] Received SIGTERM: 15
+Bypassing SIGTERM: 15

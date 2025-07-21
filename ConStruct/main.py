@@ -13,7 +13,7 @@ import torch
 from omegaconf import DictConfig
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import ModelCheckpoint
-from pytorch_lightning.utilities.warnings import PossibleUserWarning
+from lightning_fabric.utilities.warnings import PossibleUserWarning
 
 import utils
 from diffusion_model_discrete import DiscreteDenoisingDiffusion
