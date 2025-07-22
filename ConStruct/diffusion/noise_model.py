@@ -457,17 +457,19 @@ class AbsorbingEdgesTransition(MarginalTransition):
     """
     def __init__(self, cfg, x_marginals, e_marginals, charges_marginals, y_classes):
         super().__init__(cfg, x_marginals, e_marginals, charges_marginals, y_classes)
-        # ===== EDGE-DELETION MECHANISM =====
-        # Edges absorb to no-edge state (index 0)
+        # Absorbing only on edges
         self.E_marginals = torch.zeros(self.E_marginals.shape)
-        self.E_marginals[0] = 1  # Edge-deletion: absorb to no-edge state
-        self.complete_init()
+        self.E_marginals[0] = 1
+        super().complete_init()
 
         # Schedule for absorbing scheme is different
         betas_abs = diffusion_utils.linear_beta_schedule(self.timesteps, self.nu_arr)
         self._betas_abs = torch.from_numpy(betas_abs)
         self._alphas_abs = 1 - torch.clamp(self._betas_abs, min=0, max=0.9999)
         self._alphas_abs_bar = torch.cumprod(self._alphas_abs, dim=0)
+        
+        # Debug logging for edge-deletion initialization
+        print("🔧 EDGE-DELETION DEBUG: AbsorbingEdgesTransition initialized")
 
     def get_beta_abs(self, t_normalized=None, t_int=None, key=None):
         return self._get(
@@ -485,12 +487,13 @@ class AbsorbingEdgesTransition(MarginalTransition):
         dev = t_int.device
         Pe = self.Pe.float().to(dev)
         be_abs = self.get_beta_abs(t_int=t_int, key="e").unsqueeze(1)
-        
-        # ===== EDGE-DELETION TRANSITION MATRIX =====
-        # Standard absorbing transition: edges absorb to no-edge state (index 0)
         q_e = be_abs * Pe + (1 - be_abs) * torch.eye(
             self.E_classes, device=dev
         ).unsqueeze(0)
+        
+        # Debug logging for edge-deletion transition matrix
+        if t_int[0].item() % 500 == 0:  # Print every 500 steps instead of 50
+            print(f"🔧 EDGE-DELETION DEBUG: Qt at step {t_int[0].item()}")
 
         return utils.PlaceHolder(X=Qt.X, charges=Qt.charges, E=q_e, y=Qt.y)
 
@@ -500,17 +503,17 @@ class AbsorbingEdgesTransition(MarginalTransition):
         dev = t_int.device
         Pe = self.Pe.float().to(dev)
         a_e_abs = self.get_alpha_abs_bar(t_int=t_int, key="e").unsqueeze(1)
-        
-        # ===== EDGE-DELETION TRANSITION MATRIX (cumulative) =====
-        # Standard absorbing transition: edges absorb to no-edge state (index 0)
         q_e = (
             a_e_abs * torch.eye(self.E_classes, device=dev).unsqueeze(0)
             + (1 - a_e_abs) * Pe
         )
+        
+        # Debug logging for edge-deletion cumulative transition matrix
+        if t_int[0].item() % 500 == 0:  # Print every 500 steps instead of 50
+            print(f"🔧 EDGE-DELETION DEBUG: Qt_bar at step {t_int[0].item()}")
 
         assert ((q_e.sum(dim=2) - 1.0).abs() < 1e-4).all()
         return utils.PlaceHolder(X=Qt_bar.X, charges=Qt_bar.charges, E=q_e, y=Qt_bar.y)
-
 
 class EdgeInsertionTransition(MarginalTransition):
     """Edge-insertion transition for 'at least' constraints.
@@ -639,3 +642,4 @@ class EdgeInsertionTransition(MarginalTransition):
         Chemical properties are measured separately after generation.
         """
         return super().sample_zs_from_zt_and_pred(z_t, pred, s_int)
+

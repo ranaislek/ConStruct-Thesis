@@ -1,0 +1,39 @@
+# @package _global_
+general:
+    name : 'qm9_debug'
+    wandb: 'disabled'
+    gpus: 1
+    sample_every_val: 1
+    samples_to_generate: 5
+    samples_to_save: 1
+    chains_to_save: 1
+    remove_h: True  # QM9 typically removes hydrogen atoms
+    number_chain_steps: 10        # Number of frames in each gif
+
+    final_model_samples_to_generate: 2
+    final_model_samples_to_save: 1
+    final_model_chains_to_save: 1
+
+train:
+    batch_size: 3
+    save_model: False
+    seed: 42  # Explicit seed for reproducibility in debug experiments
+model:
+    n_layers: 2
+    diffusion_noise_schedule: 'cosine'
+    diffusion_steps: 110
+    hidden_mlp_dims: {'X': 17, 'E': 18, 'y': 19 }
+    hidden_dims: {'dx': 20, 'de': 21, 'dy': 22, 'n_head': 5, 'dim_ffX': 23, 'dim_ffE': 24, 'dim_ffy': 25}
+    # No constraint settings for debug:
+    rev_proj: null
+    transition: absorbing_edges
+
+dataset:
+    name: qm9
+    remove_h: true
+    datadir: 'data/qm9'
+    batch_size: 3
+    num_workers: 0
+    adaptive_loader: False
+    fraction: 1.0
+    subset: 100  # Use only 100 samples for the fastest debug test 

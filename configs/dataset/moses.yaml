@@ -1,0 +1,9 @@
+# MOSES molecular dataset
+name: moses
+remove_h: false  # MOSES typically includes hydrogen atoms
+datadir: 'data/moses'
+target_prop: null          # no property conditioning
+batch_size: 128             # consistent with experiment config
+num_workers: 4             # adjust to your CPU
+adaptive_loader: False
+fraction: 1.0 

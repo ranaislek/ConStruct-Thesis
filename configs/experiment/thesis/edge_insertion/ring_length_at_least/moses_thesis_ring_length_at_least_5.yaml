@@ -1,0 +1,61 @@
+# @package _global_
+
+general:
+  name: 'moses_thesis_ring_length_at_least_5'
+  wandb: 'online'
+  resume: null  # Path to checkpoint if resuming (set null otherwise)
+  test_only: null
+  check_val_every_n_epochs: 20
+  sample_every_val: 5
+  samples_to_generate: 1000
+  samples_to_save: 200
+  chains_to_save: 10
+  final_model_samples_to_generate: 2000
+  final_model_samples_to_save: 500
+  final_model_chains_to_save: 100
+  number_chain_steps: 200  # Longer chains improve visual interpretability but increase computation
+
+train:
+  n_epochs: 1000
+  batch_size: 128         # Adjusted from 256 for consistency and typical GPU capacity
+  learning_rate: 1e-4     # Standard for diffusion models
+  ema_decay: 0.999        # Recommended exponential moving average decay
+  save_model: True
+
+model:
+  diffusion_steps: 500    # Stable trade-off between speed and quality; increase if resources allow
+  n_layers: 4             # Increased layers for better molecular representation
+  hidden_mlp_dims:
+    X: 128
+    E: 128
+    y: 128
+  hidden_dims:
+    dx: 128
+    de: 128
+    dy: 128
+    n_head: 4
+    dim_ffX: 256
+    dim_ffE: 256
+    dim_ffy: 256
+
+  # Edge-insertion constraint settings aligned to MOSES dataset statistics:
+  min_rings: 1            # At least 1 ring required
+  min_ring_length: 5      # At least 5-ring length required
+  rev_proj: ring_length_at_least  # Edge-insertion projector for "at least" constraints
+  transition: edge_insertion       # Edge-insertion transition (flipped edge-deletion)
+  
+  # ConStruct philosophy: Post-generation validation
+  post_gen_validation: True  # Enable post-generation chemical validation
+  post_gen_validation_config:
+    enable_rdkit: True
+    enable_valency_check: True
+    enable_connectivity_check: True
+
+dataset:
+  name: moses
+  remove_h: false  # MOSES typically includes hydrogen atoms
+  datadir: 'data/moses'
+  batch_size: 128         # Consistent with training batch size
+  num_workers: 4          # Improved data loading performance
+  adaptive_loader: false
+  fraction: 1.0           # Use entire dataset for robust model training 

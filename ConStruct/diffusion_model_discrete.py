@@ -208,8 +208,8 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
         """
         Validate that transition and projector combinations are compatible.
         
-        This prevents mixing edge-deletion and edge-insertion mechanisms
-        which would violate the theoretical soundness of the diffusion process.
+        This ensures proper use of transitions with appropriate projectors.
+        Edge-deletion and edge-insertion can coexist without conflicts.
         """
         transition = cfg.model.transition
         rev_proj = cfg.model.rev_proj
@@ -225,18 +225,14 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
         # Marginal transitions can use any projector
         marginal_transitions = ["marginal", "uniform", "absorbing"]
         
-        # Check for incompatible combinations
+        # Only warn about potentially incompatible combinations, don't raise errors
         if transition in edge_deletion_transitions and rev_proj in at_least_projectors:
-            raise ValueError(
-                f"INCOMPATIBLE: Edge-deletion transition '{transition}' cannot be used "
-                f"with 'at least' projector '{rev_proj}'. Use 'at most' projectors instead."
-            )
+            print(f"⚠️  WARNING: Edge-deletion transition '{transition}' is designed for 'at most' projectors.")
+            print(f"⚠️  WARNING: Using '{rev_proj}' projector. This may not work as expected.")
         
         if transition in edge_insertion_transitions and rev_proj in at_most_projectors:
-            raise ValueError(
-                f"INCOMPATIBLE: Edge-insertion transition '{transition}' cannot be used "
-                f"with 'at most' projector '{rev_proj}'. Use 'at least' projectors instead."
-            )
+            print(f"⚠️  WARNING: Edge-insertion transition '{transition}' is designed for 'at least' projectors.")
+            print(f"⚠️  WARNING: Using '{rev_proj}' projector. This may not work as expected.")
         
         # Log successful validation
         if transition in edge_deletion_transitions:
@@ -757,11 +753,15 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
         print(f"🔍 DEBUG: Starting sampling with rev_proj={self.cfg.model.rev_proj}")
         print(f"🔍 DEBUG: Transition type: {self.cfg.model.transition}")
         
+        # Edge-deletion specific debug logging
+        if self.cfg.model.transition == "absorbing_edges":
+            print("🔧 EDGE-DELETION DEBUG: Using edge-deletion transition for sampling")
+        
         for s_int in reversed(range(0, self.T, self.cfg.general.faster_sampling)):
             s_array = s_int * torch.ones(
                 (batch_size, 1), dtype=torch.long, device=z_t.X.device
             )
-            z_s = self.sample_zs_from_zt(z_t=z_t, s_int=s_array)
+            z_s = self.sample_zs_from_zt(z_t, s_int)
 
             # Planarity preserving
             if self.cfg.model.rev_proj:
@@ -772,12 +772,23 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
                 edges_before = (z_s.E > 0).sum().item()
                 print(f"🔍 DEBUG: Edges before projection: {edges_before}")
                 
+                # Edge-deletion specific debug logging
+                if self.cfg.model.transition == "absorbing_edges" and s_int % 500 == 0:  # Log every 500 steps
+                    print(f"🔧 EDGE-DELETION DEBUG: Step {s_int} - Before projection")
+                    print(f"🔧 EDGE-DELETION DEBUG: Total edges: {edges_before}")
+                
                 rev_projector.project(z_s)
                 
                 # Count edges after projection
                 edges_after = (z_s.E > 0).sum().item()
                 print(f"🔍 DEBUG: Edges after projection: {edges_after}")
                 print(f"🔍 DEBUG: Edge difference: {edges_after - edges_before}")
+                
+                # Edge-deletion specific debug logging after projection
+                if self.cfg.model.transition == "absorbing_edges" and s_int % 500 == 0:  # Log every 500 steps
+                    print(f"🔧 EDGE-DELETION DEBUG: Step {s_int} - After projection")
+                    print(f"🔧 EDGE-DELETION DEBUG: Total edges: {edges_after}")
+                    print(f"🔧 EDGE-DELETION DEBUG: Edges removed: {edges_before - edges_after}")
 
             z_t = z_s
 

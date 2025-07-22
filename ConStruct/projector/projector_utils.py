@@ -471,81 +471,52 @@ class RingCountAtMostProjector(AbstractProjector):
     """
     Edge-Deletion Projector: Ensures graphs have at most N rings.
     
-    CONSTRUCT PHILOSOPHY: This projector enforces ONLY structural constraints
-    (ring count) and does NOT enforce chemical validity, valency, or connectivity.
-    Chemical properties are measured post-generation.
-    
-    Mathematical Construction:
-    - Constraint: "At most N rings" (structural only)
-    - Forward diffusion: Edges progressively disappear toward no-edge state
-    - Reverse diffusion: Edges are added while preserving max ring constraint
-    - Natural bias: toward sparse graphs (fewer edges = fewer ring possibilities)
-    
-    Structural Constraint:
-    - Count cycles using NetworkX cycle_basis()
-    - Block edge additions that would exceed maximum ring count
-    - Allow edge removals that reduce ring count
-    
-    CRITICAL: Chemical validity (valency, connectivity, atom types) is NOT enforced.
-    These properties are measured separately after generation using RDKit.
-    
-    Usage:
-    - Transition: 'absorbing_edges'
-    - Config: rev_proj: 'ring_count_at_most', max_rings: N
-    - Post-generation: Run RDKit validation to measure chemical properties
+    Original ConStruct implementation for edge-deletion constraints.
     """
     
     def __init__(self, z_t: PlaceHolder, max_rings: int, atom_decoder=None):
         self.max_rings = max_rings
-        # Note: atom_decoder is kept for compatibility but NOT used for chemical validation
         self.atom_decoder = atom_decoder
         super().__init__(z_t)
+        
+        # Debug logging for ring-count constraint
+        print(f"🔧 EDGE-DELETION DEBUG: RingCountAtMostProjector initialized")
 
     def valid_graph_fn(self, nx_graph):
-        """
-        Check if graph satisfies structural constraint: at most N rings.
-        
-        This function ONLY checks structural properties (ring count) and does
-        NOT enforce chemical validity, valency, or connectivity.
-        
-        Args:
-            nx_graph: NetworkX graph to validate
-            
-        Returns:
-            bool: True if graph has at most max_rings cycles
-        """
-        # Use NetworkX to count cycles (rings) - structural constraint only
+        """Check if graph has at most N rings."""
         cycles = nx.cycle_basis(nx_graph)
-        return len(cycles) <= self.max_rings  # At most N rings
+        is_valid = len(cycles) <= self.max_rings
+        
+        # Debug logging for constraint validation
+        if len(cycles) > self.max_rings:
+            print(f"🔧 EDGE-DELETION DEBUG: Ring count constraint violated")
+        
+        return is_valid
 
     @property
     def can_block_edges(self):
-        """Can block edge additions that would violate structural constraint."""
+        """Can block edge additions that would violate constraint."""
         return True
     
     def project(self, z_s: PlaceHolder):
         """
-        Edge-deletion projection: Remove edges to satisfy maximum ring constraints.
+        Project graphs to satisfy ring-count-at-most constraint.
         
-        This projector ONLY enforces structural constraints (ring count) and does
-        NOT enforce chemical validity, valency, or connectivity. Chemical properties
-        are measured separately after generation.
-        
-        Args:
-            z_s: PlaceHolder tensor to project
+        This removes edges to ensure the graph has at most max_rings cycles.
         """
+        print(f"🔧 EDGE-DELETION DEBUG: RingCountAtMostProjector.project() called")
+        
         # Process each graph in the batch
-        for graph_idx, nx_graph in enumerate(self.nx_graphs_list):
-            # Check current ring count (structural constraint only)
-            cycles = nx.cycle_basis(nx_graph)
+        for graph_idx, graph in enumerate(self.nx_graphs_list):
+            # Check current ring count
+            cycles = nx.cycle_basis(graph)
             current_rings = len(cycles)
-
+            
             # If we already have acceptable ring count, no action needed
             if current_rings <= self.max_rings:
                 continue
             
-            # ===== STRUCTURAL-ONLY CONSTRAINT ENFORCEMENT =====
-            # Strategy: Remove edges to reduce ring count (structural constraint only)
+            # Strategy: Remove edges to reduce ring count
             attempts = 0
             max_attempts = 50  # Prevent infinite loops
             
@@ -554,26 +525,22 @@ class RingCountAtMostProjector(AbstractProjector):
                 
                 # Find edges that, when removed, would reduce ring count
                 edges_to_remove = []
-                for u, v in nx_graph.edges():
+                for u, v in graph.edges():
                     # Temporarily remove edge to check if it reduces ring count
-                    nx_graph.remove_edge(u, v)
-                    new_cycles = nx.cycle_basis(nx_graph)
+                    graph.remove_edge(u, v)
+                    new_cycles = nx.cycle_basis(graph)
                     
                     if len(new_cycles) < current_rings:
                         # This edge removal reduces ring count - mark for removal
                         edges_to_remove.append((u, v))
                     
                     # Restore the edge
-                    nx_graph.add_edge(u, v)
+                    graph.add_edge(u, v)
                 
                 # Remove edges that reduce ring count
                 for u, v in edges_to_remove:
-                    # ===== NO CHEMICAL VALIDITY CHECKS =====
-                    # We do NOT check valency, connectivity, or atom types here
-                    # These properties are measured post-generation
-                    
                     # Remove edge from graph
-                    nx_graph.remove_edge(u, v)
+                    graph.remove_edge(u, v)
                     
                     # Update tensor
                     z_s.E[graph_idx, u, v, 0] = 1  # no edge
@@ -585,114 +552,78 @@ class RingCountAtMostProjector(AbstractProjector):
                         z_s.E[graph_idx, v, u, edge_type] = 0
                 
                 # Update ring count
-                current_rings = len(nx.cycle_basis(nx_graph))
+                current_rings = len(nx.cycle_basis(graph))
             
             # Mark edges as blocked to prevent future violations
-            n = nx_graph.number_of_nodes()
-            current_edges = set(nx_graph.edges())
+            n = graph.number_of_nodes()
+            current_edges = set(graph.edges())
             for u in range(n):
                 for v in range(n):
                     if u != v and (u, v) not in current_edges and (v, u) not in current_edges:
                         if self.can_block_edges:
                             self.blocked_edges[graph_idx][(u, v)] = True
             
-            self.nx_graphs_list[graph_idx] = nx_graph  # save new graph
-
+            self.nx_graphs_list[graph_idx] = graph  # save new graph
+        
         # store modified z_s
         self.z_t_adj = get_adj_matrix(z_s)
+        
+        # Debug logging after projection - removed to reduce output
 
 
 class RingLengthAtMostProjector(AbstractProjector):
     """
     Edge-Deletion Projector: Ensures graphs have rings of at most N length.
     
-    CONSTRUCT PHILOSOPHY: This projector enforces ONLY structural constraints
-    (ring length) and does NOT enforce chemical validity, valency, or connectivity.
-    Chemical properties are measured post-generation.
-    
-    Mathematical Construction:
-    - Constraint: "All rings have length at most N" (structural only)
-    - Forward diffusion: Edges progressively disappear toward no-edge state
-    - Reverse diffusion: Edges are added while preserving max ring length constraint
-    - Natural bias: toward sparse graphs (fewer edges = smaller ring possibilities)
-    
-    Structural Constraint:
-    - Check ring lengths using NetworkX cycle_basis()
-    - Block edge additions that would create rings longer than maximum
-    - Allow edge removals that break long rings
-    
-    CRITICAL: Chemical validity (valency, connectivity, atom types) is NOT enforced.
-    These properties are measured separately after generation using RDKit.
-    
-    Usage:
-    - Transition: 'absorbing_edges'
-    - Config: rev_proj: 'ring_length_at_most', max_ring_length: N
-    - Post-generation: Run RDKit validation to measure chemical properties
+    Original ConStruct implementation for edge-deletion constraints.
     """
     
     def __init__(self, z_t: PlaceHolder, max_ring_length: int, atom_decoder=None):
         self.max_ring_length = max_ring_length
-        # Note: atom_decoder is kept for compatibility but NOT used for chemical validation
         self.atom_decoder = atom_decoder
         super().__init__(z_t)
+        
+        # Debug logging for ring-length constraint
+        print(f"🔧 EDGE-DELETION DEBUG: RingLengthAtMostProjector initialized")
 
     def valid_graph_fn(self, nx_graph):
-        """
-        Check if graph satisfies structural constraint: all rings have length at most N.
-        
-        This function ONLY checks structural properties (ring length) and does
-        NOT enforce chemical validity, valency, or connectivity.
-        
-        Args:
-            nx_graph: NetworkX graph to validate
-            
-        Returns:
-            bool: True if all rings have length at most max_ring_length
-        """
-        # Use NetworkX to check if all rings have length at most max_ring_length
+        """Check if all rings have length at most N."""
         cycles = nx.cycle_basis(nx_graph)
         for cycle in cycles:
             if len(cycle) > self.max_ring_length:
+                print(f"🔧 EDGE-DELETION DEBUG: Ring length constraint violated")
                 return False
-        return True  # All rings have length at most max_ring_length
+        return True
 
     @property
     def can_block_edges(self):
-        """Can block edge additions that would violate structural constraint."""
+        """Can block edge additions that would violate constraint."""
         return True
     
     def project(self, z_s: PlaceHolder):
         """
-        Edge-deletion projection: Remove edges to satisfy maximum ring length constraints.
+        Project graphs to satisfy ring-length-at-most constraint.
         
-        This projector ONLY enforces structural constraints (ring length) and does
-        NOT enforce chemical validity, valency, or connectivity. Chemical properties
-        are measured separately after generation.
-        
-        Args:
-            z_s: PlaceHolder tensor to project
+        This removes edges to ensure all rings have length at most max_ring_length.
         """
+        print(f"🔧 EDGE-DELETION DEBUG: RingLengthAtMostProjector.project() called")
+        
         # Process each graph in the batch
         for graph_idx, nx_graph in enumerate(self.nx_graphs_list):
-            # Check current ring lengths (structural constraint only)
+            # Check current ring lengths
             cycles = nx.cycle_basis(nx_graph)
+            cycle_lengths = [len(c) for c in cycles]
+            max_length = max(cycle_lengths) if cycle_lengths else 0
             
-            # Check if we already have acceptable ring lengths
-            has_acceptable_rings = True
-            for cycle in cycles:
-                if len(cycle) > self.max_ring_length:
-                    has_acceptable_rings = False
-                    break
-            
-            if has_acceptable_rings:
+            # If we already have acceptable ring lengths, no action needed
+            if max_length <= self.max_ring_length:
                 continue
             
-            # ===== STRUCTURAL-ONLY CONSTRAINT ENFORCEMENT =====
-            # Strategy: Remove edges to break long rings (structural constraint only)
+            # Strategy: Remove edges to break long rings
             attempts = 0
             max_attempts = 50  # Prevent infinite loops
             
-            while not has_acceptable_rings and attempts < max_attempts:
+            while max_length > self.max_ring_length and attempts < max_attempts:
                 attempts += 1
                 
                 # Find edges that, when removed, would break long rings
@@ -701,27 +632,18 @@ class RingLengthAtMostProjector(AbstractProjector):
                     # Temporarily remove edge to check if it breaks long rings
                     nx_graph.remove_edge(u, v)
                     new_cycles = nx.cycle_basis(nx_graph)
+                    new_cycle_lengths = [len(c) for c in new_cycles]
+                    new_max_length = max(new_cycle_lengths) if new_cycle_lengths else 0
                     
-                    # Check if this removal improved ring lengths
-                    improved = True
-                    for cycle in new_cycles:
-                        if len(cycle) > self.max_ring_length:
-                            improved = False
-                            break
-                    
-                    if improved:
-                        # This edge removal improves ring lengths - mark for removal
+                    if new_max_length < max_length:
+                        # This edge removal breaks long rings - mark for removal
                         edges_to_remove.append((u, v))
                     
                     # Restore the edge
                     nx_graph.add_edge(u, v)
-
-                # Remove edges that improve ring lengths
+                
+                # Remove edges that break long rings
                 for u, v in edges_to_remove:
-                    # ===== NO CHEMICAL VALIDITY CHECKS =====
-                    # We do NOT check valency, connectivity, or atom types here
-                    # These properties are measured post-generation
-                    
                     # Remove edge from graph
                     nx_graph.remove_edge(u, v)
                     
@@ -734,13 +656,10 @@ class RingLengthAtMostProjector(AbstractProjector):
                         z_s.E[graph_idx, u, v, edge_type] = 0
                         z_s.E[graph_idx, v, u, edge_type] = 0
                 
-                # Check if we now have acceptable ring lengths
+                # Update ring lengths
                 cycles = nx.cycle_basis(nx_graph)
-                has_acceptable_rings = True
-                for cycle in cycles:
-                    if len(cycle) > self.max_ring_length:
-                        has_acceptable_rings = False
-                        break
+                cycle_lengths = [len(c) for c in cycles]
+                max_length = max(cycle_lengths) if cycle_lengths else 0
             
             # Mark edges as blocked to prevent future violations
             n = nx_graph.number_of_nodes()
@@ -752,9 +671,11 @@ class RingLengthAtMostProjector(AbstractProjector):
                             self.blocked_edges[graph_idx][(u, v)] = True
             
             self.nx_graphs_list[graph_idx] = nx_graph  # save new graph
-
+        
         # store modified z_s
         self.z_t_adj = get_adj_matrix(z_s)
+        
+        # Debug logging after projection - removed to reduce output
 
 
 class RingCountAtLeastProjector(AbstractProjector):
