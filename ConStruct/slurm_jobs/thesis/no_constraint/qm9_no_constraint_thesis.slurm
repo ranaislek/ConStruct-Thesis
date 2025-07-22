@@ -3,10 +3,11 @@
 #SBATCH --output=/home/rislek/ConStruct-Thesis/ConStruct/logs/qm9_no_constraint_thesis_%j.out
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
-#SBATCH --mem=16G  
+#SBATCH --mem=20G
 #SBATCH --gres=gpu:1
-#SBATCH --time=16:00:00
-#SBATCH --partition=debug
+#SBATCH --constraint=A6000|A5000
+#SBATCH --time=48:00:00
+#SBATCH --partition=allgroups,testing
 
 # Load environment
 cd /home/rislek/ConStruct-Thesis

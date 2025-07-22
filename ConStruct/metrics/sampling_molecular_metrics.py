@@ -278,7 +278,7 @@ class SamplingMolecularMetrics(nn.Module):
             constraint_type = getattr(self.dataset_infos, "constraint_type", None)
             constraint_value = getattr(self.dataset_infos, "constraint_value", None)
             # Fallback: try to infer from self.cfg if available
-            if constraint_type is None and hasattr(self, "cfg"):
+            if constraint_type is None and hasattr(self, "cfg") and self.cfg is not None:
                 constraint_type = getattr(self.cfg.model, "rev_proj", None)
                 # Map old names to explicit ones
                 if constraint_type == "ring_length_at_most":
@@ -299,10 +299,11 @@ class SamplingMolecularMetrics(nn.Module):
             else:
                 # No constraint enforced, print natural satisfaction for all constraint values
                 if self.is_molecular and hasattr(self, "cfg") and hasattr(self.cfg, "model"):
-                    # Check natural satisfaction for all ring_count values
-                    ring_count_values = [0, 1, 2, 3, 4, 5]
-                    print(f"[NATURAL SATISFACTION] Checking ring_count satisfaction for all values:")
-                    for max_rings in ring_count_values:
+                    print(f"[NATURAL SATISFACTION] Checking constraint satisfaction for all values:")
+                    
+                    # Check natural satisfaction for ring_count "at most" constraints
+                    ring_count_at_most_values = [0, 1, 2, 3, 4, 5]
+                    for max_rings in ring_count_at_most_values:
                         check_ring_constraints(
                             all_generated_smiles,
                             "ring_count_at_most",
@@ -310,16 +311,44 @@ class SamplingMolecularMetrics(nn.Module):
                             logger=lambda msg: print(f"[NATURAL SATISFACTION][ring_count≤{max_rings}] {msg}")
                         )
                     
-                    # Check natural satisfaction for all ring_length values
-                    ring_length_values = [3, 4, 5, 6]
-                    print(f"[NATURAL SATISFACTION] Checking ring_length satisfaction for all values:")
-                    for max_ring_length in ring_length_values:
+                    # Check natural satisfaction for ring_count "at least" constraints
+                    ring_count_at_least_values = [1, 2, 3, 4, 5]
+                    for min_rings in ring_count_at_least_values:
+                        check_ring_constraints(
+                            all_generated_smiles,
+                            "ring_count_at_least",
+                            min_rings,
+                            logger=lambda msg: print(f"[NATURAL SATISFACTION][ring_count≥{min_rings}] {msg}")
+                        )
+                    
+                    # Check natural satisfaction for ring_length "at most" constraints
+                    ring_length_at_most_values = [3, 4, 5, 6]
+                    for max_ring_length in ring_length_at_most_values:
                         check_ring_constraints(
                             all_generated_smiles,
                             "ring_length_at_most",
                             max_ring_length,
                             logger=lambda msg: print(f"[NATURAL SATISFACTION][ring_length≤{max_ring_length}] {msg}")
                         )
+                    
+                    # Check natural satisfaction for ring_length "at least" constraints
+                    ring_length_at_least_values = [4, 5, 6]
+                    for min_ring_length in ring_length_at_least_values:
+                        check_ring_constraints(
+                            all_generated_smiles,
+                            "ring_length_at_least",
+                            min_ring_length,
+                            logger=lambda msg: print(f"[NATURAL SATISFACTION][ring_length≥{min_ring_length}] {msg}")
+                        )
+                    
+                    # Print compact summary of natural satisfaction
+                    print(f"\n[NATURAL SATISFACTION SUMMARY]")
+                    print(f"{'='*60}")
+                    print(f"{'Constraint Type':<20} {'Value':<8} {'Satisfied':<10} {'Total':<8} {'Rate':<8}")
+                    print(f"{'='*60}")
+                    
+                    # Collect results for summary (this would need to be implemented with a callback)
+                    # For now, the individual checks above provide the detailed information
 
         to_log_fcd = self.compute_fcd(generated_smiles=all_generated_smiles)
         metrics.update(to_log_fcd)
@@ -701,6 +730,10 @@ def check_ring_constraints(smiles_list, constraint_type, constraint_value, logge
     total = 0
     passed = 0
     
+    # Collect distribution data for better analysis
+    ring_counts = []
+    ring_lengths = []
+    
     # Use a more robust approach without signal handling
     import time
     from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeoutError
@@ -719,6 +752,7 @@ def check_ring_constraints(smiles_list, constraint_type, constraint_value, logge
                 try:
                     ring_info = mol.GetRingInfo()
                     max_len = max((len(r) for r in ring_info.AtomRings()), default=0)
+                    ring_lengths.append(max_len)
                     return max_len <= constraint_value
                 except Exception as e:
                     logger(f"[WARNING] Ring length calculation failed for SMILES: {smi}, error: {e}")
@@ -727,6 +761,7 @@ def check_ring_constraints(smiles_list, constraint_type, constraint_value, logge
                 try:
                     ring_info = mol.GetRingInfo()
                     min_len = min((len(r) for r in ring_info.AtomRings()), default=float('inf'))
+                    ring_lengths.append(min_len)
                     return min_len >= constraint_value
                 except Exception as e:
                     logger(f"[WARNING] Ring length calculation failed for SMILES: {smi}, error: {e}")
@@ -736,6 +771,7 @@ def check_ring_constraints(smiles_list, constraint_type, constraint_value, logge
                 try:
                     ring_info = mol.GetRingInfo()
                     n_rings = ring_info.NumRings() if ring_info else 0
+                    ring_counts.append(n_rings)
                     return n_rings <= constraint_value
                 except Exception as e:
                     logger(f"[WARNING] Ring count calculation failed for SMILES: {smi}, error: {e}")
@@ -744,6 +780,7 @@ def check_ring_constraints(smiles_list, constraint_type, constraint_value, logge
                 try:
                     ring_info = mol.GetRingInfo()
                     n_rings = ring_info.NumRings() if ring_info else 0
+                    ring_counts.append(n_rings)
                     return n_rings >= constraint_value
                 except Exception as e:
                     logger(f"[WARNING] Ring count calculation failed for SMILES: {smi}, error: {e}")
@@ -792,7 +829,22 @@ def check_ring_constraints(smiles_list, constraint_type, constraint_value, logge
         operator = "≥"
     else:
         operator = "≤"
-    logger(f"[Constraint Check] {passed}/{total} molecules satisfy {constraint_type} {operator} {constraint_value}")
+    
+    # Calculate satisfaction rate
+    satisfaction_rate = (passed / total * 100) if total > 0 else 0.0
+    
+    # Enhanced output with distribution information
+    logger(f"[Constraint Check] {passed}/{total} molecules satisfy {constraint_type} {operator} {constraint_value} ({satisfaction_rate:.1f}%)")
+    
+    # Add distribution information for better understanding
+    if ring_counts and constraint_type.startswith("ring_count"):
+        from collections import Counter
+        count_dist = Counter(ring_counts)
+        logger(f"[Distribution] Ring counts: {dict(sorted(count_dist.items()))}")
+    elif ring_lengths and constraint_type.startswith("ring_length"):
+        from collections import Counter
+        length_dist = Counter(ring_lengths)
+        logger(f"[Distribution] Ring lengths: {dict(sorted(length_dist.items()))}")
 
 
 if __name__ == "__main__":

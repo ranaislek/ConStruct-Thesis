@@ -4,21 +4,21 @@ general:
   wandb: 'online'
   resume: null
   test_only: null
-  check_val_every_n_epochs: 20
-  sample_every_val: 5
-  samples_to_generate: 500
-  samples_to_save: 200
-  chains_to_save: 20
-  final_model_samples_to_generate: 1000
-  final_model_samples_to_save: 500
-  final_model_chains_to_save: 50
-  number_chain_steps: 300
+  check_val_every_n_epochs: 2
+  sample_every_val: 1
+  samples_to_generate: 10
+  samples_to_save: 5
+  chains_to_save: 2
+  final_model_samples_to_generate: 20
+  final_model_samples_to_save: 10
+  final_model_chains_to_save: 5
+  number_chain_steps: 50
 train:
-  n_epochs: 300
-  batch_size: 128
+  n_epochs: 5
+  batch_size: 16
   save_model: true
 model:
-  diffusion_steps: 500
+  diffusion_steps: 50
   n_layers: 1
   hidden_mlp_dims:
     X: 8
@@ -37,11 +37,18 @@ model:
   max_ring_length: 6              # Maximum ring length
   rev_proj: ring_count_at_most    # Edge-deletion projector for "at most" constraints
   transition: absorbing_edges      # Edge-deletion transition
+  
+  # ConStruct philosophy: Post-generation validation
+  post_gen_validation: True  # Enable post-generation chemical validation
+  post_gen_validation_config:
+    enable_rdkit: True
+    enable_valency_check: True
+    enable_connectivity_check: True
 dataset:
   name: qm9
   remove_h: true
   datadir: data/qm9
-  batch_size: 128
+  batch_size: 16
   num_workers: 0
   adaptive_loader: false
   fraction: 1.0

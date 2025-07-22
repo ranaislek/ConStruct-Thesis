@@ -1,6 +1,6 @@
 #!/bin/bash
-#SBATCH --job-name=ring_length_at_least_6_debug
-#SBATCH --output=/home/rislek/ConStruct-Thesis/ConStruct/logs/ring_length_at_least_6_debug_%j.out
+#SBATCH --job-name=qm9_ring_length_at_least_6_debug
+#SBATCH --output=/home/rislek/ConStruct-Thesis/ConStruct/logs/qm9_ring_length_at_least_6_debug_%j.out
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=16G  

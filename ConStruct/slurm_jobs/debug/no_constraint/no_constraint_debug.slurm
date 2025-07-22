@@ -1,6 +1,6 @@
 #!/bin/bash
-#SBATCH --job-name=no_constraint_debug
-#SBATCH --output=/home/rislek/ConStruct-Thesis/ConStruct/logs/no_constraint_debug_%j.out
+#SBATCH --job-name=qm9_no_constraint_debug
+#SBATCH --output=/home/rislek/ConStruct-Thesis/ConStruct/logs/qm9_no_constraint_debug_%j.out
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=16G  

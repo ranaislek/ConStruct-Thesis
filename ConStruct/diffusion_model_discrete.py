@@ -43,6 +43,7 @@ from ConStruct.projector.projector_utils import (
     RingCountAtLeastProjector,
     RingLengthAtLeastProjector,
 )
+from ConStruct.metrics.post_generation_validation import PostGenerationValidator
 
 
 class DiscreteDenoisingDiffusion(pl.LightningModule):
@@ -170,7 +171,8 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
                 y_classes=self.output_dims.y,
             )
         elif cfg.model.transition == "edge_insertion":
-            print("Edge-insertion transition model (for 'at least' constraints)")
+            print("🔧 DEBUG: Transition type is 'edge_insertion'")
+            print("🔧 DEBUG: Creating EdgeInsertionTransition...")
             self.noise_model = EdgeInsertionTransition(
                 cfg=cfg,
                 x_marginals=self.dataset_infos.atom_types,
@@ -178,17 +180,9 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
                 charges_marginals=self.dataset_infos.charges_marginals,
                 y_classes=self.output_dims.y,
             )
-        # Backward compatibility for old transition names
-        elif cfg.model.transition == "edge_insertion":
-            print("Edge-insertion transition model with edges (legacy name)")
-            self.noise_model = EdgeInsertionTransition(
-                cfg=cfg,
-                x_marginals=self.dataset_infos.atom_types,
-                e_marginals=self.dataset_infos.edge_types,
-                charges_marginals=self.dataset_infos.charges_marginals,
-                y_classes=self.output_dims.y,
-            )
+            print("🔧 DEBUG: EdgeInsertionTransition created successfully!")
         else:
+            print(f"🔧 DEBUG: Transition type '{cfg.model.transition}' not recognized")
             assert ValueError(
                 f"Transition type '{cfg.model.transition}' not implemented."
             )
@@ -760,6 +754,9 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
             )
 
         # Iteratively sample p(z_s | z_t) for t = 1, ..., T, with s = t - 1.
+        print(f"🔍 DEBUG: Starting sampling with rev_proj={self.cfg.model.rev_proj}")
+        print(f"🔍 DEBUG: Transition type: {self.cfg.model.transition}")
+        
         for s_int in reversed(range(0, self.T, self.cfg.general.faster_sampling)):
             s_array = s_int * torch.ones(
                 (batch_size, 1), dtype=torch.long, device=z_t.X.device
@@ -768,7 +765,19 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
 
             # Planarity preserving
             if self.cfg.model.rev_proj:
+                print(f"🔍 DEBUG: Calling projector at step {s_int}, rev_proj={self.cfg.model.rev_proj}")
+                print(f"🔍 DEBUG: z_s.X shape: {z_s.X.shape}, z_s.E shape: {z_s.E.shape}")
+                
+                # Count edges before projection
+                edges_before = (z_s.E > 0).sum().item()
+                print(f"🔍 DEBUG: Edges before projection: {edges_before}")
+                
                 rev_projector.project(z_s)
+                
+                # Count edges after projection
+                edges_after = (z_s.E > 0).sum().item()
+                print(f"🔍 DEBUG: Edges after projection: {edges_after}")
+                print(f"🔍 DEBUG: Edge difference: {edges_after - edges_before}")
 
             z_t = z_s
 
@@ -838,6 +847,40 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
         # During testing, move the graphs to cpu so that they can be aggregated for metrics computation
         if test:
             final_batch = final_batch.device_as(torch.zeros(1, device="cpu"))
+
+        # Post-generation validation (ConStruct philosophy)
+        if hasattr(self.cfg.model, 'post_gen_validation') and self.cfg.model.post_gen_validation:
+            try:
+                # Convert to NetworkX graphs for validation
+                nx_graphs = []
+                for i in range(len(n_nodes)):
+                    adj_matrix = final_batch.E[i].cpu().numpy()
+                    nx_graph = nx.from_numpy_array(adj_matrix)
+                    nx_graphs.append(nx_graph)
+                
+                # Initialize validator with atom decoder if available
+                atom_decoder = getattr(self.dataset_infos, "atom_decoder", None)
+                validator = PostGenerationValidator(atom_decoder)
+                
+                # Validate the generated graphs
+                validation_results = validator.validate_batch(final_batch, nx_graphs)
+                
+                # Print validation summary
+                validator.print_validation_summary(validation_results)
+                
+                # Log validation results for thesis analysis
+                if test:
+                    self.log_dict({
+                        'post_gen/structurally_valid': validation_results['summary']['structurally_valid'] / validation_results['summary']['total_graphs'],
+                        'post_gen/chemically_valid': validation_results['summary']['chemically_valid'] / validation_results['summary']['total_graphs'],
+                        'post_gen/rdkit_valid': validation_results['summary']['rdkit_valid'] / validation_results['summary']['total_graphs'],
+                        'post_gen/valency_violations': validation_results['summary']['valency_violations'] / validation_results['summary']['total_graphs'],
+                        'post_gen/connectivity_issues': validation_results['summary']['connectivity_issues'] / validation_results['summary']['total_graphs'],
+                    })
+                
+            except Exception as e:
+                self.print(f"Post-generation validation failed with error: {e}")
+                # Continue with generation even if validation fails
 
         return final_batch
 

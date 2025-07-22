@@ -23,6 +23,7 @@ from ConStruct.datasets.dataset_utils import (
     load_pickle,
     Statistics,
     compute_reference_metrics,
+    files_exist,
 )
 from ConStruct.metrics.metrics_utils import compute_all_statistics
 import fcd
@@ -79,6 +80,13 @@ class MosesDataset(InMemoryDataset):
         return ["train_moses.csv", "val_moses.csv", "test_moses.csv"]
 
     @property
+    def split_paths(self):
+        r"""The absolute filepaths that must be present in order to skip
+        splitting."""
+        files = self.split_file_name
+        return [osp.join(self.raw_dir, f) for f in files]
+
+    @property
     def processed_file_names(self):
         f = ""  # Legacy
         if self.split == "train":
@@ -118,6 +126,14 @@ class MosesDataset(InMemoryDataset):
             ]
 
     def download(self):
+        """
+        Download raw moses files. Taken from PyG QM9 class
+        """
+        # Check if files already exist to avoid re-downloading
+        if files_exist(self.raw_paths) and files_exist(self.split_paths):
+            print("Moses raw files already exist, skipping download.")
+            return
+            
         import rdkit  # noqa
 
         train_path = download_url(self.train_url, self.raw_dir)
@@ -204,6 +220,15 @@ class MosesDataModule(MolecularDataModule):
             key: MosesDataset(split=key, root=root_path)
             for key in ["train", "val", "test"]
         }
+        
+        # Rana added subsetting
+        # Optional slicing for fast debugging
+        if hasattr(cfg.dataset, "subset"):
+            k = cfg.dataset.subset
+            print(f"[MosesDataModule] Using only first {k} samples per split for debug.")
+            for split in ["train", "val", "test"]:
+                datasets[split] = datasets[split][:k]
+        
         self.statistics = {
             key: datasets[key].statistics for key in ["train", "val", "test"]
         }
