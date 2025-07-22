@@ -129,7 +129,7 @@ class XKl(SumExceptBatchKL):
 
 class ChargesKl(SumExceptBatchKL):
     def update(self, preds: PlaceHolder, target: PlaceHolder):
-        if preds.charges is None:
+        if preds.charges is None or preds.charges.numel() == 0:
             return
         super().update(preds.charges, target.charges)
 

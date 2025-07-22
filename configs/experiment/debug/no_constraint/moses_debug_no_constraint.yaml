@@ -50,4 +50,4 @@ dataset:
   num_workers: 0
   adaptive_loader: false
   fraction: 1.0
-  subset: 10000  # Use only first 10k samples for debug experiments 
+  subset: 1000   # Use subset for faster debugging 

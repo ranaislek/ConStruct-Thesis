@@ -480,16 +480,14 @@ class RingCountAtMostProjector(AbstractProjector):
         super().__init__(z_t)
         
         # Debug logging for ring-count constraint
-        print(f"🔧 EDGE-DELETION DEBUG: RingCountAtMostProjector initialized")
+        # Debug logging removed for production
 
     def valid_graph_fn(self, nx_graph):
         """Check if graph has at most N rings."""
         cycles = nx.cycle_basis(nx_graph)
         is_valid = len(cycles) <= self.max_rings
         
-        # Debug logging for constraint validation
-        if len(cycles) > self.max_rings:
-            print(f"🔧 EDGE-DELETION DEBUG: Ring count constraint violated")
+        # Debug logging removed for production
         
         return is_valid
 
@@ -504,7 +502,7 @@ class RingCountAtMostProjector(AbstractProjector):
         
         This removes edges to ensure the graph has at most max_rings cycles.
         """
-        print(f"🔧 EDGE-DELETION DEBUG: RingCountAtMostProjector.project() called")
+        # Debug logging removed for production
         
         # Process each graph in the batch
         for graph_idx, graph in enumerate(self.nx_graphs_list):
@@ -584,14 +582,14 @@ class RingLengthAtMostProjector(AbstractProjector):
         super().__init__(z_t)
         
         # Debug logging for ring-length constraint
-        print(f"🔧 EDGE-DELETION DEBUG: RingLengthAtMostProjector initialized")
+        # Debug logging removed for production
 
     def valid_graph_fn(self, nx_graph):
         """Check if all rings have length at most N."""
         cycles = nx.cycle_basis(nx_graph)
         for cycle in cycles:
             if len(cycle) > self.max_ring_length:
-                print(f"🔧 EDGE-DELETION DEBUG: Ring length constraint violated")
+                # Debug logging removed for production
                 return False
         return True
 
@@ -606,7 +604,7 @@ class RingLengthAtMostProjector(AbstractProjector):
         
         This removes edges to ensure all rings have length at most max_ring_length.
         """
-        print(f"🔧 EDGE-DELETION DEBUG: RingLengthAtMostProjector.project() called")
+        # Debug logging removed for production
         
         # Process each graph in the batch
         for graph_idx, nx_graph in enumerate(self.nx_graphs_list):

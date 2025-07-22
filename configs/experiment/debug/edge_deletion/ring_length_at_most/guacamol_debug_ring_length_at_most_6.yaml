@@ -1,6 +1,6 @@
 # @package _global_
 general:
-  name: 'moses_debug_ring_length_at_most_4'
+  name: 'guacamol_debug_ring_length_at_most_6'
   wandb: 'online'
   resume: null
   test_only: null
@@ -35,7 +35,7 @@ model:
     dim_ffy: 8
   # Edge-deletion constraint settings:
   max_rings: 3                    # Maximum rings allowed
-  max_ring_length: 4              # Maximum 4-ring length
+  max_ring_length: 6              # Maximum 6-ring length
   rev_proj: ring_length_at_most    # Edge-deletion projector for "at most" constraints
   transition: absorbing_edges      # Edge-deletion transition
   
@@ -46,11 +46,12 @@ model:
     enable_valency_check: True
     enable_connectivity_check: True
 dataset:
-  name: moses
-  remove_h: false  # MOSES typically includes hydrogen atoms
-  datadir: data/moses
+  name: guacamol
+  remove_h: true  # Guacamol typically removes hydrogen atoms
+  datadir: data/guacamol
   batch_size: 16
   num_workers: 0
   adaptive_loader: false
   fraction: 1.0
+  filter: false  # Use unfiltered dataset for debug
   subset: 1000   # Use subset for faster debugging 

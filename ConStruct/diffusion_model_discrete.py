@@ -171,8 +171,7 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
                 y_classes=self.output_dims.y,
             )
         elif cfg.model.transition == "edge_insertion":
-            print("🔧 DEBUG: Transition type is 'edge_insertion'")
-            print("🔧 DEBUG: Creating EdgeInsertionTransition...")
+            # Debug logging removed for production
             self.noise_model = EdgeInsertionTransition(
                 cfg=cfg,
                 x_marginals=self.dataset_infos.atom_types,
@@ -180,9 +179,9 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
                 charges_marginals=self.dataset_infos.charges_marginals,
                 y_classes=self.output_dims.y,
             )
-            print("🔧 DEBUG: EdgeInsertionTransition created successfully!")
+            # Debug logging removed for production
         else:
-            print(f"🔧 DEBUG: Transition type '{cfg.model.transition}' not recognized")
+            # Debug logging removed for production
             assert ValueError(
                 f"Transition type '{cfg.model.transition}' not implemented."
             )
@@ -750,45 +749,33 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
             )
 
         # Iteratively sample p(z_s | z_t) for t = 1, ..., T, with s = t - 1.
-        print(f"🔍 DEBUG: Starting sampling with rev_proj={self.cfg.model.rev_proj}")
-        print(f"🔍 DEBUG: Transition type: {self.cfg.model.transition}")
+        # Debug logging removed for production
         
-        # Edge-deletion specific debug logging
-        if self.cfg.model.transition == "absorbing_edges":
-            print("🔧 EDGE-DELETION DEBUG: Using edge-deletion transition for sampling")
+        # Debug logging removed for production
         
         for s_int in reversed(range(0, self.T, self.cfg.general.faster_sampling)):
             s_array = s_int * torch.ones(
                 (batch_size, 1), dtype=torch.long, device=z_t.X.device
             )
-            z_s = self.sample_zs_from_zt(z_t, s_int)
+            z_s = self.sample_zs_from_zt(z_t, s_array)
 
             # Planarity preserving
             if self.cfg.model.rev_proj:
-                print(f"🔍 DEBUG: Calling projector at step {s_int}, rev_proj={self.cfg.model.rev_proj}")
-                print(f"🔍 DEBUG: z_s.X shape: {z_s.X.shape}, z_s.E shape: {z_s.E.shape}")
+                            # Debug logging removed for production
                 
                 # Count edges before projection
                 edges_before = (z_s.E > 0).sum().item()
-                print(f"🔍 DEBUG: Edges before projection: {edges_before}")
+                # Debug logging removed for production
                 
-                # Edge-deletion specific debug logging
-                if self.cfg.model.transition == "absorbing_edges" and s_int % 500 == 0:  # Log every 500 steps
-                    print(f"🔧 EDGE-DELETION DEBUG: Step {s_int} - Before projection")
-                    print(f"🔧 EDGE-DELETION DEBUG: Total edges: {edges_before}")
+                                # Debug logging removed for production
                 
                 rev_projector.project(z_s)
                 
                 # Count edges after projection
                 edges_after = (z_s.E > 0).sum().item()
-                print(f"🔍 DEBUG: Edges after projection: {edges_after}")
-                print(f"🔍 DEBUG: Edge difference: {edges_after - edges_before}")
+                # Debug logging removed for production
                 
-                # Edge-deletion specific debug logging after projection
-                if self.cfg.model.transition == "absorbing_edges" and s_int % 500 == 0:  # Log every 500 steps
-                    print(f"🔧 EDGE-DELETION DEBUG: Step {s_int} - After projection")
-                    print(f"🔧 EDGE-DELETION DEBUG: Total edges: {edges_after}")
-                    print(f"🔧 EDGE-DELETION DEBUG: Edges removed: {edges_before - edges_after}")
+                                # Debug logging removed for production
 
             z_t = z_s
 

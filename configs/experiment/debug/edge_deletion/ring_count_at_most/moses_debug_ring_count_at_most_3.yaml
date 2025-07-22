@@ -52,4 +52,5 @@ dataset:
   batch_size: 16
   num_workers: 0
   adaptive_loader: false
-  fraction: 1.0 
+  fraction: 1.0
+  subset: 1000   # Use subset for faster debugging 

@@ -469,7 +469,7 @@ class AbsorbingEdgesTransition(MarginalTransition):
         self._alphas_abs_bar = torch.cumprod(self._alphas_abs, dim=0)
         
         # Debug logging for edge-deletion initialization
-        print("🔧 EDGE-DELETION DEBUG: AbsorbingEdgesTransition initialized")
+        # Debug logging removed for production
 
     def get_beta_abs(self, t_normalized=None, t_int=None, key=None):
         return self._get(
@@ -491,9 +491,7 @@ class AbsorbingEdgesTransition(MarginalTransition):
             self.E_classes, device=dev
         ).unsqueeze(0)
         
-        # Debug logging for edge-deletion transition matrix
-        if t_int[0].item() % 500 == 0:  # Print every 500 steps instead of 50
-            print(f"🔧 EDGE-DELETION DEBUG: Qt at step {t_int[0].item()}")
+        # Debug logging removed for production
 
         return utils.PlaceHolder(X=Qt.X, charges=Qt.charges, E=q_e, y=Qt.y)
 
@@ -508,9 +506,7 @@ class AbsorbingEdgesTransition(MarginalTransition):
             + (1 - a_e_abs) * Pe
         )
         
-        # Debug logging for edge-deletion cumulative transition matrix
-        if t_int[0].item() % 500 == 0:  # Print every 500 steps instead of 50
-            print(f"🔧 EDGE-DELETION DEBUG: Qt_bar at step {t_int[0].item()}")
+        # Debug logging removed for production
 
         assert ((q_e.sum(dim=2) - 1.0).abs() < 1e-4).all()
         return utils.PlaceHolder(X=Qt_bar.X, charges=Qt_bar.charges, E=q_e, y=Qt_bar.y)
@@ -615,12 +611,7 @@ class EdgeInsertionTransition(MarginalTransition):
             + a_e_abs * Pe
         )
         
-        # Debug: Print edge-insertion transition info
-        if t_int[0].item() % 50 == 0:  # Print every 50 steps
-            print(f"🔧 DEBUG: Edge-insertion transition at step {t_int[0].item()}")
-            print(f"🔧 DEBUG: a_e_abs (edge absorption): {a_e_abs[0].item():.3f}")
-            print(f"🔧 DEBUG: Pe (absorbing state): {Pe}")
-            print(f"🔧 DEBUG: q_e diagonal (sparse->dense): {q_e[0].diag()}")
+                # Debug logging removed for production
 
         # Verify transition matrices sum to 1 (probability conservation)
         assert ((q_x.sum(dim=2) - 1.0).abs() < 1e-4).all()
