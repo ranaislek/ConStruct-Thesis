@@ -18,7 +18,7 @@ from diffusion.noise_model import (
     MarginalTransition,
     AbsorbingTransition,
     AbsorbingEdgesTransition,
-    EdgeInsertionTransition,
+    # EdgeInsertionTransition,  # COMMENTED OUT
 )
 from ConStruct.diffusion import diffusion_utils
 from metrics.train_metrics import TrainLoss
@@ -40,8 +40,8 @@ from ConStruct.projector.projector_utils import (
     LobsterProjector,
     RingCountAtMostProjector,
     RingLengthAtMostProjector,
-    RingCountAtLeastProjector,
-    RingLengthAtLeastProjector,
+    # RingCountAtLeastProjector,  # COMMENTED OUT
+    # RingLengthAtLeastProjector,  # COMMENTED OUT
 )
 from ConStruct.metrics.post_generation_validation import PostGenerationValidator
 
@@ -170,16 +170,17 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
                 charges_marginals=self.dataset_infos.charges_marginals,
                 y_classes=self.output_dims.y,
             )
-        elif cfg.model.transition == "edge_insertion":
-            # Debug logging removed for production
-            self.noise_model = EdgeInsertionTransition(
-                cfg=cfg,
-                x_marginals=self.dataset_infos.atom_types,
-                e_marginals=self.dataset_infos.edge_types,
-                charges_marginals=self.dataset_infos.charges_marginals,
-                y_classes=self.output_dims.y,
-            )
-            # Debug logging removed for production
+        # elif cfg.model.transition == "edge_insertion":
+        #     # COMMENTED OUT: Edge-insertion transition
+        #     # Debug logging removed for production
+        #     self.noise_model = EdgeInsertionTransition(
+        #         cfg=cfg,
+        #         x_marginals=self.dataset_infos.atom_types,
+        #         e_marginals=self.dataset_infos.edge_types,
+        #         charges_marginals=self.dataset_infos.charges_marginals,
+        #         y_classes=self.output_dims.y,
+        #     )
+        #     # Debug logging removed for production
         else:
             # Debug logging removed for production
             assert ValueError(
@@ -218,26 +219,26 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
         at_most_projectors = ["ring_count_at_most", "ring_length_at_most"]
         
         # Edge-insertion transitions should use "at least" projectors  
-        edge_insertion_transitions = ["edge_insertion"]
-        at_least_projectors = ["ring_count_at_least", "ring_length_at_least"]
+        # edge_insertion_transitions = ["edge_insertion"]  # COMMENTED OUT
+        # at_least_projectors = ["ring_count_at_least", "ring_length_at_least"]  # COMMENTED OUT
         
         # Marginal transitions can use any projector
         marginal_transitions = ["marginal", "uniform", "absorbing"]
         
         # Only warn about potentially incompatible combinations, don't raise errors
-        if transition in edge_deletion_transitions and rev_proj in at_least_projectors:
-            print(f"⚠️  WARNING: Edge-deletion transition '{transition}' is designed for 'at most' projectors.")
-            print(f"⚠️  WARNING: Using '{rev_proj}' projector. This may not work as expected.")
+        # if transition in edge_deletion_transitions and rev_proj in at_least_projectors:
+        #     print(f"⚠️  WARNING: Edge-deletion transition '{transition}' is designed for 'at most' projectors.")
+        #     print(f"⚠️  WARNING: Using '{rev_proj}' projector. This may not work as expected.")
         
-        if transition in edge_insertion_transitions and rev_proj in at_most_projectors:
-            print(f"⚠️  WARNING: Edge-insertion transition '{transition}' is designed for 'at least' projectors.")
-            print(f"⚠️  WARNING: Using '{rev_proj}' projector. This may not work as expected.")
+        # if transition in edge_insertion_transitions and rev_proj in at_most_projectors:
+        #     print(f"⚠️  WARNING: Edge-insertion transition '{transition}' is designed for 'at least' projectors.")
+        #     print(f"⚠️  WARNING: Using '{rev_proj}' projector. This may not work as expected.")
         
         # Log successful validation
         if transition in edge_deletion_transitions:
             print(f"✓ Validated: Edge-deletion transition '{transition}' with '{rev_proj}' projector")
-        elif transition in edge_insertion_transitions:
-            print(f"✓ Validated: Edge-insertion transition '{transition}' with '{rev_proj}' projector")
+        # elif transition in edge_insertion_transitions:
+        #     print(f"✓ Validated: Edge-insertion transition '{transition}' with '{rev_proj}' projector")
         elif transition in marginal_transitions:
             print(f"✓ Validated: Marginal transition '{transition}' with '{rev_proj}' projector")
         else:
@@ -729,16 +730,18 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
             rev_projector = LobsterProjector(z_t)
         elif self.cfg.model.rev_proj == "ring_count_at_most":
             max_rings = getattr(self.cfg.model, "max_rings", 0)
+            use_incremental = getattr(self.cfg.model, "use_incremental", False)
             atom_decoder = getattr(self.dataset_infos, "atom_decoder", None)
-            rev_projector = RingCountAtMostProjector(z_t, max_rings, atom_decoder)
+            rev_projector = RingCountAtMostProjector(z_t, max_rings, atom_decoder, use_incremental)
         elif self.cfg.model.rev_proj == "ring_count_at_least":
             min_rings = getattr(self.cfg.model, "min_rings", 2)
             atom_decoder = getattr(self.dataset_infos, "atom_decoder", None)
             rev_projector = RingCountAtLeastProjector(z_t, min_rings, atom_decoder)
         elif self.cfg.model.rev_proj == "ring_length_at_most":
             max_ring_length = getattr(self.cfg.model, "max_ring_length", 6)
+            use_incremental_length = getattr(self.cfg.model, "use_incremental_length", False)
             atom_decoder = getattr(self.dataset_infos, "atom_decoder", None)
-            rev_projector = RingLengthAtMostProjector(z_t, max_ring_length, atom_decoder)
+            rev_projector = RingLengthAtMostProjector(z_t, max_ring_length, atom_decoder, use_incremental_length)
         elif self.cfg.model.rev_proj == "ring_length_at_least":
             min_ring_length = getattr(self.cfg.model, "min_ring_length", 4)
             atom_decoder = getattr(self.dataset_infos, "atom_decoder", None)

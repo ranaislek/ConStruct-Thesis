@@ -11,7 +11,7 @@
 # Load environment
 cd /home/rislek/ConStruct-Thesis
 source /conf/shared-software/anaconda/etc/profile.d/conda.sh
-conda activate construct
+conda activate construct-env
 
 export LD_PRELOAD="$CONDA_PREFIX/lib/libgomp.so.1"
 

@@ -249,7 +249,8 @@ def get_forbidden_edges(adj_matrix):
 
 def get_adj_matrix(z_t):
     # Check if edge exists by looking at the actual value, not just argmax
-    z_t_adj = (z_t.E.sum(dim=3) > 0).int()  # Sum across edge types and check if > 0
+    # Only consider edge types 1, 2, 3 (single, double, triple bonds), not 0 (no edge)
+    z_t_adj = (z_t.E[:, :, :, 1:].sum(dim=3) > 0).int()  # Sum across edge types 1,2,3 and check if > 0
     return z_t_adj
 
 
@@ -279,8 +280,9 @@ class AbstractProjector(abc.ABC):
             # For edge-insertion with "at least" constraints:
             # - Start with the ACTUAL graph from the tensor
             # - This is the current state of the diffusion process
-            # FIX: Ensure proper GPU tensor handling
-            adj_matrix = self.z_t_adj[graph_idx, :num_nodes, :num_nodes]
+            # FIX: Ensure proper GPU tensor handling with bounds checking
+            max_nodes = min(num_nodes, self.z_t_adj.shape[1], self.z_t_adj.shape[2])
+            adj_matrix = self.z_t_adj[graph_idx, :max_nodes, :max_nodes]
             if adj_matrix.is_cuda:
                 adj_matrix = adj_matrix.cpu()
             adj_matrix = adj_matrix.numpy()
@@ -289,16 +291,20 @@ class AbstractProjector(abc.ABC):
             # For edge-insertion, we validate the initial graph
             # because we need to add edges to satisfy constraints
             self.nx_graphs_list.append(nx_graph)
-            # initialize block edge list
+            # initialize block edge list with bounds checking
             if self.can_block_edges:
-                for node_1_idx in range(num_nodes):
-                    for node_2_idx in range(node_1_idx + 1, num_nodes):
+                max_nodes = min(num_nodes, self.z_t_adj.shape[1], self.z_t_adj.shape[2])
+                for node_1_idx in range(max_nodes):
+                    for node_2_idx in range(node_1_idx + 1, max_nodes):
                         self.blocked_edges[graph_idx][(node_1_idx, node_2_idx)] = False
 
     def project(self, z_s: PlaceHolder):
         # find added edges
         z_s_adj = get_adj_matrix(z_s)
         diff_adj = z_s_adj - self.z_t_adj
+        print(f"🔍 DEBUG: AbstractProjector.project() called")
+        print(f"   z_s_adj has {z_s_adj.sum()} edges, z_t_adj has {self.z_t_adj.sum()} edges")
+        print(f"   diff_adj has {diff_adj.sum()} new edges to add")
         # print(f"z_t_adj:\n{self.z_t_adj[0].cpu().numpy()}")
         # print(f"z_s_adj:\n{z_s_adj[0].cpu().numpy()}")
         assert (diff_adj >= 0).all()  # No edges can be removed in the reverse
@@ -321,6 +327,7 @@ class AbstractProjector(abc.ABC):
             if edges_to_add.is_cuda:
                 edges_to_add = edges_to_add.cpu()
             edges_to_add = edges_to_add.numpy()
+            print(f"   Graph {graph_idx}: {len(edges_to_add)} edges to add")
             # print(f"Graph {graph_idx}, edges_to_add: {edges_to_add}")
 
             # If we can block edges, we do it
@@ -341,17 +348,23 @@ class AbstractProjector(abc.ABC):
 
             # First try add all edges (we might be lucky)
             if len(edges_to_add) > 1:  # avoid repetition of steps
+                print(f"   Trying to add all {len(edges_to_add)} edges at once")
                 nx_graph.add_edges_from(edges_to_add)
 
             # If it fails, we go one by one and delete the ring breakers
+            print(f"   Checking validity after adding edges")
+            print(f"   Graph valid: {self.valid_graph_fn(nx_graph)}")
             if not self.valid_graph_fn(nx_graph) or len(edges_to_add) == 1:
                 nx_graph = old_nx_graph
                 # Try to add edges one by one (in random order)
+                print(f"   Adding edges one by one...")
                 np.random.shuffle(edges_to_add)
-                for edge in edges_to_add:
+                for i, edge in enumerate(edges_to_add):
+                    print(f"   Edge {i+1}/{len(edges_to_add)}: ({edge[0]}, {edge[1]})")
                     old_nx_graph = nx_graph.copy()
                     nx_graph.add_edge(edge[0], edge[1])
                     if not self.valid_graph_fn(nx_graph):
+                        print(f"   ❌ Edge ({edge[0]}, {edge[1]}) violates constraint - BLOCKING")
                         nx_graph = old_nx_graph
                         # deleting edge from edges tensor (changes z_s in place)
                         z_s.E[graph_idx, edge[0], edge[1]] = F.one_hot(
@@ -363,31 +376,17 @@ class AbstractProjector(abc.ABC):
                         # this edge breaks validity
                         if self.can_block_edges:
                             self.blocked_edges[graph_idx][tuple(edge)] = True
+                    else:
+                        print(f"   ✅ Edge ({edge[0]}, {edge[1]}) accepted")
             
             # After adding all possible edges, check if we need to remove edges from existing rings
             if not self.valid_graph_fn(nx_graph):
-                # Apply ring count projection to remove excess rings
-                nx_graph = ring_count_at_most_projector(nx_graph, self.max_rings)
-                
-                # Find which edges were removed and update the tensor accordingly
-                old_edges = set(old_nx_graph.edges())
-                new_edges_set = set(nx_graph.edges())
-                removed_edges = old_edges - new_edges_set
-                
-                # Remove these edges from the tensor
-                for edge in removed_edges:
-                    u, v = edge
-                    z_s.E[graph_idx, u, v] = F.one_hot(
-                        torch.tensor(0), num_classes=z_s.E.shape[-1]
-                    )
-                    z_s.E[graph_idx, v, u] = F.one_hot(
-                        torch.tensor(0), num_classes=z_s.E.shape[-1]
-                    )
-                    # Mark as blocked for future iterations
-                    if self.can_block_edges:
-                        self.blocked_edges[graph_idx][tuple(edge)] = True
+                # This should be handled by specific projector classes
+                # The AbstractProjector should not call ring_count_at_most_projector
+                # as it doesn't have access to self.max_rings
+                pass
             
-                self.nx_graphs_list[graph_idx] = nx_graph  # save new graph
+            self.nx_graphs_list[graph_idx] = nx_graph  # save new graph
 
             # Check that nx graphs is correctly stored
             # (Removed assertion for tensor/NetworkX adjacency equality)
@@ -471,125 +470,182 @@ class RingCountAtMostProjector(AbstractProjector):
     """
     Edge-Deletion Projector: Ensures graphs have at most N rings.
     
-    Original ConStruct implementation for edge-deletion constraints.
+    CONSTRUCT PHILOSOPHY: This projector enforces ONLY structural constraints
+    (ring count) and does NOT enforce chemical validity, valency, or connectivity.
+    Chemical properties are measured post-generation.
+    
+    Mathematical Construction:
+    - Constraint: "At most N rings" (structural only)
+    - Forward diffusion: Edges progressively disappear toward no-edge state
+    - Reverse diffusion: Edges are added while preserving max ring constraint
+    - Natural bias: toward sparse graphs (fewer edges = fewer ring possibilities)
+    
+    Structural Constraint:
+    - Count cycles using NetworkX cycle_basis()
+    - Remove edges that break excess rings
+    - Block edge additions that would exceed maximum ring count
+    
+    CRITICAL: Chemical validity (valency, connectivity, atom types) is NOT enforced.
+    These properties are measured separately after generation using RDKit.
+    
+    Usage:
+    - Transition: 'absorbing_edges'
+    - Config: rev_proj: 'ring_count_at_most', max_rings: N, use_incremental: bool
+    - Post-generation: Run RDKit validation to measure chemical properties
+    
+    MODES:
+    - Baseline mode: Full cycle enumeration after each candidate edge removal
+    - Efficient mode: Incremental enforcement using shortest-path detection and blocked-edge hash set
     """
     
-    def __init__(self, z_t: PlaceHolder, max_rings: int, atom_decoder=None):
+    def __init__(self, z_t: PlaceHolder, max_rings: int, atom_decoder=None, use_incremental=False):
         self.max_rings = max_rings
+        self.use_incremental = use_incremental
+        # Note: atom_decoder is kept for compatibility but NOT used for chemical validation
         self.atom_decoder = atom_decoder
         super().__init__(z_t)
         
-        # Debug logging for ring-count constraint
-        # Debug logging removed for production
+        # Initialize blocked edges set for efficient mode
+        if self.use_incremental:
+            self.blocked_edges = {i: set() for i in range(self.batch_size)}
+            # Initialize current ring counts correctly
+            self.current_ring_counts = {}
+            for i in range(self.batch_size):
+                # Reconstruct the graph from the adjacency matrix to get correct ring count
+                adj_matrix = self.z_t_adj[i].cpu().numpy()
+                nx_graph = nx.from_numpy_array(adj_matrix)
+                self.current_ring_counts[i] = len(nx.cycle_basis(nx_graph))
 
     def valid_graph_fn(self, nx_graph):
-        """Check if graph has at most N rings."""
+        """
+        Check if graph satisfies structural constraint: at most N rings.
+        
+        This function ONLY checks structural properties (ring count) and does
+        NOT enforce chemical validity, valency, or connectivity.
+        
+        Args:
+            nx_graph: NetworkX graph to validate
+            
+        Returns:
+            bool: True if graph has at most max_rings cycles
+        """
+        # Use NetworkX to count cycles (rings) - structural constraint only
         cycles = nx.cycle_basis(nx_graph)
-        is_valid = len(cycles) <= self.max_rings
-        
-        # Debug logging removed for production
-        
-        return is_valid
+        ring_count = len(cycles)
+        is_valid = ring_count <= self.max_rings
+        print(f"   🔍 RingCountAtMostProjector.valid_graph_fn(): {ring_count} rings, max={self.max_rings}, valid={is_valid}")
+        return is_valid  # At most N rings
 
     @property
     def can_block_edges(self):
-        """Can block edge additions that would violate constraint."""
+        """Can block edge additions that would violate structural constraint."""
         return True
     
     def project(self, z_s: PlaceHolder):
         """
         Project graphs to satisfy ring-count-at-most constraint.
         
-        This removes edges to ensure the graph has at most max_rings cycles.
+        This implements both baseline mode (full recomputation) and efficient mode
+        (incremental checking with blocked-edge hashing) as described in the explanation.
         """
-        # Debug logging removed for production
+        # Get the current adjacency matrix from z_s
+        current_adj = get_adj_matrix(z_s)
         
-        # Process each graph in the batch
-        for graph_idx, graph in enumerate(self.nx_graphs_list):
-            # Check current ring count
-            cycles = nx.cycle_basis(graph)
-            current_rings = len(cycles)
+        for graph_idx, nx_graph in enumerate(self.nx_graphs_list):
+            # Find edges that are present in z_s but not in the original z_t
+            original_adj = self.z_t_adj[graph_idx]
+            new_edges = torch.where(current_adj[graph_idx] > original_adj)
             
-            # If we already have acceptable ring count, no action needed
-            if current_rings <= self.max_rings:
-                continue
-            
-            # Strategy: Remove edges to reduce ring count
-            attempts = 0
-            max_attempts = 50  # Prevent infinite loops
-            
-            while current_rings > self.max_rings and attempts < max_attempts:
-                attempts += 1
+            for i in range(len(new_edges[0])):
+                u, v = new_edges[0][i].item(), new_edges[1][i].item()
+                if u >= v:  # Skip duplicate edges (undirected graph)
+                    continue
+                    
+                edge_tuple = (u, v)
                 
-                # Find edges that, when removed, would reduce ring count
-                edges_to_remove = []
-                for u, v in graph.edges():
-                    # Temporarily remove edge to check if it reduces ring count
-                    graph.remove_edge(u, v)
-                    new_cycles = nx.cycle_basis(graph)
-                    
-                    if len(new_cycles) < current_rings:
-                        # This edge removal reduces ring count - mark for removal
-                        edges_to_remove.append((u, v))
-                    
-                    # Restore the edge
-                    graph.add_edge(u, v)
-                
-                # Remove edges that reduce ring count
-                for u, v in edges_to_remove:
-                    # Remove edge from graph
-                    graph.remove_edge(u, v)
-                    
-                    # Update tensor
-                    z_s.E[graph_idx, u, v, 0] = 1  # no edge
-                    z_s.E[graph_idx, v, u, 0] = 1  # no edge
-                    
-                    # Clear other edge types
-                    for edge_type in range(1, z_s.E.shape[3]):
-                        z_s.E[graph_idx, u, v, edge_type] = 0
-                        z_s.E[graph_idx, v, u, edge_type] = 0
-                
-                # Update ring count
-                current_rings = len(nx.cycle_basis(graph))
-            
-            # Mark edges as blocked to prevent future violations
-            n = graph.number_of_nodes()
-            current_edges = set(graph.edges())
-            for u in range(n):
-                for v in range(n):
-                    if u != v and (u, v) not in current_edges and (v, u) not in current_edges:
-                        if self.can_block_edges:
-                            self.blocked_edges[graph_idx][(u, v)] = True
-            
-            self.nx_graphs_list[graph_idx] = graph  # save new graph
-        
-        # store modified z_s
+                if self.use_incremental:
+                    if edge_tuple in self.blocked_edges[graph_idx]:
+                        # Blocked already, reject immediately
+                        z_s.E[graph_idx, u, v] = F.one_hot(torch.tensor(0), num_classes=z_s.E.shape[-1])
+                        z_s.E[graph_idx, v, u] = F.one_hot(torch.tensor(0), num_classes=z_s.E.shape[-1])
+                        continue
+
+                    # Check if adding this edge would create a new ring
+                    if nx.has_path(nx_graph, u, v):
+                        # This edge would create a new ring
+                        if self.current_ring_counts[graph_idx] + 1 > self.max_rings:
+                            # Block permanently
+                            self.blocked_edges[graph_idx].add(edge_tuple)
+                            z_s.E[graph_idx, u, v] = F.one_hot(torch.tensor(0), num_classes=z_s.E.shape[-1])
+                            z_s.E[graph_idx, v, u] = F.one_hot(torch.tensor(0), num_classes=z_s.E.shape[-1])
+                        else:
+                            # Allow the edge
+                            nx_graph.add_edge(u, v)
+                            self.current_ring_counts[graph_idx] += 1
+                    else:
+                        # No path exists, so no new ring created
+                        nx_graph.add_edge(u, v)
+                else:
+                    # Baseline mode: add edge and check if valid
+                    nx_graph.add_edge(u, v)
+                    if not self.valid_graph_fn(nx_graph):
+                        # Remove the edge if it violates constraint
+                        nx_graph.remove_edge(u, v)
+                        z_s.E[graph_idx, u, v] = F.one_hot(torch.tensor(0), num_classes=z_s.E.shape[-1])
+                        z_s.E[graph_idx, v, u] = F.one_hot(torch.tensor(0), num_classes=z_s.E.shape[-1])
+
+            self.nx_graphs_list[graph_idx] = nx_graph
+
         self.z_t_adj = get_adj_matrix(z_s)
-        
-        # Debug logging after projection - removed to reduce output
 
 
 class RingLengthAtMostProjector(AbstractProjector):
     """
     Edge-Deletion Projector: Ensures graphs have rings of at most N length.
     
-    Original ConStruct implementation for edge-deletion constraints.
+    CONSTRUCT PHILOSOPHY: This projector enforces ONLY structural constraints
+    (ring length) and does NOT enforce chemical validity, valency, or connectivity.
+    Chemical properties are measured post-generation.
+    
+    Mathematical Construction:
+    - Constraint: "All rings have length at most N" (structural only)
+    - Forward diffusion: Edges progressively disappear toward no-edge state
+    - Reverse diffusion: Edges are added while preserving max ring length constraint
+    - Natural bias: toward sparse graphs (fewer edges = fewer ring possibilities)
+    
+    Structural Constraint:
+    - Check ring lengths using NetworkX cycle_basis()
+    - Block edge additions that would create rings longer than maximum
+    - Remove edges that create rings longer than allowed
+    
+    CRITICAL: Chemical validity (valency, connectivity, atom types) is NOT enforced.
+    These properties are measured separately after generation using RDKit.
+    
+    Usage:
+    - Transition: 'absorbing_edges'
+    - Config: rev_proj: 'ring_length_at_most', max_ring_length: N, use_incremental: bool
+    - Post-generation: Run RDKit validation to measure chemical properties
+    
+    MODES:
+    - Baseline mode: Full cycle enumeration after each candidate edge removal
+    - Efficient mode: Incremental enforcement using shortest-path detection and blocked-edge hash set
     """
     
-    def __init__(self, z_t: PlaceHolder, max_ring_length: int, atom_decoder=None):
+    def __init__(self, z_t: PlaceHolder, max_ring_length: int, atom_decoder=None, use_incremental=False):
         self.max_ring_length = max_ring_length
+        self.use_incremental = use_incremental
         self.atom_decoder = atom_decoder
         super().__init__(z_t)
         
-        # Debug logging for ring-length constraint
-        # Debug logging removed for production
+        # Initialize blocked edges set for efficient mode
+        if self.use_incremental:
+            self.blocked_edges = {i: set() for i in range(self.batch_size)}
 
     def valid_graph_fn(self, nx_graph):
         """Check if all rings have length at most N."""
         cycles = nx.cycle_basis(nx_graph)
         for cycle in cycles:
             if len(cycle) > self.max_ring_length:
-                # Debug logging removed for production
                 return False
         return True
 
@@ -602,78 +658,57 @@ class RingLengthAtMostProjector(AbstractProjector):
         """
         Project graphs to satisfy ring-length-at-most constraint.
         
-        This removes edges to ensure all rings have length at most max_ring_length.
+        This implements both baseline mode (full recomputation) and efficient mode
+        (incremental checking with blocked-edge hashing) as described in the explanation.
         """
-        # Debug logging removed for production
+        # Get the current adjacency matrix from z_s
+        current_adj = get_adj_matrix(z_s)
         
-        # Process each graph in the batch
         for graph_idx, nx_graph in enumerate(self.nx_graphs_list):
-            # Check current ring lengths
-            cycles = nx.cycle_basis(nx_graph)
-            cycle_lengths = [len(c) for c in cycles]
-            max_length = max(cycle_lengths) if cycle_lengths else 0
+            # Find edges that are present in z_s but not in the original z_t
+            original_adj = self.z_t_adj[graph_idx]
+            new_edges = torch.where(current_adj[graph_idx] > original_adj)
             
-            # If we already have acceptable ring lengths, no action needed
-            if max_length <= self.max_ring_length:
-                continue
-            
-            # Strategy: Remove edges to break long rings
-            attempts = 0
-            max_attempts = 50  # Prevent infinite loops
-            
-            while max_length > self.max_ring_length and attempts < max_attempts:
-                attempts += 1
+            for i in range(len(new_edges[0])):
+                u, v = new_edges[0][i].item(), new_edges[1][i].item()
+                if u >= v:  # Skip duplicate edges (undirected graph)
+                    continue
+                    
+                edge_tuple = (u, v)
                 
-                # Find edges that, when removed, would break long rings
-                edges_to_remove = []
-                for u, v in nx_graph.edges():
-                    # Temporarily remove edge to check if it breaks long rings
-                    nx_graph.remove_edge(u, v)
-                    new_cycles = nx.cycle_basis(nx_graph)
-                    new_cycle_lengths = [len(c) for c in new_cycles]
-                    new_max_length = max(new_cycle_lengths) if new_cycle_lengths else 0
-                    
-                    if new_max_length < max_length:
-                        # This edge removal breaks long rings - mark for removal
-                        edges_to_remove.append((u, v))
-                    
-                    # Restore the edge
+                if self.use_incremental:
+                    if edge_tuple in self.blocked_edges[graph_idx]:
+                        z_s.E[graph_idx, u, v] = F.one_hot(torch.tensor(0), num_classes=z_s.E.shape[-1])
+                        z_s.E[graph_idx, v, u] = F.one_hot(torch.tensor(0), num_classes=z_s.E.shape[-1])
+                        continue
+
+                    # Check if adding this edge would create a ring longer than allowed
+                    try:
+                        path_length = nx.shortest_path_length(nx_graph, u, v)
+                        potential_cycle_length = path_length + 1
+                    except nx.NetworkXNoPath:
+                        potential_cycle_length = 0
+
+                    if potential_cycle_length > self.max_ring_length:
+                        # Block permanently
+                        self.blocked_edges[graph_idx].add(edge_tuple)
+                        z_s.E[graph_idx, u, v] = F.one_hot(torch.tensor(0), num_classes=z_s.E.shape[-1])
+                        z_s.E[graph_idx, v, u] = F.one_hot(torch.tensor(0), num_classes=z_s.E.shape[-1])
+                    else:
+                        # Allow the edge
+                        nx_graph.add_edge(u, v)
+                else:
+                    # Baseline mode: add edge and check if valid
                     nx_graph.add_edge(u, v)
-                
-                # Remove edges that break long rings
-                for u, v in edges_to_remove:
-                    # Remove edge from graph
-                    nx_graph.remove_edge(u, v)
-                    
-                    # Update tensor
-                    z_s.E[graph_idx, u, v, 0] = 1  # no edge
-                    z_s.E[graph_idx, v, u, 0] = 1  # no edge
-                    
-                    # Clear other edge types
-                    for edge_type in range(1, z_s.E.shape[3]):
-                        z_s.E[graph_idx, u, v, edge_type] = 0
-                        z_s.E[graph_idx, v, u, edge_type] = 0
-                
-                # Update ring lengths
-                cycles = nx.cycle_basis(nx_graph)
-                cycle_lengths = [len(c) for c in cycles]
-                max_length = max(cycle_lengths) if cycle_lengths else 0
-            
-            # Mark edges as blocked to prevent future violations
-            n = nx_graph.number_of_nodes()
-            current_edges = set(nx_graph.edges())
-            for u in range(n):
-                for v in range(n):
-                    if u != v and (u, v) not in current_edges and (v, u) not in current_edges:
-                        if self.can_block_edges:
-                            self.blocked_edges[graph_idx][(u, v)] = True
-            
-            self.nx_graphs_list[graph_idx] = nx_graph  # save new graph
-        
-        # store modified z_s
+                    if not self.valid_graph_fn(nx_graph):
+                        # Remove the edge if it violates constraint
+                        nx_graph.remove_edge(u, v)
+                        z_s.E[graph_idx, u, v] = F.one_hot(torch.tensor(0), num_classes=z_s.E.shape[-1])
+                        z_s.E[graph_idx, v, u] = F.one_hot(torch.tensor(0), num_classes=z_s.E.shape[-1])
+
+            self.nx_graphs_list[graph_idx] = nx_graph
+
         self.z_t_adj = get_adj_matrix(z_s)
-        
-        # Debug logging after projection - removed to reduce output
 
 
 class RingCountAtLeastProjector(AbstractProjector):

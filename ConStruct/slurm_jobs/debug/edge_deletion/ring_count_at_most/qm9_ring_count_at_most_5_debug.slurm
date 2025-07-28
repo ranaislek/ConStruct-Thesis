@@ -11,7 +11,7 @@
 # Load environment
 cd /home/rislek/ConStruct-Thesis
 source /conf/shared-software/anaconda/etc/profile.d/conda.sh
-conda activate construct
+conda activate construct-env
 
 export LD_PRELOAD="$CONDA_PREFIX/lib/libgomp.so.1"
 
@@ -23,14 +23,8 @@ export WANDB_SILENT=false  # Show WandB progress
 export WANDB_NETWORK_TIMEOUT=300
 export WANDB_HTTP_TIMEOUT=300
 
-# CUDA optimizations
-export CUDA_LAUNCH_BLOCKING=1
-
 # Force unbuffered output for better logging
 export PYTHONUNBUFFERED=1
-
-# Set CUDA device
-export CUDA_VISIBLE_DEVICES=0
 
 # CUDA verification
 python -c 'import torch; print("torch version:", torch.__version__); print("CUDA available:", torch.cuda.is_available()); print("CUDA device:", torch.cuda.get_device_name(0) if torch.cuda.is_available() else "None")'
