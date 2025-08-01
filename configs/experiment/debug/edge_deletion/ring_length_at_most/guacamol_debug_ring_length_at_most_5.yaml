@@ -9,8 +9,8 @@ general:
   samples_to_generate: 10
   samples_to_save: 5
   chains_to_save: 2
-  final_model_samples_to_generate: 20
-  final_model_samples_to_save: 10
+  final_model_samples_to_generate: 100
+  final_model_samples_to_save: 50
   final_model_chains_to_save: 5
   number_chain_steps: 50
 train:
@@ -29,12 +29,11 @@ model:
     dx: 8
     de: 4
     dy: 4
-    n_head: 2
+    n_head: 4
     dim_ffX: 8
     dim_ffE: 4
     dim_ffy: 8
   # Edge-deletion constraint settings:
-  max_rings: 3                    # Maximum rings allowed
   max_ring_length: 5              # Maximum 5-ring length
   rev_proj: ring_length_at_most    # Edge-deletion projector for "at most" constraints
   transition: absorbing_edges      # Edge-deletion transition

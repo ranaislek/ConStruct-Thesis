@@ -1,4 +1,5 @@
 import abc
+import logging
 
 import networkx as nx
 import numpy as np
@@ -16,6 +17,10 @@ from ConStruct.projector.is_ring.is_ring_length_at_least.is_ring_length_at_least
 from ConStruct.utils import PlaceHolder
 from ConStruct.diffusion.extra_features import ExtraFeatures
 from ConStruct.diffusion.extra_features_molecular import ExtraMolecularFeatures
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 def resize_placeholder_tensor(z_s: PlaceHolder, new_size: int, graph_idx: int = 0) -> PlaceHolder:
@@ -270,6 +275,9 @@ class AbstractProjector(abc.ABC):
         if self.can_block_edges:
             self.blocked_edges = {graph_idx: {} for graph_idx in range(self.batch_size)}
 
+        # Initialize total blocked edges counter
+        self.total_blocked = 0
+
         # initialize adjacency matrix and check no edges
         self.z_t_adj = get_adj_matrix(z_t)
 
@@ -302,17 +310,10 @@ class AbstractProjector(abc.ABC):
         # find added edges
         z_s_adj = get_adj_matrix(z_s)
         diff_adj = z_s_adj - self.z_t_adj
-        print(f"🔍 DEBUG: AbstractProjector.project() called")
-        print(f"   z_s_adj has {z_s_adj.sum()} edges, z_t_adj has {self.z_t_adj.sum()} edges")
-        print(f"   diff_adj has {diff_adj.sum()} new edges to add")
-        # print(f"z_t_adj:\n{self.z_t_adj[0].cpu().numpy()}")
-        # print(f"z_s_adj:\n{z_s_adj[0].cpu().numpy()}")
         assert (diff_adj >= 0).all()  # No edges can be removed in the reverse
-        new_edges = diff_adj.nonzero(as_tuple=False)
-        # print(f"Projector: z_s_adj has {z_s_adj.sum()} edges, z_t_adj has {self.z_t_adj.sum()} edges, diff_adj has {diff_adj.sum()} new edges")
-        # print(f"Projector: new_edges = {new_edges}")
         
         # Process each graph in the batch
+        new_edges = diff_adj.nonzero(as_tuple=False)
         for graph_idx, nx_graph in enumerate(self.nx_graphs_list):
             old_nx_graph = nx_graph.copy()
             edges_to_add = (
@@ -327,8 +328,6 @@ class AbstractProjector(abc.ABC):
             if edges_to_add.is_cuda:
                 edges_to_add = edges_to_add.cpu()
             edges_to_add = edges_to_add.numpy()
-            print(f"   Graph {graph_idx}: {len(edges_to_add)} edges to add")
-            # print(f"Graph {graph_idx}, edges_to_add: {edges_to_add}")
 
             # If we can block edges, we do it
             if self.can_block_edges:
@@ -342,29 +341,24 @@ class AbstractProjector(abc.ABC):
                         z_s.E[graph_idx, edge[1], edge[0]] = F.one_hot(
                             torch.tensor(0), num_classes=z_s.E.shape[-1]
                         )
+                        self.total_blocked += 1
                     else:
                         not_blocked_edges.append(edge)
                 edges_to_add = np.array(not_blocked_edges)
 
             # First try add all edges (we might be lucky)
             if len(edges_to_add) > 1:  # avoid repetition of steps
-                print(f"   Trying to add all {len(edges_to_add)} edges at once")
                 nx_graph.add_edges_from(edges_to_add)
 
             # If it fails, we go one by one and delete the ring breakers
-            print(f"   Checking validity after adding edges")
-            print(f"   Graph valid: {self.valid_graph_fn(nx_graph)}")
             if not self.valid_graph_fn(nx_graph) or len(edges_to_add) == 1:
                 nx_graph = old_nx_graph
                 # Try to add edges one by one (in random order)
-                print(f"   Adding edges one by one...")
                 np.random.shuffle(edges_to_add)
-                for i, edge in enumerate(edges_to_add):
-                    print(f"   Edge {i+1}/{len(edges_to_add)}: ({edge[0]}, {edge[1]})")
+                for edge in edges_to_add:
                     old_nx_graph = nx_graph.copy()
                     nx_graph.add_edge(edge[0], edge[1])
                     if not self.valid_graph_fn(nx_graph):
-                        print(f"   ❌ Edge ({edge[0]}, {edge[1]}) violates constraint - BLOCKING")
                         nx_graph = old_nx_graph
                         # deleting edge from edges tensor (changes z_s in place)
                         z_s.E[graph_idx, edge[0], edge[1]] = F.one_hot(
@@ -376,20 +370,9 @@ class AbstractProjector(abc.ABC):
                         # this edge breaks validity
                         if self.can_block_edges:
                             self.blocked_edges[graph_idx][tuple(edge)] = True
-                    else:
-                        print(f"   ✅ Edge ({edge[0]}, {edge[1]}) accepted")
-            
-            # After adding all possible edges, check if we need to remove edges from existing rings
-            if not self.valid_graph_fn(nx_graph):
-                # This should be handled by specific projector classes
-                # The AbstractProjector should not call ring_count_at_most_projector
-                # as it doesn't have access to self.max_rings
-                pass
+                        self.total_blocked += 1
             
             self.nx_graphs_list[graph_idx] = nx_graph  # save new graph
-
-            # Check that nx graphs is correctly stored
-            # (Removed assertion for tensor/NetworkX adjacency equality)
 
         # store modified z_s
         self.z_t_adj = get_adj_matrix(z_s)
@@ -440,12 +423,68 @@ def has_lobster_components(nx_graph):
 
 
 class PlanarProjector(AbstractProjector):
+    def __init__(self, z_t: PlaceHolder):
+        super().__init__(z_t)
+        # Initialize planarity statistics
+        self.total_blocked = 0
+        self.total_edges_checked = 0
+        self.verbose = False  # Set to True for detailed debugging
+        
+        # Print mode information once per class instance
+        if not hasattr(self.__class__, '_printed_planar_mode'):
+            # print(f"🔧 PlanarProjector initialized")
+            # print(f"   🎯 Enforcing planarity constraint")
+            self.__class__._printed_planar_mode = True
+
     def valid_graph_fn(self, nx_graph):
         return is_planar.is_planar(nx_graph)
 
     @property
     def can_block_edges(self):
         return True
+    
+    def project(self, z_s: PlaceHolder):
+        """
+        Project graphs to satisfy planarity constraint.
+        
+        This implements planarity enforcement by blocking edges that would
+        create non-planar graphs during reverse diffusion.
+        """
+        # Get the current adjacency matrix from z_s
+        current_adj = get_adj_matrix(z_s)
+        
+        # Track projection statistics
+        total_edges_checked = 0
+        edges_blocked = 0
+        
+        for graph_idx, nx_graph in enumerate(self.nx_graphs_list):
+            # Find edges that are present in z_s but not in the original z_t
+            original_adj = self.z_t_adj[graph_idx]
+            new_edges = torch.where(current_adj[graph_idx] > original_adj)
+            
+            for i in range(len(new_edges[0])):
+                u, v = new_edges[0][i].item(), new_edges[1][i].item()
+                if u >= v:  # Skip duplicate edges (undirected graph)
+                    continue
+                    
+                edge_tuple = (u, v)
+                total_edges_checked += 1
+                
+                # Add edge and check if it makes the graph non-planar
+                nx_graph.add_edge(u, v)
+                if not self.valid_graph_fn(nx_graph):
+                    # Remove the edge if it violates planarity
+                    nx_graph.remove_edge(u, v)
+                    z_s.E[graph_idx, u, v] = F.one_hot(torch.tensor(0), num_classes=z_s.E.shape[-1])
+                    z_s.E[graph_idx, v, u] = F.one_hot(torch.tensor(0), num_classes=z_s.E.shape[-1])
+                    edges_blocked += 1
+                    self.total_blocked += 1
+
+            self.nx_graphs_list[graph_idx] = nx_graph
+
+
+
+        self.z_t_adj = get_adj_matrix(z_s)
 
 
 class TreeProjector(AbstractProjector):
@@ -505,6 +544,15 @@ class RingCountAtMostProjector(AbstractProjector):
         self.atom_decoder = atom_decoder
         super().__init__(z_t)
         
+        # Only print mode information once per class instance
+        if not hasattr(self.__class__, '_printed_mode'):
+            # print(f"🔧 RingCountAtMostProjector initialized: max_rings={max_rings}, use_incremental={use_incremental}")
+            # if self.use_incremental:
+            #     print(f"   🚀 Using INCREMENTAL mode (efficient)")
+            # else:
+            #     print(f"   🐌 Using BASELINE mode (full recomputation)")
+            self.__class__._printed_mode = True
+        
         # Initialize blocked edges set for efficient mode
         if self.use_incremental:
             self.blocked_edges = {i: set() for i in range(self.batch_size)}
@@ -515,6 +563,9 @@ class RingCountAtMostProjector(AbstractProjector):
                 adj_matrix = self.z_t_adj[i].cpu().numpy()
                 nx_graph = nx.from_numpy_array(adj_matrix)
                 self.current_ring_counts[i] = len(nx.cycle_basis(nx_graph))
+        
+        # Verbose logging flag (set to True for detailed debugging)
+        self.verbose = False
 
     def valid_graph_fn(self, nx_graph):
         """
@@ -533,7 +584,7 @@ class RingCountAtMostProjector(AbstractProjector):
         cycles = nx.cycle_basis(nx_graph)
         ring_count = len(cycles)
         is_valid = ring_count <= self.max_rings
-        print(f"   🔍 RingCountAtMostProjector.valid_graph_fn(): {ring_count} rings, max={self.max_rings}, valid={is_valid}")
+        # print(f"   🔍 RingCountAtMostProjector.valid_graph_fn(): {ring_count} rings, max={self.max_rings}, valid={is_valid}")
         return is_valid  # At most N rings
 
     @property
@@ -548,8 +599,15 @@ class RingCountAtMostProjector(AbstractProjector):
         This implements both baseline mode (full recomputation) and efficient mode
         (incremental checking with blocked-edge hashing) as described in the explanation.
         """
+        # Timing for projection
+        projection_start_time = time.time()
+        
         # Get the current adjacency matrix from z_s
         current_adj = get_adj_matrix(z_s)
+        
+        # Track projection statistics
+        total_edges_checked = 0
+        edges_blocked = 0
         
         for graph_idx, nx_graph in enumerate(self.nx_graphs_list):
             # Find edges that are present in z_s but not in the original z_t
@@ -562,12 +620,15 @@ class RingCountAtMostProjector(AbstractProjector):
                     continue
                     
                 edge_tuple = (u, v)
+                total_edges_checked += 1
                 
                 if self.use_incremental:
                     if edge_tuple in self.blocked_edges[graph_idx]:
                         # Blocked already, reject immediately
                         z_s.E[graph_idx, u, v] = F.one_hot(torch.tensor(0), num_classes=z_s.E.shape[-1])
                         z_s.E[graph_idx, v, u] = F.one_hot(torch.tensor(0), num_classes=z_s.E.shape[-1])
+                        edges_blocked += 1
+                        self.total_blocked += 1
                         continue
 
                     # Check if adding this edge would create a new ring
@@ -578,6 +639,8 @@ class RingCountAtMostProjector(AbstractProjector):
                             self.blocked_edges[graph_idx].add(edge_tuple)
                             z_s.E[graph_idx, u, v] = F.one_hot(torch.tensor(0), num_classes=z_s.E.shape[-1])
                             z_s.E[graph_idx, v, u] = F.one_hot(torch.tensor(0), num_classes=z_s.E.shape[-1])
+                            edges_blocked += 1
+                            self.total_blocked += 1
                         else:
                             # Allow the edge
                             nx_graph.add_edge(u, v)
@@ -593,8 +656,15 @@ class RingCountAtMostProjector(AbstractProjector):
                         nx_graph.remove_edge(u, v)
                         z_s.E[graph_idx, u, v] = F.one_hot(torch.tensor(0), num_classes=z_s.E.shape[-1])
                         z_s.E[graph_idx, v, u] = F.one_hot(torch.tensor(0), num_classes=z_s.E.shape[-1])
+                        edges_blocked += 1
+                        self.total_blocked += 1
 
             self.nx_graphs_list[graph_idx] = nx_graph
+
+        # Log projection timing (only at key timesteps to reduce noise)
+        projection_time = time.time() - projection_start_time
+        if hasattr(self, 'current_timestep') and self.current_timestep % 100 == 0:
+            logger.info(f"⏱️ RingCountAtMostProjector: projection_time={projection_time:.4f}s, mode={'INCREMENTAL' if self.use_incremental else 'BASELINE'}")
 
         self.z_t_adj = get_adj_matrix(z_s)
 
@@ -637,9 +707,21 @@ class RingLengthAtMostProjector(AbstractProjector):
         self.atom_decoder = atom_decoder
         super().__init__(z_t)
         
+        # Only print mode information once per class instance
+        if not hasattr(self.__class__, '_printed_mode'):
+            # print(f"🔧 RingLengthAtMostProjector initialized: max_ring_length={max_ring_length}, use_incremental={use_incremental}")
+            # if self.use_incremental:
+            #     print(f"   🚀 Using INCREMENTAL mode (efficient)")
+            # else:
+            #     print(f"   🐌 Using BASELINE mode (full recomputation)")
+            self.__class__._printed_mode = True
+        
         # Initialize blocked edges set for efficient mode
         if self.use_incremental:
             self.blocked_edges = {i: set() for i in range(self.batch_size)}
+        
+        # Verbose logging flag (set to True for detailed debugging)
+        self.verbose = False
 
     def valid_graph_fn(self, nx_graph):
         """Check if all rings have length at most N."""
@@ -661,8 +743,15 @@ class RingLengthAtMostProjector(AbstractProjector):
         This implements both baseline mode (full recomputation) and efficient mode
         (incremental checking with blocked-edge hashing) as described in the explanation.
         """
+        # Timing for projection
+        projection_start_time = time.time()
+        
         # Get the current adjacency matrix from z_s
         current_adj = get_adj_matrix(z_s)
+        
+        # Track projection statistics
+        total_edges_checked = 0
+        edges_blocked = 0
         
         for graph_idx, nx_graph in enumerate(self.nx_graphs_list):
             # Find edges that are present in z_s but not in the original z_t
@@ -675,11 +764,14 @@ class RingLengthAtMostProjector(AbstractProjector):
                     continue
                     
                 edge_tuple = (u, v)
+                total_edges_checked += 1
                 
                 if self.use_incremental:
                     if edge_tuple in self.blocked_edges[graph_idx]:
                         z_s.E[graph_idx, u, v] = F.one_hot(torch.tensor(0), num_classes=z_s.E.shape[-1])
                         z_s.E[graph_idx, v, u] = F.one_hot(torch.tensor(0), num_classes=z_s.E.shape[-1])
+                        # Edge already blocked
+                        edges_blocked += 1
                         continue
 
                     # Check if adding this edge would create a ring longer than allowed
@@ -694,9 +786,12 @@ class RingLengthAtMostProjector(AbstractProjector):
                         self.blocked_edges[graph_idx].add(edge_tuple)
                         z_s.E[graph_idx, u, v] = F.one_hot(torch.tensor(0), num_classes=z_s.E.shape[-1])
                         z_s.E[graph_idx, v, u] = F.one_hot(torch.tensor(0), num_classes=z_s.E.shape[-1])
+                        # Edge blocked - would create ring longer than allowed
+                        edges_blocked += 1
                     else:
                         # Allow the edge
                         nx_graph.add_edge(u, v)
+                        # Edge allowed
                 else:
                     # Baseline mode: add edge and check if valid
                     nx_graph.add_edge(u, v)
@@ -705,8 +800,14 @@ class RingLengthAtMostProjector(AbstractProjector):
                         nx_graph.remove_edge(u, v)
                         z_s.E[graph_idx, u, v] = F.one_hot(torch.tensor(0), num_classes=z_s.E.shape[-1])
                         z_s.E[graph_idx, v, u] = F.one_hot(torch.tensor(0), num_classes=z_s.E.shape[-1])
+                        edges_blocked += 1
 
             self.nx_graphs_list[graph_idx] = nx_graph
+
+        # Log projection timing (only at key timesteps to reduce noise)
+        projection_time = time.time() - projection_start_time
+        if hasattr(self, 'current_timestep') and self.current_timestep % 100 == 0:
+            logger.info(f"⏱️ RingLengthAtMostProjector: projection_time={projection_time:.4f}s, mode={'INCREMENTAL' if self.use_incremental else 'BASELINE'}")
 
         self.z_t_adj = get_adj_matrix(z_s)
 
@@ -793,34 +894,23 @@ class RingCountAtLeastProjector(AbstractProjector):
         Args:
             z_s: PlaceHolder tensor to project
         """
-        print(f"🔍 DEBUG: RingCountAtLeastProjector.project() called with min_rings={self.min_rings}")
-        print(f"🔍 DEBUG: Input z_s.X shape: {z_s.X.shape}, z_s.E shape: {z_s.E.shape}")
-        print(f"🔍 DEBUG: Number of graphs to process: {len(self.nx_graphs_list)}")
-        
         # Process each graph in the batch
         for graph_idx, nx_graph in enumerate(self.nx_graphs_list):
-            print(f"🔍 DEBUG: Processing graph {graph_idx}")
-            print(f"🔍 DEBUG: Graph nodes: {list(nx_graph.nodes())}")
-            print(f"🔍 DEBUG: Graph edges: {list(nx_graph.edges())}")
             # Check current ring count (structural constraint only)
             cycles = nx.cycle_basis(nx_graph)
             current_rings = len(cycles)
-            print(f"🔍 DEBUG: Current rings: {current_rings}, target: {self.min_rings}")
             
             # If we already have enough rings, no action needed
             if current_rings >= self.min_rings:
-                print(f"🔍 DEBUG: Graph {graph_idx} already satisfies constraint")
                 continue
             
             # ===== IMPROVED STRATEGIC RING CREATION =====
             attempts = 0
             max_attempts = 100  # Increased for better coverage
-            print(f"🔍 DEBUG: Starting ring creation attempts, max: {max_attempts}")
             
             while current_rings < self.min_rings and attempts < max_attempts:
                 attempts += 1
                 ring_created = False
-                print(f"🔍 DEBUG: Attempt {attempts}, current rings: {current_rings}")
                 
                 # Strategy 1: Find nodes that could form rings when connected
                 nodes = list(nx_graph.nodes())
@@ -853,7 +943,7 @@ class RingCountAtLeastProjector(AbstractProjector):
                                 
                                 if len(new_cycles) > current_rings:
                                     # SUCCESS: This edge created a new ring
-                                    print(f"🔍 DEBUG: SUCCESS! Added edge {node1}-{node2}, rings: {current_rings} -> {len(new_cycles)}")
+                                    # Edge successfully added
                                     z_s.E[graph_idx, node1, node2, 1] = 1  # single bond
                                     z_s.E[graph_idx, node2, node1, 1] = 1  # undirected
                                     ring_created = True
@@ -867,12 +957,12 @@ class RingCountAtLeastProjector(AbstractProjector):
                             continue
                     
                 if ring_created:
-                    print(f"🔍 DEBUG: Ring created in attempt {attempts}")
+                                                        # print(f"🔍 DEBUG: Ring created in attempt {attempts}")  # Detailed debugging - commented for clean output
                     break
                 
                 # Strategy 4: If no rings created with existing paths, try creating triangles
                 if not ring_created and n_nodes >= 3:
-                    print(f"🔍 DEBUG: Trying triangle creation strategy")
+                                                    # print(f"🔍 DEBUG: Trying triangle creation strategy")  # Detailed debugging - commented for clean output
                     for i in range(n_nodes):
                         for j in range(i + 1, n_nodes):
                             for k in range(j + 1, n_nodes):
@@ -954,9 +1044,13 @@ class RingCountAtLeastProjector(AbstractProjector):
             
             self.nx_graphs_list[graph_idx] = nx_graph  # save new graph
 
+        # Print summary statistics
+        if hasattr(self, 'current_timestep') and self.current_timestep == 0:
+            print(f"🔍 FINAL: Total edges added for ring count at least across all timesteps: {getattr(self, 'total_added', 0)}")
+        
         # store modified z_s
         self.z_t_adj = get_adj_matrix(z_s)
-        print(f"🔍 DEBUG: RingCountAtLeastProjector.project() completed")
+        # RingCountAtLeastProjector.project() completed
 
 
 class RingLengthAtLeastProjector(AbstractProjector):

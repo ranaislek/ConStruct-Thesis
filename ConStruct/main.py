@@ -15,9 +15,9 @@ from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import ModelCheckpoint
 from lightning_fabric.utilities.warnings import PossibleUserWarning
 
-import utils
-from diffusion_model_discrete import DiscreteDenoisingDiffusion
-from baseline import BaselineModel
+from ConStruct import utils
+from ConStruct.diffusion_model_discrete import DiscreteDenoisingDiffusion
+from ConStruct.baseline import BaselineModel
 from ConStruct.metrics.sampling_metrics import SamplingMetrics
 
 torch.cuda.empty_cache()
@@ -54,22 +54,22 @@ def main(cfg: DictConfig):
         dataset_infos = protein_dataset.ProteinInfos(datamodule=datamodule)
 
     elif dataset_config.name == "qm9":
-        from datasets.qm9_dataset import QM9DataModule, QM9Infos
+        from ConStruct.datasets.qm9_dataset import QM9DataModule, QM9Infos
 
         datamodule = QM9DataModule(cfg)
         dataset_infos = QM9Infos(datamodule, cfg)
     elif dataset_config.name == "guacamol":
-        from datasets.guacamol_dataset import GuacamolDataModule, GuacamolInfos
+        from ConStruct.datasets.guacamol_dataset import GuacamolDataModule, GuacamolInfos
 
         datamodule = GuacamolDataModule(cfg)
         dataset_infos = GuacamolInfos(datamodule, cfg)
     elif dataset_config.name == "moses":
-        from datasets.moses_dataset import MosesDataModule, MosesInfos
+        from ConStruct.datasets.moses_dataset import MosesDataModule, MosesInfos
 
         datamodule = MosesDataModule(cfg)
         dataset_infos = MosesInfos(datamodule, cfg)
     elif dataset_config.name in ["low_tls", "high_tls"]:
-        from datasets.tls_dataset import TLSDataModule, TLSInfos
+        from ConStruct.datasets.tls_dataset import TLSDataModule, TLSInfos
 
         datamodule = TLSDataModule(cfg)
         dataset_infos = TLSInfos(datamodule)

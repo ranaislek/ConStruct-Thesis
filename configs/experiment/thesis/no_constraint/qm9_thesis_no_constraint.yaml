@@ -1,52 +1,50 @@
-# @package _global_
 general:
-  name: 'qm9_thesis_no_constraint'
-  wandb: 'online'
+  name: qm9_thesis_no_constraint
+  wandb: online
   resume: null
   test_only: null
   check_val_every_n_epochs: 20
   sample_every_val: 5
-  samples_to_generate: 1000
-  samples_to_save: 500
-  chains_to_save: 50
-  final_model_samples_to_generate: 2000
-  final_model_samples_to_save: 1000
-  final_model_chains_to_save: 100
-  number_chain_steps: 300
+  samples_to_generate: 500
+  samples_to_save: 200
+  chains_to_save: 20
+  final_model_samples_to_generate: 1000
+  final_model_samples_to_save: 500
+  final_model_chains_to_save: 50
+  number_chain_steps: 100
 train:
   n_epochs: 1000
-  batch_size: 128
+  batch_size: 64  # Reduced from 128 to prevent memory issues
+  learning_rate: 1e-4     # Standard for diffusion models
+  ema_decay: 0.999        # Recommended exponential moving average decay
   save_model: true
 model:
   diffusion_steps: 500
-  n_layers: 3
+  n_layers: 4             # Increased layers for better molecular representation
   hidden_mlp_dims:
-    X: 64
-    E: 32
-    y: 32
+    X: 128
+    E: 128
+    y: 128
   hidden_dims:
-    dx: 64
-    de: 32
-    dy: 32
-    n_head: 8
-    dim_ffX: 64
-    dim_ffE: 32
-    dim_ffy: 64
-  # No constraint settings:
-  rev_proj: null                    # No constraint projector
-  transition: absorbing_edges        # Standard edge-deletion transition
-  
-  # ConStruct philosophy: Post-generation validation
-  post_gen_validation: True  # Enable post-generation chemical validation
+    dx: 128
+    de: 128
+    dy: 128
+    n_head: 4
+    dim_ffX: 256
+    dim_ffE: 256
+    dim_ffy: 256
+  rev_proj: null
+  transition: absorbing_edges
+  post_gen_validation: true
   post_gen_validation_config:
-    enable_rdkit: True
-    enable_valency_check: True
-    enable_connectivity_check: True
+    enable_rdkit: true
+    enable_valency_check: true
+    enable_connectivity_check: true
 dataset:
   name: qm9
   remove_h: true
   datadir: data/qm9
-  batch_size: 128
-  num_workers: 4
+  batch_size: 64  # Reduced from 128 to prevent memory issues
+  num_workers: 2  # Reduced from 4 to prevent memory issues
   adaptive_loader: false
-  fraction: 1.0 
+  fraction: 1.0

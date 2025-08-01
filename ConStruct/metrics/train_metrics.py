@@ -111,7 +111,7 @@ class TrainLoss(nn.Module):
             self.node_loss.compute() if self.node_loss.total_samples > 0 else -1.0
         )
         epoch_charges_loss = (
-            self.charges_loss.compute().item() if self.charges_loss > 0 else -1.0
+            self.charges_loss.compute().item() if self.charges_loss.total_samples > 0 else -1.0
         )
         epoch_edge_loss = (
             self.edge_loss.compute() if self.edge_loss.total_samples > 0 else -1.0

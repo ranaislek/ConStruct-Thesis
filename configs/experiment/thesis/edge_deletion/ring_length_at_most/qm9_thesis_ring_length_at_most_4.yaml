@@ -39,8 +39,7 @@ model:
     dim_ffy: 256
 
   # Edge-deletion constraint settings aligned to QM9 dataset statistics:
-  max_rings: 3            # Maximum rings allowed
-  max_ring_length: 4      # Maximum 4-ring length
+  max_ring_length: 4      # Maximum ring length of 4
   rev_proj: ring_length_at_most  # Edge-deletion projector for "at most" constraints
   transition: absorbing_edges       # Edge-deletion transition
 

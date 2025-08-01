@@ -3,7 +3,7 @@
 #SBATCH --output=/home/rislek/ConStruct-Thesis/ConStruct/logs/qm9_ring_count_at_most_1_thesis_%j.out
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
-#SBATCH --mem=20G
+#SBATCH --mem=40G
 #SBATCH --gres=gpu:1
 #SBATCH --constraint=A6000|A5000
 #SBATCH --time=48:00:00

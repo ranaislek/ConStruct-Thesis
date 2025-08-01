@@ -17,7 +17,7 @@ general:
 
 train:
   n_epochs: 1000
-  batch_size: 128         # Adjusted from 256 for consistency and typical GPU capacity
+  batch_size: 128         # Back to 128 with 40GB memory
   learning_rate: 1e-4     # Standard for diffusion models
   ema_decay: 0.999        # Recommended exponential moving average decay
   save_model: True
@@ -39,7 +39,7 @@ model:
     dim_ffy: 256
 
   # Edge-deletion constraint settings aligned to QM9 dataset statistics:
-  max_rings: 4            # Maximum 4 rings allowed
+  max_rings: 4            # At most 4 rings allowed
   max_ring_length: 6      # Maximum ring length
   rev_proj: ring_count_at_most  # Edge-deletion projector for "at most" constraints
   transition: absorbing_edges       # Edge-deletion transition
@@ -48,7 +48,7 @@ dataset:
   name: qm9
   remove_h: true
   datadir: 'data/qm9'
-  batch_size: 128         # Consistent with training batch size
+  batch_size: 128         # Back to 128 with 40GB memory
   num_workers: 4          # Improved data loading performance
   adaptive_loader: false
   fraction: 1.0           # Use entire dataset for robust model training

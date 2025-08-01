@@ -2,6 +2,7 @@ import math
 import os
 import pickle
 import time
+import logging
 
 import networkx as nx
 import numpy as np
@@ -12,8 +13,12 @@ import torch.nn.functional as F
 import pytorch_lightning as pl
 import wandb
 
-from models.transformer_model import GraphTransformer
-from diffusion.noise_model import (
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+from ConStruct.models.transformer_model import GraphTransformer
+from ConStruct.diffusion.noise_model import (
     DiscreteUniformTransition,
     MarginalTransition,
     AbsorbingTransition,
@@ -21,8 +26,8 @@ from diffusion.noise_model import (
     # EdgeInsertionTransition,  # COMMENTED OUT
 )
 from ConStruct.diffusion import diffusion_utils
-from metrics.train_metrics import TrainLoss
-from metrics.abstract_metrics import NLL
+from ConStruct.metrics.train_metrics import TrainLoss
+from ConStruct.metrics.abstract_metrics import NLL
 from ConStruct.analysis.visualization import Visualizer
 from ConStruct import utils
 from ConStruct.metrics.sampling_molecular_metrics import Molecule
@@ -34,6 +39,7 @@ from ConStruct.metrics.abstract_metrics import XKl, ChargesKl, EKl
 from ConStruct.datasets.adaptive_loader import effective_batch_size
 from ConStruct.projector import projector_utils
 import ConStruct.projector.is_planar.is_planar as is_planar
+import time
 from ConStruct.projector.projector_utils import (
     PlanarProjector,
     TreeProjector,
@@ -43,7 +49,9 @@ from ConStruct.projector.projector_utils import (
     # RingCountAtLeastProjector,  # COMMENTED OUT
     # RingLengthAtLeastProjector,  # COMMENTED OUT
 )
-from ConStruct.metrics.post_generation_validation import PostGenerationValidator
+
+
+
 
 
 class DiscreteDenoisingDiffusion(pl.LightningModule):
@@ -53,6 +61,7 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
     start_epoch_time = None
     train_iterations = None
     val_iterations = None
+    sampling_times = []
 
     def __init__(self, cfg, dataset_infos, val_sampling_metrics, test_sampling_metrics):
         super().__init__()
@@ -231,18 +240,15 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
         #     print(f"⚠️  WARNING: Using '{rev_proj}' projector. This may not work as expected.")
         
         # if transition in edge_insertion_transitions and rev_proj in at_most_projectors:
-        #     print(f"⚠️  WARNING: Edge-insertion transition '{transition}' is designed for 'at least' projectors.")
-        #     print(f"⚠️  WARNING: Using '{rev_proj}' projector. This may not work as expected.")
+        # Edge-insertion transitions commented out (not used)
         
-        # Log successful validation
-        if transition in edge_deletion_transitions:
-            print(f"✓ Validated: Edge-deletion transition '{transition}' with '{rev_proj}' projector")
-        # elif transition in edge_insertion_transitions:
-        #     print(f"✓ Validated: Edge-insertion transition '{transition}' with '{rev_proj}' projector")
-        elif transition in marginal_transitions:
-            print(f"✓ Validated: Marginal transition '{transition}' with '{rev_proj}' projector")
-        else:
-            print(f"✓ Validated: Transition '{transition}' with '{rev_proj}' projector")
+        # Log successful validation (commented for clean output)
+        # if transition in edge_deletion_transitions:
+        #     print(f"✓ Validated: Edge-deletion transition '{transition}' with '{rev_proj}' projector")
+        # elif transition in marginal_transitions:
+        #     print(f"✓ Validated: Marginal transition '{transition}' with '{rev_proj}' projector")
+        # else:
+        #     print(f"✓ Validated: Transition '{transition}' with '{rev_proj}' projector")
 
     def forward(self, z_t):
         assert z_t.node_mask is not None
@@ -499,7 +505,7 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
                         f.write("\n")
                     f.write("\n")
         print("Saved.")
-        print("Computing sampling metrics...")
+        print("📊 Computing final sampling metrics...")
 
         # Load the pickles of the other GPUs
         samples = []
@@ -673,6 +679,8 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
         save_final: int = 0,
         test=True,
     ):
+        # Start timing for this batch
+        batch_start_time = time.time()
         """
         :param batch_id: int
         :param n_nodes: list of int containing the number of nodes to sample for each graph
@@ -732,6 +740,9 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
             max_rings = getattr(self.cfg.model, "max_rings", 0)
             use_incremental = getattr(self.cfg.model, "use_incremental", False)
             atom_decoder = getattr(self.dataset_infos, "atom_decoder", None)
+            if not hasattr(self, '_printed_ring_count_mode'):
+                # print(f"🔧 RingCountAtMostProjector: max_rings={max_rings}, use_incremental={use_incremental}")
+                self._printed_ring_count_mode = True
             rev_projector = RingCountAtMostProjector(z_t, max_rings, atom_decoder, use_incremental)
         elif self.cfg.model.rev_proj == "ring_count_at_least":
             min_rings = getattr(self.cfg.model, "min_rings", 2)
@@ -741,46 +752,212 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
             max_ring_length = getattr(self.cfg.model, "max_ring_length", 6)
             use_incremental_length = getattr(self.cfg.model, "use_incremental_length", False)
             atom_decoder = getattr(self.dataset_infos, "atom_decoder", None)
+            if not hasattr(self, '_printed_ring_length_mode'):
+                # print(f"🔧 RingLengthAtMostProjector: max_ring_length={max_ring_length}, use_incremental_length={use_incremental_length}")
+                self._printed_ring_length_mode = True
             rev_projector = RingLengthAtMostProjector(z_t, max_ring_length, atom_decoder, use_incremental_length)
         elif self.cfg.model.rev_proj == "ring_length_at_least":
             min_ring_length = getattr(self.cfg.model, "min_ring_length", 4)
             atom_decoder = getattr(self.dataset_infos, "atom_decoder", None)
             rev_projector = RingLengthAtLeastProjector(z_t, min_ring_length, atom_decoder)
+        elif self.cfg.model.rev_proj is None or self.cfg.model.rev_proj == "":
+            # No constraint training - no projector needed
+            rev_projector = None
+            if not hasattr(self, '_printed_no_constraint_mode'):
+                print(f"🔧 No constraint training - generating unrestricted graphs")
+                print(f"🔍 DEBUG: Will track natural structural properties during generation")
+                self._printed_no_constraint_mode = True
         else:
             assert ValueError(
-                f"Planarity projection type '{self.cfg.model.rev_proj}' not implemented."
+                f"Projection type '{self.cfg.model.rev_proj}' not implemented."
             )
 
         # Iteratively sample p(z_s | z_t) for t = 1, ..., T, with s = t - 1.
-        # Debug logging removed for production
         
-        # Debug logging removed for production
+        # Timing for entire reverse diffusion process
+        diffusion_start_time = time.time()
+        total_projection_time = 0.0
+        total_model_time = 0.0
         
         for s_int in reversed(range(0, self.T, self.cfg.general.faster_sampling)):
             s_array = s_int * torch.ones(
                 (batch_size, 1), dtype=torch.long, device=z_t.X.device
             )
+            
+            # Time the model forward pass
+            model_start_time = time.time()
             z_s = self.sample_zs_from_zt(z_t, s_array)
+            model_time = time.time() - model_start_time
+            total_model_time += model_time
 
-            # Planarity preserving
-            if self.cfg.model.rev_proj:
-                            # Debug logging removed for production
+            # Initialize projection_time to 0.0 (will be updated if projection is performed)
+            projection_time = 0.0
+
+            # Constraint preserving (if any constraint is specified)
+            if self.cfg.model.rev_proj and rev_projector is not None:
+                # Set current timestep for logging
+                rev_projector.current_timestep = s_int
                 
-                # Count edges before projection
-                edges_before = (z_s.E > 0).sum().item()
-                # Debug logging removed for production
-                
-                                # Debug logging removed for production
-                
+                # Time the projection step
+                projection_start_time = time.time()
                 rev_projector.project(z_s)
+                projection_time = time.time() - projection_start_time
+                total_projection_time += projection_time
                 
-                # Count edges after projection
-                edges_after = (z_s.E > 0).sum().item()
-                # Debug logging removed for production
+                # Count rings after projection and check validity
+                if hasattr(rev_projector, 'max_rings'):
+                    total_rings_after = 0
+                    graph_valid = True
+                    for graph_idx, nx_graph in enumerate(rev_projector.nx_graphs_list):
+                        cycles = nx.cycle_basis(nx_graph)
+                        ring_count = len(cycles)
+                        total_rings_after += ring_count
+                        if ring_count > rev_projector.max_rings:
+                            graph_valid = False
+                            logger.warning(f"⚠️ Graph {graph_idx} has {ring_count} rings > {rev_projector.max_rings} at timestep {s_int}")
+                    
+                    # logger.info(f"🔍 Timestep {s_int}: total_rings_after={total_rings_after}, valid={graph_valid}")
+                    
+                    # Assert constraint at t == 0
+                    if s_int == 0:
+                        if not graph_valid:
+                            logger.error(f"❌ CONSTRAINT VIOLATION at t=0: {total_rings_after} rings > {rev_projector.max_rings}")
+                            raise AssertionError(f"Ring constraint violated at t=0: {total_rings_after} rings > {rev_projector.max_rings}")
                 
-                                # Debug logging removed for production
+                # Planarity-specific validation
+                elif self.cfg.model.rev_proj == "planar":
+                    planarity_valid = True
+                    non_planar_graphs = []
+                    for graph_idx, nx_graph in enumerate(rev_projector.nx_graphs_list):
+                        if not rev_projector.valid_graph_fn(nx_graph):
+                            planarity_valid = False
+                            non_planar_graphs.append(graph_idx)
+                            logger.warning(f"⚠️ Graph {graph_idx} is non-planar at timestep {s_int}")
+                    
+                    # Log planarity status at t == 0
+                    if s_int == 0:
+                        if not planarity_valid:
+                            logger.error(f"❌ PLANARITY VIOLATION at t=0: {len(non_planar_graphs)}/{len(rev_projector.nx_graphs_list)} graphs non-planar")
+                            logger.error(f"   Non-planar graphs: {non_planar_graphs}")
+                            # Don't raise exception for planarity - just log the violation
+                        else:
+                            pass  # Don't raise exception for planarity - just log the violation
+            
+                # DEBUG: Track natural structural properties for unconstrained generation
+                elif self.cfg.model.rev_proj is None or self.cfg.model.rev_proj == "":
+                    # Convert current z_s to NetworkX graphs for analysis
+                    discrete_z_s = z_s.collapse(self.collapse_charges)
+                    nx_graphs_current = []
+                    total_rings_current = 0
+                    planar_graphs_current = 0
+                    ring_lengths_current = []
+                    
+                    # Track ring count and length distributions
+                    ring_count_distribution = {0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0}  # ≤0, ≤1, ≤2, ≤3, ≤4, ≤5
+                    ring_length_distribution = {3: 0, 4: 0, 5: 0, 6: 0}  # ≤3, ≤4, ≤5, ≤6
+                    
+                    for i in range(discrete_z_s.X.shape[0]):
+                        adj_matrix = discrete_z_s.E[i].cpu().numpy()
+                        nx_graph = nx.from_numpy_array(adj_matrix)
+                        nx_graphs_current.append(nx_graph)
+                        
+                        # Count rings and track ring lengths
+                        cycles = nx.cycle_basis(nx_graph)
+                        ring_count = len(cycles)
+                        total_rings_current += ring_count
+                        
+                        # Track ring lengths and update distributions
+                        max_ring_length_in_graph = 0
+                        for cycle in cycles:
+                            ring_length = len(cycle)
+                            ring_lengths_current.append(ring_length)
+                            max_ring_length_in_graph = max(max_ring_length_in_graph, ring_length)
+                        
+                        # Update ring count distribution (≤0, ≤1, ≤2, ≤3, ≤4, ≤5)
+                        for max_rings in ring_count_distribution.keys():
+                            if ring_count <= max_rings:
+                                ring_count_distribution[max_rings] += 1
+                        
+                        # Update ring length distribution (≤3, ≤4, ≤5, ≤6)
+                        for max_length in ring_length_distribution.keys():
+                            if max_ring_length_in_graph <= max_length:
+                                ring_length_distribution[max_length] += 1
+                        
+                        # Check planarity
+                        if is_planar.is_planar(nx_graph):
+                            planar_graphs_current += 1
+                    
+                    # Log natural properties at key timesteps
+                    if s_int % 100 == 0 or s_int == 0:
+                        planarity_rate = planar_graphs_current / len(nx_graphs_current) if nx_graphs_current else 0
+                        
+                        # Calculate rates for ring count distributions
+                        ring_count_rates = {}
+                        for max_rings, count in ring_count_distribution.items():
+                            rate = count / len(nx_graphs_current) if nx_graphs_current else 0
+                            ring_count_rates[f"≤{max_rings}"] = rate
+                        
+                        # Calculate rates for ring length distributions
+                        ring_length_rates = {}
+                        for max_length, count in ring_length_distribution.items():
+                            rate = count / len(nx_graphs_current) if nx_graphs_current else 0
+                            ring_length_rates[f"≤{max_length}"] = rate
+                        
+                        # Track evolution of properties during diffusion
+                        if not hasattr(self, '_property_evolution'):
+                            self._property_evolution = []
+                        
+                        if s_int % 50 == 0:  # Track every 50 timesteps
+                            # Calculate rates for this timestep
+                            ring_count_rates = {}
+                            for max_rings, count in ring_count_distribution.items():
+                                rate = count / len(nx_graphs_current) if nx_graphs_current else 0
+                                ring_count_rates[f"≤{max_rings}"] = rate
+                            
+                            ring_length_rates = {}
+                            for max_length, count in ring_length_distribution.items():
+                                rate = count / len(nx_graphs_current) if nx_graphs_current else 0
+                                ring_length_rates[f"≤{max_length}"] = rate
+                            
+                            self._property_evolution.append({
+                                'timestep': s_int,
+                                'planarity_rate': planar_graphs_current / len(nx_graphs_current) if nx_graphs_current else 0,
+                                'ring_count_rates': ring_count_rates,
+                                'ring_length_rates': ring_length_rates
+                            })
+                            
+                            # Store final properties for summary
+                            if s_int == 0:
+                                if not hasattr(self, '_natural_properties_summary'):
+                                    # Calculate final rates
+                                    ring_count_rates = {}
+                                    for max_rings, count in ring_count_distribution.items():
+                                        rate = count / len(nx_graphs_current) if nx_graphs_current else 0
+                                        ring_count_rates[f"≤{max_rings}"] = rate
+                                    
+                                    ring_length_rates = {}
+                                    for max_length, count in ring_length_distribution.items():
+                                        rate = count / len(nx_graphs_current) if nx_graphs_current else 0
+                                        ring_length_rates[f"≤{max_length}"] = rate
+                                    
+                                    self._natural_properties_summary = {
+                                        'total_graphs': len(nx_graphs_current),
+                                        'planar_graphs': planar_graphs_current,
+                                        'planarity_rate': planar_graphs_current / len(nx_graphs_current) if nx_graphs_current else 0,
+                                        'ring_count_rates': ring_count_rates,
+                                        'ring_length_rates': ring_length_rates
+                                    }
+                else:
+                    # For constrained generation, initialize empty tracking variables
+                    nx_graphs_current = []
+                    ring_count_distribution = {}
+                    ring_length_distribution = {}
+                    planar_graphs_current = 0
+
 
             z_t = z_s
+
+
 
             # Save the first keep_chain graphs
             if (s_int * number_chain_steps) % self.T == 0:
@@ -796,6 +973,8 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
         # Sample final data
         sampled_s = z_t.collapse(self.collapse_charges)
         X, E, charges = sampled_s.X, sampled_s.E, sampled_s.charges
+        
+
         # X, E, charges = discrete_z_s.X, discrete_z_s.E, discrete_z_s.charges
 
         # Prepare the chain for saving
@@ -849,39 +1028,20 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
         if test:
             final_batch = final_batch.device_as(torch.zeros(1, device="cpu"))
 
-        # Post-generation validation (ConStruct philosophy)
-        if hasattr(self.cfg.model, 'post_gen_validation') and self.cfg.model.post_gen_validation:
-            try:
-                # Convert to NetworkX graphs for validation
-                nx_graphs = []
-                for i in range(len(n_nodes)):
-                    adj_matrix = final_batch.E[i].cpu().numpy()
-                    nx_graph = nx.from_numpy_array(adj_matrix)
-                    nx_graphs.append(nx_graph)
-                
-                # Initialize validator with atom decoder if available
-                atom_decoder = getattr(self.dataset_infos, "atom_decoder", None)
-                validator = PostGenerationValidator(atom_decoder)
-                
-                # Validate the generated graphs
-                validation_results = validator.validate_batch(final_batch, nx_graphs)
-                
-                # Print validation summary
-                validator.print_validation_summary(validation_results)
-                
-                # Log validation results for thesis analysis
-                if test:
-                    self.log_dict({
-                        'post_gen/structurally_valid': validation_results['summary']['structurally_valid'] / validation_results['summary']['total_graphs'],
-                        'post_gen/chemically_valid': validation_results['summary']['chemically_valid'] / validation_results['summary']['total_graphs'],
-                        'post_gen/rdkit_valid': validation_results['summary']['rdkit_valid'] / validation_results['summary']['total_graphs'],
-                        'post_gen/valency_violations': validation_results['summary']['valency_violations'] / validation_results['summary']['total_graphs'],
-                        'post_gen/connectivity_issues': validation_results['summary']['connectivity_issues'] / validation_results['summary']['total_graphs'],
-                    })
-                
-            except Exception as e:
-                self.print(f"Post-generation validation failed with error: {e}")
-                # Continue with generation even if validation fails
+
+
+        # Record timing for this batch
+        batch_time = time.time() - batch_start_time
+        if hasattr(self, 'sampling_times'):
+            self.sampling_times.append(batch_time)
+        else:
+            self.sampling_times = [batch_time]
+        
+        # Record timing in sampling metrics if available
+        if hasattr(self, 'test_sampling_metrics'):
+            self.test_sampling_metrics.record_sampling_time(batch_time)
+        elif hasattr(self, 'val_sampling_metrics'):
+            self.val_sampling_metrics.record_sampling_time(batch_time)
 
         return final_batch
 

@@ -221,3 +221,38 @@ def random_smiles():
     # trivial demo: pick a random small alkane
     smiles_list = ["C", "CC", "CCC", "CCCC", "CC(C)C"]
     return random.choice(smiles_list)
+
+def handle_wandb_sync_issues():
+    """Handle wandb sync issues gracefully by setting offline mode if needed."""
+    import os
+    import wandb
+    
+    # Check if we're in a cluster environment where network might be unstable
+    if os.environ.get('SLURM_JOB_ID'):
+        # In SLURM environment, be more conservative with wandb
+        try:
+            # Set a longer timeout for wandb
+            os.environ['WANDB_TIMEOUT'] = '300'  # 5 minutes timeout
+        except Exception as e:
+            print(f"Warning: Could not set wandb timeout: {e}")
+    
+    # If wandb fails to sync, we can continue offline
+    try:
+        if wandb.run is not None:
+            wandb.run.define_metric("*", step_metric="epoch")
+    except Exception as e:
+        print(f"Warning: Wandb sync issue detected: {e}")
+        print("Continuing with offline mode...")
+        try:
+            wandb.init(mode="offline")
+        except Exception as e2:
+            print(f"Could not switch to offline mode: {e2}")
+
+def safe_wandb_log(log_dict, step=None):
+    """Safely log to wandb with error handling."""
+    try:
+        if wandb.run is not None:
+            wandb.log(log_dict, step=step)
+    except Exception as e:
+        print(f"Warning: Failed to log to wandb: {e}")
+        # Continue without logging rather than crashing

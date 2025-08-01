@@ -128,6 +128,11 @@ class SamplingMetrics(nn.Module):
             metric.reset()
         self.domain_metrics.reset()
 
+    def record_sampling_time(self, sampling_time: float):
+        """Record sampling time for timing metrics."""
+        if hasattr(self.domain_metrics, 'record_sampling_time'):
+            self.domain_metrics.record_sampling_time(sampling_time)
+
     def compute_all_metrics(self, generated_graphs: list, current_epoch, local_rank):
         """Compare statistics of the generated data with statistics of the val/test set"""
 
@@ -212,17 +217,17 @@ class SamplingMetrics(nn.Module):
         if wandb.run:
             wandb.log(to_log, commit=False)
         if local_rank == 0:
-            print(
-                f"Sampling metrics",
-                {
-                    key: (
-                        round(val, 3)
-                        if "hist" not in key
-                        else [round(el, 3) for el in val.histogram]
-                    )
-                    for key, val in to_log.items()
-                },
-            )
+            # Show only key metrics in a clean format
+            key_metrics = {
+                'validity': to_log.get(f"{key}/Validity", 0),
+                'uniqueness': to_log.get(f"{key}/Uniqueness", 0),
+                'novelty': to_log.get(f"{key}/Novelty", 0),
+                'fcd_score': to_log.get(f"{key}/fcd score", 0),
+            }
+            print(f"📊 Sampling metrics: {key_metrics['validity']:.1f}% valid, "
+                  f"{key_metrics['uniqueness']:.1f}% unique, "
+                  f"{key_metrics['novelty']:.1f}% novel, "
+                  f"FCD: {key_metrics['fcd_score']:.3f}")
 
         return to_log, edge_tv_per_class
 
@@ -482,9 +487,9 @@ class DegreeHistogramMetric(Metric):
         assert diff_hist.sum() < 1e-3  # Assert both are normalized to the same value
         abs_diff_hist = np.abs(diff_hist)
 
-        bin_edges = np.concatenate(
-            (np.arange(self.num_bins), [self.max_possible_degree])
-        )
+        # Ensure bin_edges has length histogram_length + 1
+        histogram_length = len(self_normalized_hist)
+        bin_edges = np.arange(histogram_length + 1)
         generated_hist_to_log = self_normalized_hist, bin_edges
         diff_hist_to_log = diff_hist, bin_edges
         abs_diff_hist_to_log = abs_diff_hist, bin_edges
