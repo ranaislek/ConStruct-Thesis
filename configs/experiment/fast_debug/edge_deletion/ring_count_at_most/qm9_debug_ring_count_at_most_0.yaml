@@ -1,0 +1,48 @@
+# @package _global_
+general:
+  name: 'qm9_debug_ring_count_at_most_0'
+  wandb: 'disabled'
+  resume: null
+  test_only: null
+  check_val_every_n_epochs: 5  # More frequent validation
+  sample_every_val: 1          # Sample every validation
+  samples_to_generate: 5      # More samples for better evaluation
+  samples_to_save: 1          # More samples to save
+  chains_to_save: 1            # More chains for analysis
+  final_model_samples_to_generate: 2  # More final samples
+  final_model_samples_to_save: 1       # More final samples
+  final_model_chains_to_save: 1        # More final chains
+  number_chain_steps: 10      # More chain steps for better visualization
+  #faster_sampling: 1           # Save every frame for better visualization
+train:
+  n_epochs: 5                 # More epochs for better convergence
+  batch_size: 3               # Smaller batch for better gradient estimates
+  lr: 0.00005                  # Very conservative learning rate
+  save_model: false
+model:
+  diffusion_steps: 110         # More diffusion steps for better constraint satisfaction
+  n_layers: 2                  # More layers for better capacity
+  hidden_mlp_dims:
+    X: 17                     # Larger for better capacity
+    E: 18                      # Larger for better capacity
+    y: 19                      # Larger for better capacity
+  hidden_dims:
+    dx: 20                    # Larger for better capacity
+    de: 21                     # Larger for better capacity
+    dy: 22                     # Larger for better capacity
+    n_head: 5                  # More attention heads
+    dim_ffX: 23               # Larger feedforward
+    dim_ffE: 24               # Larger feedforward
+    dim_ffy: 25               # Larger feedforward
+  # Edge-deletion constraint settings:
+  max_rings: 0                    # Maximum 0 rings allowed
+  rev_proj: ring_count_at_most    # Edge-deletion projector for "at most" constraints
+  transition: absorbing_edges      # Edge-deletion transition
+dataset:
+  name: qm9
+  remove_h: true
+  datadir: data/qm9
+  batch_size: 3                # Match train batch size
+  num_workers: 2                # More workers for better data loading
+  adaptive_loader: false
+  fraction: 0.1                 # Larger fraction for better learning

@@ -1,0 +1,29 @@
+QM9 Training vs Full Dataset Comparison Report
+============================================================
+
+DATASET SIZE COMPARISON
+------------------------------
+Training dataset: 97,732 molecules
+Full dataset: 130,828 molecules
+Difference: 33,096 molecules
+
+RING COUNT COMPARISON
+-------------------------
+≤0 rings: Train=0.103, Full=0.102, Diff=-0.001
+≤1 rings: Train=0.495, Full=0.496, Diff=+0.000
+≤2 rings: Train=0.811, Full=0.812, Diff=+0.001
+≤3 rings: Train=0.963, Full=0.963, Diff=+0.000
+≤4 rings: Train=0.996, Full=0.997, Diff=+0.000
+≤5 rings: Train=1.000, Full=1.000, Diff=+0.000
+
+RING LENGTH COMPARISON
+---------------------------
+≤3 atoms: Train=0.212, Full=0.213, Diff=+0.001
+≤4 atoms: Train=0.449, Full=0.449, Diff=+0.000
+≤5 atoms: Train=0.822, Full=0.823, Diff=+0.001
+≤6 atoms: Train=0.968, Full=0.967, Diff=-0.000
+≤7 atoms: Train=0.995, Full=0.995, Diff=+0.000
+≤8 atoms: Train=0.999, Full=0.999, Diff=+0.000
+
+
+Comparison completed on: 2025-07-31 16:32:51

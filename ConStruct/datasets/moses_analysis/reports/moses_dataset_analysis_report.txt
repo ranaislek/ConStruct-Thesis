@@ -1,0 +1,64 @@
+Moses Dataset Structural Analysis Report
+============================================================
+
+DATASET OVERVIEW
+--------------------
+Total molecules analyzed: 1,584,663
+Total rings found: 4,073,844
+Average rings per molecule: 2.571
+
+RING COUNT ANALYSIS
+--------------------
+Distribution of molecules by ring count:
+  0 rings: 584 molecules (0.0%)
+  1 rings: 115,163 molecules (7.3%)
+  2 rings: 629,131 molecules (39.7%)
+  3 rings: 664,909 molecules (42.0%)
+  4 rings: 168,742 molecules (10.6%)
+  5 rings: 6,085 molecules (0.4%)
+  6 rings: 45 molecules (0.0%)
+  7 rings: 3 molecules (0.0%)
+  8 rings: 1 molecules (0.0%)
+
+RING LENGTH ANALYSIS
+--------------------
+Distribution of rings by length:
+  3-atom rings: 102,047 rings
+  4-atom rings: 24,538 rings
+  5-atom rings: 1,338,283 rings
+  6-atom rings: 2,566,456 rings
+  7-atom rings: 38,739 rings
+  8-atom rings: 2,730 rings
+  9-atom rings: 138 rings
+  10-atom rings: 10 rings
+  11-atom rings: 654 rings
+  12-atom rings: 232 rings
+  13-atom rings: 14 rings
+  14-atom rings: 3 rings
+
+CONSTRAINT SATISFACTION RATES
+------------------------------
+Ring Count Constraints:
+  ≤0: 0.000 (0.0%)
+  ≤1: 0.073 (7.3%)
+  ≤2: 0.470 (47.0%)
+  ≤3: 0.890 (89.0%)
+  ≤4: 0.996 (99.6%)
+  ≤5: 1.000 (100.0%)
+
+Ring Length Constraints:
+  ≤3: 0.001 (0.1%)
+  ≤4: 0.001 (0.1%)
+  ≤5: 0.049 (4.9%)
+  ≤6: 0.974 (97.4%)
+  ≤7: 0.998 (99.8%)
+  ≤8: 0.999 (99.9%)
+
+PLANARITY ANALYSIS
+--------------------
+Planar molecules: 1,584,663
+Non-planar molecules: 0
+Planarity rate: 1.000 (100.0%)
+
+
+Analysis completed on: 2025-07-31 00:05:39

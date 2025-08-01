@@ -1,0 +1,17 @@
+QM9 Dataset Analysis Summary
+========================================
+
+📊 Dataset Size: 97,732 molecules
+🔗 Total Rings: 159,500
+📈 Avg Rings/Molecule: 1.632
+
+🎯 Key Constraint Rates:
+  • Acyclic (≤0 rings): 10.3%
+  • ≤1 ring: 49.5%
+  • ≤2 rings: 81.1%
+  • ≤3 rings: 96.3%
+  • Ring length ≤5: 82.2%
+  • Ring length ≤6: 96.8%
+  • Ring length ≤7: 99.5%
+  • Ring length ≤8: 99.9%
+  • Planar: 100.0%

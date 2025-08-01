@@ -1,0 +1,47 @@
+# @package _global_
+general:
+  name: 'qm9_debug_ring_length_at_most_4'
+  wandb: 'disabled'
+  resume: null
+  test_only: null
+  check_val_every_n_epochs: 5  # Reduced from 2 to speed up
+  sample_every_val: 1          # Reduced from 1 to speed up
+  samples_to_generate: 5      # Increased for better statistics
+  samples_to_save: 1          # Increased for better visualization
+  chains_to_save: 1            # Increased for better analysis
+  final_model_samples_to_generate: 2  # Increased for better final evaluation
+  final_model_samples_to_save: 1      # Increased
+  final_model_chains_to_save: 1       # Increased
+  number_chain_steps: 10      # Increased for better chain visualization
+train:
+  n_epochs: 5                 # Increased for better convergence
+  batch_size: 3               # Increased from 16 for better GPU utilization
+  lr: 0.00005                  # Very conservative learning rate
+  save_model: false
+model:
+  diffusion_steps: 110         # Increased from 50 for better quality
+  n_layers: 2                  # Increased from 1 for better expressiveness
+  hidden_mlp_dims:
+    X: 17                      # Increased from 8
+    E: 18                      # Increased from 4
+    y: 19                      # Increased from 4
+  hidden_dims:
+    dx: 20                     # Increased from 8
+    de: 21                     # Increased from 4
+    dy: 22                     # Increased from 4
+    n_head: 5                  # Increased from 2
+    dim_ffX: 23               # Increased from 8
+    dim_ffE: 24                # Increased from 4
+    dim_ffy: 25                # Increased from 8
+  # Edge-deletion constraint settings:
+  max_ring_length: 4              # Maximum 4-ring length
+  rev_proj: ring_length_at_most    # Edge-deletion projector for "at most" constraints
+  transition: absorbing_edges      # Edge-deletion transition
+dataset:
+  name: qm9
+  remove_h: true
+  datadir: data/qm9
+  batch_size: 3               # Increased to match train batch size
+  num_workers: 2               # Increased from 0 for better data loading
+  adaptive_loader: false
+  fraction: 0.1                # Reduced from 1.0 to speed up training

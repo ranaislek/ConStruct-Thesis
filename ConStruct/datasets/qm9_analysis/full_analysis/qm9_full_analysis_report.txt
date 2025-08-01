@@ -1,0 +1,58 @@
+QM9 Full Analysis Report
+============================================================
+
+DATASET OVERVIEW
+--------------------
+Analysis type: full
+Total molecules analyzed: 130,828
+Total rings found: 213,379
+Average rings per molecule: 1.631
+
+RING COUNT ANALYSIS
+--------------------
+Distribution of molecules by ring count:
+  0 rings: 13,387 molecules (10.2%)
+  1 rings: 51,445 molecules (39.3%)
+  2 rings: 41,360 molecules (31.6%)
+  3 rings: 19,795 molecules (15.1%)
+  4 rings: 4,385 molecules (3.4%)
+  5 rings: 447 molecules (0.3%)
+  6 rings: 9 molecules (0.0%)
+
+RING LENGTH ANALYSIS
+--------------------
+Distribution of rings by length:
+  3-atom rings: 66,006 rings
+  4-atom rings: 64,339 rings
+  5-atom rings: 58,843 rings
+  6-atom rings: 19,823 rings
+  7-atom rings: 3,770 rings
+  8-atom rings: 504 rings
+  9-atom rings: 94 rings
+
+CONSTRAINT SATISFACTION RATES
+------------------------------
+Ring Count Constraints:
+  ≤0: 0.102 (10.2%)
+  ≤1: 0.496 (49.6%)
+  ≤2: 0.812 (81.2%)
+  ≤3: 0.963 (96.3%)
+  ≤4: 0.997 (99.7%)
+  ≤5: 1.000 (100.0%)
+
+Ring Length Constraints:
+  ≤3: 0.213 (21.3%)
+  ≤4: 0.449 (44.9%)
+  ≤5: 0.823 (82.3%)
+  ≤6: 0.967 (96.7%)
+  ≤7: 0.995 (99.5%)
+  ≤8: 0.999 (99.9%)
+
+PLANARITY ANALYSIS
+--------------------
+Planar molecules: 130,828
+Non-planar molecules: 0
+Planarity rate: 1.000 (100.0%)
+
+
+Analysis completed on: 2025-07-31 16:32:43

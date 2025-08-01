@@ -1,0 +1,17 @@
+Moses Dataset Analysis Summary
+========================================
+
+📊 Dataset Size: 1,584,663 molecules
+🔗 Total Rings: 4,073,844
+📈 Avg Rings/Molecule: 2.571
+
+🎯 Key Constraint Rates:
+  • Acyclic (≤0 rings): 0.0%
+  • ≤1 ring: 7.3%
+  • ≤2 rings: 47.0%
+  • ≤3 rings: 89.0%
+  • Ring length ≤5: 4.9%
+  • Ring length ≤6: 97.4%
+  • Ring length ≤7: 99.8%
+  • Ring length ≤8: 99.9%
+  • Planar: 100.0%
