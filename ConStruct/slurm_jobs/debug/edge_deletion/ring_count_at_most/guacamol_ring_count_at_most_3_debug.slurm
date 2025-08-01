@@ -1,6 +1,6 @@
 #!/bin/bash
-#SBATCH --job-name=qm9_no_constraint_debug
-#SBATCH --output=/home/rislek/ConStruct-Thesis/ConStruct/logs/qm9_no_constraint_debug_%j.out
+#SBATCH --job-name=guacamol_ring_count_at_most_3_debug
+#SBATCH --output=/home/rislek/ConStruct-Thesis/ConStruct/logs/guacamol_ring_count_at_most_3_debug_%j.out
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=16G  
@@ -23,26 +23,20 @@ export WANDB_SILENT=false  # Show WandB progress
 export WANDB_NETWORK_TIMEOUT=300
 export WANDB_HTTP_TIMEOUT=300
 
-# CUDA optimizations
-export CUDA_LAUNCH_BLOCKING=1
-
 # Force unbuffered output for better logging
 export PYTHONUNBUFFERED=1
-
-# Set CUDA device
-export CUDA_VISIBLE_DEVICES=0
 
 # CUDA verification
 python -c 'import torch; print("torch version:", torch.__version__); print("CUDA available:", torch.cuda.is_available()); print("CUDA device:", torch.cuda.get_device_name(0) if torch.cuda.is_available() else "None")'
 
-
-echo "Starting no_constraint_debug experiment..."
+echo "=== Running Experiment: guacamol_ring_count_at_most_3_debug ==="
+echo "Config: debug/edge_deletion/ring_count_at_most/guacamol_debug_ring_count_at_most_3"
 echo "Job ID: $SLURM_JOB_ID"
 echo "Node: $SLURM_NODELIST"
 echo "Time: $(date)"
 
 # Run the experiment
 cd ConStruct
-python main.py +experiment=debug/no_constraint/qm9_debug_no_constraint
+python main.py +experiment=debug/edge_deletion/ring_count_at_most/guacamol_debug_ring_count_at_most_3
 
 echo "Experiment completed at $(date)" 

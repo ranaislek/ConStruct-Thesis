@@ -1,0 +1,63 @@
+# @package _global_
+# Unified debug config that matches full experiment settings for constraint behavior
+# while keeping small epoch/sample counts for speed
+
+general:
+  name: 'qm9_debug_unified_ring_count_at_most_2'
+  wandb: 'online'
+  resume: null
+  test_only: null
+  check_val_every_n_epochs: 3  # Reduced for speed
+  sample_every_val: 1          # Reduced for speed
+  samples_to_generate: 50      # Small for speed
+  samples_to_save: 20          # Small for speed
+  chains_to_save: 5            # Small for speed
+  final_model_samples_to_generate: 100  # Small for speed
+  final_model_samples_to_save: 50      # Small for speed
+  final_model_chains_to_save: 20       # Small for speed
+  number_chain_steps: 200      # Matches full experiment for chain visualization
+
+train:
+  n_epochs: 20                 # Small for speed
+  batch_size: 32               # Small for speed
+  lr: 0.00005                  # Conservative learning rate
+  save_model: true
+
+model:
+  # CRITICAL: Match full experiment settings for constraint behavior
+  diffusion_steps: 500         # Matches full experiment (was 300 in debug)
+  n_layers: 4                  # Matches full experiment
+  hidden_mlp_dims:
+    X: 128                      # Matches full experiment
+    E: 128                      # Matches full experiment (was 64 in debug)
+    y: 128                      # Matches full experiment (was 64 in debug)
+  hidden_dims:
+    dx: 128                     # Matches full experiment
+    de: 128                     # Matches full experiment (was 64 in debug)
+    dy: 128                     # Matches full experiment (was 64 in debug)
+    n_head: 4                  # Matches full experiment
+    dim_ffX: 256               # Matches full experiment
+    dim_ffE: 256                # Matches full experiment (was 128 in debug)
+    dim_ffy: 256                # Matches full experiment (was 128 in debug)
+  
+  # CRITICAL: Edge-deletion constraint settings (matches full experiment)
+  max_rings: 2                    # Maximum 2 rings allowed
+  rev_proj: ring_count_at_most    # Edge-deletion projector for "at most" constraints
+  transition: absorbing_edges      # Edge-deletion transition
+  
+  # ConStruct philosophy: Post-generation validation
+  post_gen_validation: True  # Enable post-generation chemical validation
+  post_gen_validation_config:
+    enable_rdkit: True
+    enable_valency_check: True
+    enable_connectivity_check: True
+
+dataset:
+  # CRITICAL: Match full experiment dataset settings
+  name: qm9
+  remove_h: true
+  datadir: data/qm9
+  batch_size: 32               # Small for speed
+  num_workers: 4               # Matches full experiment
+  adaptive_loader: false
+  fraction: 1.0                # CRITICAL: Use full dataset like full experiment (was 0.8 in debug) 
