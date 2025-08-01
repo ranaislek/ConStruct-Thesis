@@ -19,6 +19,7 @@ from ConStruct.metrics.metrics_utils import (
 )
 
 from ConStruct.projector.projector_utils import has_lobster_components
+from ConStruct.projector.is_planar import is_planar
 
 
 class SamplingMetrics(nn.Module):
@@ -223,11 +224,13 @@ class SamplingMetrics(nn.Module):
                 'uniqueness': to_log.get(f"{key}/Uniqueness", 0),
                 'novelty': to_log.get(f"{key}/Novelty", 0),
                 'fcd_score': to_log.get(f"{key}/fcd score", 0),
+                'disconnected': to_log.get(f"{key}/Disconnected", 0),
             }
             print(f"📊 Sampling metrics: {key_metrics['validity']:.1f}% valid, "
                   f"{key_metrics['uniqueness']:.1f}% unique, "
                   f"{key_metrics['novelty']:.1f}% novel, "
-                  f"FCD: {key_metrics['fcd_score']:.3f}")
+                  f"FCD: {key_metrics['fcd_score']:.3f}, "
+                  f"Disconnected: {key_metrics['disconnected']:.1f}%")
 
         return to_log, edge_tv_per_class
 
@@ -367,9 +370,9 @@ def planarity_ratio(generated_graphs: List[PlaceHolder]):
             n = torch.sum(mask)
             edge_mat = edge_mat[:n, :n]
             adj = (edge_mat > 0).int()
-            nx_graph = nx.from_numpy_matrix(adj.cpu().numpy())
-            is_planar = nx.is_planar(nx_graph)
-            planarity_ratios.append(int(is_planar))
+            nx_graph = nx.from_numpy_array(adj.cpu().numpy())
+            is_planar_result = is_planar(nx_graph)
+            planarity_ratios.append(int(is_planar_result))
     planarity_ratios = torch.tensor(
         planarity_ratios, device=generated_graphs[0].X.device
     )
@@ -383,7 +386,7 @@ def no_cycles_ratio(generated_graphs: List[PlaceHolder]):
             n = torch.sum(mask)
             edge_mat = edge_mat[:n, :n]
             adj = (edge_mat > 0).int()
-            nx_graph = nx.from_numpy_matrix(adj.cpu().numpy())
+            nx_graph = nx.from_numpy_array(adj.cpu().numpy())
             no_cycles_list.append(nx.is_forest(nx_graph))
     no_cycles_tg = torch.tensor(no_cycles_list, device=generated_graphs[0].X.device)
     return no_cycles_tg
@@ -399,7 +402,7 @@ def lobster_components_ratio(generated_graphs: List[PlaceHolder]):
             n = torch.sum(mask)
             edge_mat = edge_mat[:n, :n]
             adj = (edge_mat > 0).int()
-            nx_graph = nx.from_numpy_matrix(adj.cpu().numpy())
+            nx_graph = nx.from_numpy_array(adj.cpu().numpy())
             lobster_components_list.append(has_lobster_components(nx_graph))
     lobster_components_tg = torch.tensor(
         lobster_components_list, device=generated_graphs[0].X.device

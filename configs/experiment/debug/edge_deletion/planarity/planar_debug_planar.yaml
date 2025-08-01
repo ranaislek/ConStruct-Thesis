@@ -2,7 +2,7 @@
 # Debug planarity config for planar dataset (original paper methodology)
 general:
   name: 'planar_debug_planar'
-  wandb: 'online'
+  wandb: 'disabled'
   resume: null
   test_only: null
   check_val_every_n_epochs: 3  # Reduced for speed

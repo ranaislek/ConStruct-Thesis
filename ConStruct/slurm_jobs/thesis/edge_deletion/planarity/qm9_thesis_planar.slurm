@@ -40,10 +40,6 @@ echo "Time: $(date)"
 echo "=== Checking QM9 dataset ==="
 if [ -d "/home/rislek/ConStruct-Thesis/data/qm9" ]; then
     echo "✅ QM9 dataset found at /home/rislek/ConStruct-Thesis/data/qm9"
-    echo "📊 Dataset contents:"
-    ls -la /home/rislek/ConStruct-Thesis/data/qm9/
-    echo "📊 Processed files:"
-    ls -la /home/rislek/ConStruct-Thesis/data/qm9/processed/ | head -10
 else
     echo "❌ QM9 dataset not found at /home/rislek/ConStruct-Thesis/data/qm9"
     exit 1

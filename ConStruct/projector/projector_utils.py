@@ -437,7 +437,7 @@ class PlanarProjector(AbstractProjector):
             self.__class__._printed_planar_mode = True
 
     def valid_graph_fn(self, nx_graph):
-        return is_planar.is_planar(nx_graph)
+        return is_planar(nx_graph)
 
     @property
     def can_block_edges(self):

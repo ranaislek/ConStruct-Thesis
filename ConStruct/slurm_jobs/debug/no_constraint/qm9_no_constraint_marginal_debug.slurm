@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=qm9_no_constraint_marginal_debug
-#SBATCH --output=/home/rislek/ConStruct-Thesis/ConStruct/logs/qm9_no_constraint_debug_%j.out
+#SBATCH --output=/home/rislek/ConStruct-Thesis/ConStruct/logs/qm9_no_constraint_debug_marginal_%j.out
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=16G  

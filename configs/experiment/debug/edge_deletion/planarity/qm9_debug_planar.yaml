@@ -2,7 +2,7 @@
 # Debug planarity config for QM9 dataset
 general:
   name: 'qm9_debug_planar'
-  wandb: 'online'
+  wandb: 'disabled'
   resume: null
   test_only: null
   check_val_every_n_epochs: 3  # Reduced for speed

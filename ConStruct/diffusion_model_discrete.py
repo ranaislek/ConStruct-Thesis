@@ -765,7 +765,6 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
             rev_projector = None
             if not hasattr(self, '_printed_no_constraint_mode'):
                 print(f"🔧 No constraint training - generating unrestricted graphs")
-                print(f"🔍 DEBUG: Will track natural structural properties during generation")
                 self._printed_no_constraint_mode = True
         else:
             assert ValueError(
@@ -1038,9 +1037,9 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
             self.sampling_times = [batch_time]
         
         # Record timing in sampling metrics if available
-        if hasattr(self, 'test_sampling_metrics'):
+        if test and hasattr(self, 'test_sampling_metrics'):
             self.test_sampling_metrics.record_sampling_time(batch_time)
-        elif hasattr(self, 'val_sampling_metrics'):
+        elif not test and hasattr(self, 'val_sampling_metrics'):
             self.val_sampling_metrics.record_sampling_time(batch_time)
 
         return final_batch

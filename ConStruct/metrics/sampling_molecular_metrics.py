@@ -309,12 +309,10 @@ class SamplingMolecularMetrics(nn.Module):
                     constraint_value = getattr(self.cfg.model, "max_rings", None)
                 elif constraint_type == "ring_count_at_least":
                     constraint_value = getattr(self.cfg.model, "min_rings", None)
-            print(f"DEBUG: Calling check_ring_constraints with {len(all_generated_smiles)} smiles, type={constraint_type}, value={constraint_value}")
             # List of constraint types that are enforced
             enforced_types = ["ring_count_at_most", "ring_count_at_least", "ring_length_at_most", "ring_length_at_least", "planar", "tree", "lobster"]
             if constraint_type in enforced_types and constraint_value is not None:
                 # Constraint is enforced, only print enforcement check
-                print(f"DEBUG: Constraint detected! Type: {constraint_type}, Value: {constraint_value}")
                 check_ring_constraints(all_generated_smiles, constraint_type, constraint_value)
                 
                 # Generate and print table report
@@ -326,7 +324,6 @@ class SamplingMolecularMetrics(nn.Module):
                 print("="*80)
             else:
                 # No constraint enforced, show comprehensive analysis for all constraint types
-                print(f"DEBUG: No enforced constraint detected. Type: {constraint_type}, Value: {constraint_value}")
                 
                 # Generate and print comprehensive table report
                 print("\n" + "="*80)
@@ -730,12 +727,37 @@ class SamplingMolecularMetrics(nn.Module):
         # CREATE COMPREHENSIVE TABLES
         # ============================================================================
         
+        # Calculate disconnected rate using graph properties
+        disconnected_rate = 0.0
+        if all_generated_smiles:
+            try:
+                from ConStruct.analysis.constraint_validation import ConstraintValidator
+                validator = ConstraintValidator("temp", "temp")
+                graph_props = validator.check_graph_properties(all_generated_smiles)
+                disconnected_rate = (1 - graph_props['connectedness_rate']) * 100
+            except Exception as e:
+                print(f"Warning: Could not calculate disconnected rate: {e}")
+                disconnected_rate = 0.0
+        
+        # Calculate disconnected rate for valid molecules only
+        valid_disconnected_rate = 0.0
+        if valid_smiles:
+            try:
+                from ConStruct.analysis.constraint_validation import ConstraintValidator
+                validator = ConstraintValidator("temp", "temp")
+                valid_graph_props = validator.check_graph_properties(valid_smiles)
+                valid_disconnected_rate = (1 - valid_graph_props['connectedness_rate']) * 100
+            except Exception as e:
+                print(f"Warning: Could not calculate valid disconnected rate: {e}")
+                valid_disconnected_rate = 0.0
+        
         # Create main metrics table with both structural and chemical analysis
         constraint_label = "planar" if constraint_type == "planar" else f"{constraint_type} ≤ {constraint_value}"
         metrics_data = [
             ["Total Molecules Generated", f"{total_molecules:,}"],
             ["Valid Molecules (RDKit)", f"{valid_molecules:,} ({validity_rate:.1f}%)"],
             ["Invalid Molecules", f"{total_molecules - valid_molecules:,} ({(total_molecules - valid_molecules) / total_molecules * 100:.1f}%)"],
+            ["Disconnected Molecules", f"{disconnected_rate:.1f}%"],
             ["Constraint Type", constraint_label],
         ]
         
@@ -862,18 +884,91 @@ class SamplingMolecularMetrics(nn.Module):
                 chemical_distribution_table += tabulate(chemical_ring_data, 
                                                       headers=["Rings", "Count", "Percentage"], 
                                                       tablefmt="grid", numalign="left")
+            
+            # Add ring length distribution tables for ring_length_at_most constraint
+            if constraint_type == "ring_length_at_most":
+                # Structural ring length distribution (ALL molecules)
+                structural_ring_lengths = structural_results.get('ring_lengths', [])
+                if structural_ring_lengths:
+                    from collections import Counter
+                    structural_ring_length_dist = Counter(structural_ring_lengths)
+                    
+                    structural_ring_length_data = []
+                    for ring_length in sorted(structural_ring_length_dist.keys()):
+                        count = structural_ring_length_dist[ring_length]
+                        percentage = (count / total_molecules * 100) if total_molecules > 0 else 0.0
+                        structural_ring_length_data.append([ring_length, count, f"{percentage:.1f}%"])
+                    
+                    structural_ring_length_table = "\n\n📊 STRUCTURAL RING LENGTH DISTRIBUTION (ALL Molecules):\n"
+                    structural_ring_length_table += tabulate(structural_ring_length_data, 
+                                                           headers=["Ring Length", "Count", "Percentage"], 
+                                                           tablefmt="grid", numalign="left")
+                else:
+                    structural_ring_length_table = ""
+                
+                # Chemical ring length distribution (VALID molecules only)
+                chemical_ring_lengths = chemical_results.get('ring_lengths', [])
+                if chemical_ring_lengths:
+                    from collections import Counter
+                    chemical_ring_length_dist = Counter(chemical_ring_lengths)
+                    
+                    chemical_ring_length_data = []
+                    for ring_length in sorted(chemical_ring_length_dist.keys()):
+                        count = chemical_ring_length_dist[ring_length]
+                        percentage = (count / valid_molecules * 100) if valid_molecules > 0 else 0.0
+                        chemical_ring_length_data.append([ring_length, count, f"{percentage:.1f}%"])
+                    
+                    chemical_ring_length_table = "\n\n📊 CHEMICAL RING LENGTH DISTRIBUTION (Valid Molecules Only):\n"
+                    chemical_ring_length_table += tabulate(chemical_ring_length_data, 
+                                                          headers=["Ring Length", "Count", "Percentage"], 
+                                                          tablefmt="grid", numalign="left")
+                else:
+                    chemical_ring_length_table = ""
+            else:
+                structural_ring_length_table = ""
+                chemical_ring_length_table = ""
         
-        # Create quality metrics table (based on valid molecules only)
-        quality_data = [
-            ["Validity Rate", f"{validity_rate:.1f}%"],
-            ["Uniqueness Rate (Valid Only)", f"{uniqueness_rate:.1f}%"],
-            ["Novelty Rate (Valid Only)", f"{novelty_rate:.1f}%"],
-            ["FCD Score (Valid Only)", f"{fcd_score:.3f}"],
+        # Create comprehensive quality metrics table (ALL molecules)
+        all_molecules_quality_data = [
+            ["Total Molecules Generated", f"{total_molecules:,}"],
+            ["Valid Molecules (RDKit)", f"{valid_molecules:,} ({validity_rate:.1f}%)"],
+            ["Invalid Molecules", f"{total_molecules - valid_molecules:,} ({(total_molecules - valid_molecules) / total_molecules * 100:.1f}%)"],
+            ["Disconnected Molecules", f"{disconnected_rate:.1f}%"],
+            ["Unique Molecules", f"{self._calculate_unique_molecules(all_generated_smiles):,}"],
+            ["Uniqueness Rate", f"{self._calculate_uniqueness_rate(all_generated_smiles):.1f}%"],
+            ["Novel Molecules", f"{self._calculate_novel_molecules(all_generated_smiles):,}"],
+            ["Novelty Rate", f"{self._calculate_novelty_rate(all_generated_smiles):.1f}%"],
+            ["Average Molecular Weight", f"{self._calculate_avg_molecular_weight(all_generated_smiles):.1f}"],
+            ["Average Number of Atoms", f"{self._calculate_avg_atom_count(all_generated_smiles):.1f}"],
+            ["Average Number of Bonds", f"{self._calculate_avg_bond_count(all_generated_smiles):.1f}"],
+            ["Average Ring Count", f"{self._calculate_avg_ring_count(all_generated_smiles):.1f}"],
         ]
         
-        quality_table = "\n\n🎯 MOLECULAR QUALITY METRICS (Valid Molecules Only):\n"
-        quality_table += tabulate(quality_data, headers=["Metric", "Value"], 
-                                tablefmt="grid", numalign="left")
+        all_molecules_quality_table = "\n\n📊 MOLECULAR QUALITY METRICS (ALL Molecules):\n"
+        all_molecules_quality_table += tabulate(all_molecules_quality_data, headers=["Metric", "Value"], 
+                                              tablefmt="grid", numalign="left")
+        
+        # Create detailed quality metrics table (VALID molecules only)
+        valid_molecules_quality_data = [
+            ["Valid Molecules Count", f"{valid_molecules:,}"],
+            ["Validity Rate", f"{validity_rate:.1f}%"],
+            ["Disconnected Molecules", f"{valid_disconnected_rate:.1f}%"],
+            ["Unique Molecules", f"{unique_molecules:,}"],
+            ["Uniqueness Rate", f"{uniqueness_rate:.1f}%"],
+            ["Novel Molecules", f"{novel_molecules:,}"],
+            ["Novelty Rate", f"{novelty_rate:.1f}%"],
+            ["FCD Score", f"{fcd_score:.3f}"],
+            ["Average Molecular Weight", f"{self._calculate_avg_molecular_weight(valid_smiles):.1f}"],
+            ["Average Number of Atoms", f"{self._calculate_avg_atom_count(valid_smiles):.1f}"],
+            ["Average Number of Bonds", f"{self._calculate_avg_bond_count(valid_smiles):.1f}"],
+            ["Average Ring Count", f"{self._calculate_avg_ring_count(valid_smiles):.1f}"],
+            ["Average Ring Length", f"{self._calculate_avg_ring_length(valid_smiles):.1f}"],
+            ["Average Valency", f"{self._calculate_avg_valency(valid_smiles):.1f}"],
+        ]
+        
+        valid_molecules_quality_table = "\n\n🎯 MOLECULAR QUALITY METRICS (Valid Molecules Only):\n"
+        valid_molecules_quality_table += tabulate(valid_molecules_quality_data, headers=["Metric", "Value"], 
+                                                tablefmt="grid", numalign="left")
         
         # Create timing table with actual values
         timing_data = [
@@ -902,7 +997,7 @@ class SamplingMolecularMetrics(nn.Module):
         full_report = f"""🎯 COMPREHENSIVE CONSTRAINT SATISFACTION ANALYSIS
 {'='*80}
 
-{metrics_table}{structural_verification_table}{chemical_verification_table}{structural_distribution_table}{chemical_distribution_table}{quality_table}{gap_table}{timing_table}
+{metrics_table}{structural_verification_table}{chemical_verification_table}{structural_distribution_table}{chemical_distribution_table}{structural_ring_length_table}{chemical_ring_length_table}{all_molecules_quality_table}{valid_molecules_quality_table}{gap_table}{timing_table}
 
 {'='*80}
 """
@@ -972,16 +1067,62 @@ class SamplingMolecularMetrics(nn.Module):
                 print(f"Error calculating FCD in comprehensive report: {e}")
                 fcd_score = 0.0
         
-        # Generate metrics table
-        metrics_data = [
+        # Calculate disconnected rate using graph properties
+        disconnected_rate = 0.0
+        if all_generated_smiles:
+            try:
+                from ConStruct.analysis.constraint_validation import ConstraintValidator
+                validator = ConstraintValidator("temp", "temp")
+                graph_props = validator.check_graph_properties(all_generated_smiles)
+                disconnected_rate = (1 - graph_props['connectedness_rate']) * 100
+            except Exception as e:
+                print(f"Warning: Could not calculate disconnected rate: {e}")
+                disconnected_rate = 0.0
+        
+        # Calculate disconnected rate for valid molecules only
+        valid_disconnected_rate = 0.0
+        if valid_smiles:
+            try:
+                from ConStruct.analysis.constraint_validation import ConstraintValidator
+                validator = ConstraintValidator("temp", "temp")
+                valid_graph_props = validator.check_graph_properties(valid_smiles)
+                valid_disconnected_rate = (1 - valid_graph_props['connectedness_rate']) * 100
+            except Exception as e:
+                print(f"Warning: Could not calculate valid disconnected rate: {e}")
+                valid_disconnected_rate = 0.0
+        
+        # Generate comprehensive quality metrics table (ALL molecules)
+        all_molecules_metrics_data = [
             ["Total Molecules Generated", f"{total_molecules:,}"],
             ["Valid Molecules (RDKit)", f"{valid_molecules:,} ({validity_rate:.1f}%)"],
             ["Invalid Molecules", f"{total_molecules - valid_molecules:,} ({(total_molecules - valid_molecules) / total_molecules * 100:.1f}%)"],
-            ["Unique Molecules (Valid Only)", f"{unique_molecules:,}"],
-            ["Uniqueness Rate (Valid Only)", f"{uniqueness_rate:.1f}%"],
-            ["Novel Molecules (Valid Only)", f"{novel_molecules:,}"],
-            ["Novelty Rate (Valid Only)", f"{novelty_rate:.1f}%"],
-            ["FCD Score (Valid Only)", f"{fcd_score:.3f}"],
+            ["Disconnected Molecules", f"{disconnected_rate:.1f}%"],
+            ["Unique Molecules", f"{self._calculate_unique_molecules(all_generated_smiles):,}"],
+            ["Uniqueness Rate", f"{self._calculate_uniqueness_rate(all_generated_smiles):.1f}%"],
+            ["Novel Molecules", f"{self._calculate_novel_molecules(all_generated_smiles):,}"],
+            ["Novelty Rate", f"{self._calculate_novelty_rate(all_generated_smiles):.1f}%"],
+            ["Average Molecular Weight", f"{self._calculate_avg_molecular_weight(all_generated_smiles):.1f}"],
+            ["Average Number of Atoms", f"{self._calculate_avg_atom_count(all_generated_smiles):.1f}"],
+            ["Average Number of Bonds", f"{self._calculate_avg_bond_count(all_generated_smiles):.1f}"],
+            ["Average Ring Count", f"{self._calculate_avg_ring_count(all_generated_smiles):.1f}"],
+        ]
+        
+        # Generate detailed quality metrics table (VALID molecules only)
+        valid_molecules_metrics_data = [
+            ["Valid Molecules Count", f"{valid_molecules:,}"],
+            ["Validity Rate", f"{validity_rate:.1f}%"],
+            ["Disconnected Molecules", f"{valid_disconnected_rate:.1f}%"],
+            ["Unique Molecules", f"{unique_molecules:,}"],
+            ["Uniqueness Rate", f"{uniqueness_rate:.1f}%"],
+            ["Novel Molecules", f"{novel_molecules:,}"],
+            ["Novelty Rate", f"{novelty_rate:.1f}%"],
+            ["FCD Score", f"{fcd_score:.3f}"],
+            ["Average Molecular Weight", f"{self._calculate_avg_molecular_weight(valid_smiles):.1f}"],
+            ["Average Number of Atoms", f"{self._calculate_avg_atom_count(valid_smiles):.1f}"],
+            ["Average Number of Bonds", f"{self._calculate_avg_bond_count(valid_smiles):.1f}"],
+            ["Average Ring Count", f"{self._calculate_avg_ring_count(valid_smiles):.1f}"],
+            ["Average Ring Length", f"{self._calculate_avg_ring_length(valid_smiles):.1f}"],
+            ["Average Valency", f"{self._calculate_avg_valency(valid_smiles):.1f}"],
         ]
         
         # Generate timing metrics table
@@ -1021,34 +1162,19 @@ class SamplingMolecularMetrics(nn.Module):
                                 mol = Chem.MolFromSmiles(smi)
                                 if mol is not None:
                                     structural_total += 1
-                                    # Check if molecule is planar using RDKit's 3D conformer generation
+                                    # Convert RDKit molecule to NetworkX graph and check planarity
                                     try:
-                                        # Generate 3D conformer
-                                        AllChem.EmbedMolecule(mol, randomSeed=42)
-                                        AllChem.MMFFOptimizeMolecule(mol)
-                                        # Check if the molecule is planar (all atoms roughly in same plane)
-                                        conf = mol.GetConformer()
-                                        coords = conf.GetPositions()
-                                        if len(coords) >= 3:
-                                            # Calculate the normal vector of the plane formed by first 3 atoms
-                                            v1 = coords[1] - coords[0]
-                                            v2 = coords[2] - coords[0]
-                                            normal = np.cross(v1, v2)
-                                            normal = normal / np.linalg.norm(normal)
-                                            
-                                            # Check if all other atoms are close to this plane
-                                            planar = True
-                                            for i in range(3, len(coords)):
-                                                v = coords[i] - coords[0]
-                                                distance = abs(np.dot(v, normal))
-                                                if distance > 0.5:  # Threshold for planarity
-                                                    planar = False
-                                                    break
-                                            
-                                            if planar:
-                                                structural_planar_count += 1
+                                        # Convert to adjacency matrix
+                                        adj_matrix = Chem.GetAdjacencyMatrix(mol)
+                                        # Create NetworkX graph
+                                        import networkx as nx
+                                        g = nx.from_numpy_array(adj_matrix)
+                                        # Use the same planarity function as the constraint enforcement
+                                        from ConStruct.projector.is_planar import is_planar
+                                        if is_planar(g):
+                                            structural_planar_count += 1
                                     except:
-                                        # If 3D generation fails, assume non-planar
+                                        # If conversion fails, assume non-planar
                                         pass
                             except:
                                 pass
@@ -1093,7 +1219,7 @@ class SamplingMolecularMetrics(nn.Module):
             
             for value in test_values:
                 if constraint_type == "planar":
-                    # For planar constraints, check planarity using RDKit
+                    # For planar constraints, check planarity using the same method as constraint enforcement
                     chemical_planar_count = 0
                     chemical_total = 0
                     for smi in valid_smiles:
@@ -1101,34 +1227,19 @@ class SamplingMolecularMetrics(nn.Module):
                             mol = Chem.MolFromSmiles(smi)
                             if mol is not None:
                                 chemical_total += 1
-                                # Check if molecule is planar using RDKit's 3D conformer generation
+                                # Convert RDKit molecule to NetworkX graph and check planarity
                                 try:
-                                    # Generate 3D conformer
-                                    AllChem.EmbedMolecule(mol, randomSeed=42)
-                                    AllChem.MMFFOptimizeMolecule(mol)
-                                    # Check if the molecule is planar (all atoms roughly in same plane)
-                                    conf = mol.GetConformer()
-                                    coords = conf.GetPositions()
-                                    if len(coords) >= 3:
-                                        # Calculate the normal vector of the plane formed by first 3 atoms
-                                        v1 = coords[1] - coords[0]
-                                        v2 = coords[2] - coords[0]
-                                        normal = np.cross(v1, v2)
-                                        normal = normal / np.linalg.norm(normal)
-                                        
-                                        # Check if all other atoms are close to this plane
-                                        planar = True
-                                        for i in range(3, len(coords)):
-                                            v = coords[i] - coords[0]
-                                            distance = abs(np.dot(v, normal))
-                                            if distance > 0.5:  # Threshold for planarity
-                                                planar = False
-                                                break
-                                        
-                                        if planar:
-                                            chemical_planar_count += 1
+                                    # Convert to adjacency matrix
+                                    adj_matrix = Chem.GetAdjacencyMatrix(mol)
+                                    # Create NetworkX graph
+                                    import networkx as nx
+                                    g = nx.from_numpy_array(adj_matrix)
+                                    # Use the same planarity function as the constraint enforcement
+                                    from ConStruct.projector.is_planar import is_planar
+                                    if is_planar(g):
+                                        chemical_planar_count += 1
                                 except:
-                                    # If 3D generation fails, assume non-planar
+                                    # If conversion fails, assume non-planar
                                     pass
                         except:
                             pass
@@ -1177,9 +1288,14 @@ class SamplingMolecularMetrics(nn.Module):
         # Combine all tables
         full_report = ""
         
-        # Metrics table
-        full_report += "📊 MOLECULAR QUALITY METRICS\n"
-        full_report += tabulate(metrics_data, headers=["Metric", "Value"], tablefmt="grid", numalign="left")
+        # ALL Molecules quality metrics table
+        full_report += "📊 MOLECULAR QUALITY METRICS (ALL Molecules)\n"
+        full_report += tabulate(all_molecules_metrics_data, headers=["Metric", "Value"], tablefmt="grid", numalign="left")
+        full_report += "\n\n"
+        
+        # Valid Molecules quality metrics table
+        full_report += "🎯 MOLECULAR QUALITY METRICS (Valid Molecules Only)\n"
+        full_report += tabulate(valid_molecules_metrics_data, headers=["Metric", "Value"], tablefmt="grid", numalign="left")
         full_report += "\n\n"
         
         # Timing table
@@ -1207,7 +1323,188 @@ class SamplingMolecularMetrics(nn.Module):
         """Record sampling time for timing metrics."""
         self.total_sampling_time += sampling_time
         self.num_batches += 1
-        self.avg_sampling_time = self.total_sampling_time / self.num_batches if self.num_batches > 0 else 0.0
+        self.avg_sampling_time = self.total_sampling_time / self.num_batches
+    
+    def _calculate_avg_molecular_weight(self, smiles_list: List[str]) -> float:
+        """Calculate average molecular weight for a list of SMILES."""
+        if not smiles_list:
+            return 0.0
+        
+        total_weight = 0.0
+        valid_count = 0
+        
+        for smiles in smiles_list:
+            if smiles and smiles != "error":
+                try:
+                    mol = Chem.MolFromSmiles(smiles)
+                    if mol is not None:
+                        weight = Chem.Descriptors.MolWt(mol)
+                        total_weight += weight
+                        valid_count += 1
+                except:
+                    continue
+        
+        return total_weight / valid_count if valid_count > 0 else 0.0
+    
+    def _calculate_avg_atom_count(self, smiles_list: List[str]) -> float:
+        """Calculate average number of atoms for a list of SMILES."""
+        if not smiles_list:
+            return 0.0
+        
+        total_atoms = 0
+        valid_count = 0
+        
+        for smiles in smiles_list:
+            if smiles and smiles != "error":
+                try:
+                    mol = Chem.MolFromSmiles(smiles)
+                    if mol is not None:
+                        total_atoms += mol.GetNumAtoms()
+                        valid_count += 1
+                except:
+                    continue
+        
+        return total_atoms / valid_count if valid_count > 0 else 0.0
+    
+    def _calculate_avg_bond_count(self, smiles_list: List[str]) -> float:
+        """Calculate average number of bonds for a list of SMILES."""
+        if not smiles_list:
+            return 0.0
+        
+        total_bonds = 0
+        valid_count = 0
+        
+        for smiles in smiles_list:
+            if smiles and smiles != "error":
+                try:
+                    mol = Chem.MolFromSmiles(smiles)
+                    if mol is not None:
+                        total_bonds += mol.GetNumBonds()
+                        valid_count += 1
+                except:
+                    continue
+        
+        return total_bonds / valid_count if valid_count > 0 else 0.0
+    
+    def _calculate_avg_ring_count(self, smiles_list: List[str]) -> float:
+        """Calculate average ring count for a list of SMILES."""
+        if not smiles_list:
+            return 0.0
+        
+        total_rings = 0
+        valid_count = 0
+        
+        for smiles in smiles_list:
+            if smiles and smiles != "error":
+                try:
+                    mol = Chem.MolFromSmiles(smiles)
+                    if mol is not None:
+                        ring_info = mol.GetRingInfo()
+                        total_rings += ring_info.NumRings()
+                        valid_count += 1
+                except:
+                    continue
+        
+        return total_rings / valid_count if valid_count > 0 else 0.0
+    
+    def _calculate_avg_ring_length(self, smiles_list: List[str]) -> float:
+        """Calculate average ring length for a list of SMILES."""
+        if not smiles_list:
+            return 0.0
+        
+        total_ring_length = 0
+        total_rings = 0
+        valid_count = 0
+        
+        for smiles in smiles_list:
+            if smiles and smiles != "error":
+                try:
+                    mol = Chem.MolFromSmiles(smiles)
+                    if mol is not None:
+                        ring_info = mol.GetRingInfo()
+                        rings = ring_info.AtomRings()
+                        for ring in rings:
+                            total_ring_length += len(ring)
+                            total_rings += 1
+                        valid_count += 1
+                except:
+                    continue
+        
+        return total_ring_length / total_rings if total_rings > 0 else 0.0
+    
+    def _calculate_avg_valency(self, smiles_list: List[str]) -> float:
+        """Calculate average valency for a list of SMILES."""
+        if not smiles_list:
+            return 0.0
+        
+        total_valency = 0
+        total_atoms = 0
+        valid_count = 0
+        
+        for smiles in smiles_list:
+            if smiles and smiles != "error":
+                try:
+                    mol = Chem.MolFromSmiles(smiles)
+                    if mol is not None:
+                        for atom in mol.GetAtoms():
+                            total_valency += atom.GetTotalValence()
+                            total_atoms += 1
+                        valid_count += 1
+                except:
+                    continue
+        
+        return total_valency / total_atoms if total_atoms > 0 else 0.0
+    
+    def _calculate_unique_molecules(self, smiles_list: List[str]) -> int:
+        """Calculate number of unique molecules in a list (including invalid ones)."""
+        if not smiles_list:
+            return 0
+        
+        # Filter out empty and error strings, but keep invalid SMILES
+        filtered_smiles = [s for s in smiles_list if s and s != "error"]
+        unique_smiles = set(filtered_smiles)
+        return len(unique_smiles)
+    
+    def _calculate_uniqueness_rate(self, smiles_list: List[str]) -> float:
+        """Calculate uniqueness rate for a list of SMILES (including invalid ones)."""
+        if not smiles_list:
+            return 0.0
+        
+        filtered_smiles = [s for s in smiles_list if s and s != "error"]
+        if not filtered_smiles:
+            return 0.0
+        
+        unique_smiles = set(filtered_smiles)
+        return (len(unique_smiles) / len(filtered_smiles) * 100)
+    
+    def _calculate_novel_molecules(self, smiles_list: List[str]) -> int:
+        """Calculate number of novel molecules in a list (including invalid ones)."""
+        if not smiles_list or self.train_smiles is None:
+            return 0
+        
+        filtered_smiles = [s for s in smiles_list if s and s != "error"]
+        if not filtered_smiles:
+            return 0
+        
+        unique_smiles = set(filtered_smiles)
+        novel_smiles = [s for s in unique_smiles if s not in self.train_smiles]
+        return len(novel_smiles)
+    
+    def _calculate_novelty_rate(self, smiles_list: List[str]) -> float:
+        """Calculate novelty rate for a list of SMILES (including invalid ones)."""
+        if not smiles_list or self.train_smiles is None:
+            return 0.0
+        
+        filtered_smiles = [s for s in smiles_list if s and s != "error"]
+        if not filtered_smiles:
+            return 0.0
+        
+        unique_smiles = set(filtered_smiles)
+        if not unique_smiles:
+            return 0.0
+        
+        novel_smiles = [s for s in unique_smiles if s not in self.train_smiles]
+        return (len(novel_smiles) / len(unique_smiles) * 100)
 
 
 def charge_distance(molecules, target, atom_types_probabilities, dataset_infos):
@@ -1489,7 +1786,6 @@ def smiles_from_generated_samples_file(generated_samples_file, atom_decoder):
 
 
 def check_ring_constraints(smiles_list, constraint_type, constraint_value, logger=print, timeout_seconds=30):
-    print(f"DEBUG: check_ring_constraints called with {len(smiles_list)} smiles, type={constraint_type}, value={constraint_value}")
     total = 0
     passed = 0
     
@@ -1731,7 +2027,6 @@ def check_ring_constraints_all_molecules(smiles_list, constraint_type, constrain
     Check ring constraints for ALL molecules (including invalid ones).
     This provides structural constraint analysis.
     """
-    print(f"DEBUG: check_ring_constraints_all_molecules called with {len(smiles_list)} smiles, type={constraint_type}, value={constraint_value}")
     total = len(smiles_list)
     passed = 0
     

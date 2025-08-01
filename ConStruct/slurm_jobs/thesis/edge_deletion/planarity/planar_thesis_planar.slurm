@@ -40,12 +40,6 @@ echo "Time: $(date)"
 echo "=== Checking Planar dataset ==="
 if [ -d "/home/rislek/ConStruct-Thesis/data/planar" ]; then
     echo "✅ Planar dataset found at /home/rislek/ConStruct-Thesis/data/planar"
-    echo "📊 Dataset contents:"
-    ls -la /home/rislek/ConStruct-Thesis/data/planar/
-    echo "📊 Raw files:"
-    ls -la /home/rislek/ConStruct-Thesis/data/planar/raw/
-    echo "📊 Processed files:"
-    ls -la /home/rislek/ConStruct-Thesis/data/planar/processed/
 else
     echo "❌ Planar dataset not found at /home/rislek/ConStruct-Thesis/data/planar"
     exit 1
