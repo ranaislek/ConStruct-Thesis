@@ -843,7 +843,8 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
                             pass  # Don't raise exception for planarity - just log the violation
             
                 # DEBUG: Track natural structural properties for unconstrained generation
-                elif self.cfg.model.rev_proj is None or self.cfg.model.rev_proj == "":
+                # Only run this analysis during training, not during validation
+                elif (self.cfg.model.rev_proj is None or self.cfg.model.rev_proj == "") and not test:
                     # Convert current z_s to NetworkX graphs for analysis
                     discrete_z_s = z_s.collapse(self.collapse_charges)
                     nx_graphs_current = []

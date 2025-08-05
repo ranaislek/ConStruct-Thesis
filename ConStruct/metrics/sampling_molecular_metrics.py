@@ -4,6 +4,7 @@ from typing import List, Dict
 from concurrent.futures import ThreadPoolExecutor, TimeoutError
 
 from rdkit import Chem, RDLogger
+from rdkit.Chem import Descriptors
 from torchmetrics import MeanMetric, MeanAbsoluteError, Metric, CatMetric
 import torch
 import wandb
@@ -265,7 +266,7 @@ class SamplingMolecularMetrics(nn.Module):
 
         return all_smiles, dic
 
-    def forward(self, generated_graphs: list[PlaceHolder], current_epoch, local_rank):
+    def forward(self, generated_graphs: list[PlaceHolder], current_epoch, local_rank, disconnected_rate=None):
         molecules = []
 
         for batch in generated_graphs:
@@ -292,6 +293,25 @@ class SamplingMolecularMetrics(nn.Module):
 
         # Validity, uniqueness, novelty
         all_generated_smiles, metrics = self.evaluate(molecules)
+        
+        # Add Disconnected metric from SamplingMetrics if provided
+        if disconnected_rate is not None:
+            key = "test_sampling" if self.test else "val_sampling"
+            metrics[f"{key}/Disconnected"] = disconnected_rate
+        
+        # Add chemical validation metrics BEFORE table generation
+        if len(all_generated_smiles) > 0 and local_rank == 0:
+            chemical_validation_metrics = self.compute_chemical_validation_metrics(all_generated_smiles)
+            if wandb.run:
+                wandb.log(chemical_validation_metrics, commit=False)
+            # Add chemical validation metrics to the metrics dictionary for table use
+            metrics.update(chemical_validation_metrics)
+            # print("Chemical validation metrics:", chemical_validation_metrics)
+
+        # Calculate FCD BEFORE table generation
+        to_log_fcd = self.compute_fcd(generated_smiles=all_generated_smiles)
+        metrics.update(to_log_fcd)
+
         if len(all_generated_smiles) > 0 and local_rank == 0:
             print("Some generated smiles: " + " ".join(all_generated_smiles[:10]))
             # --- Constraint check integration ---
@@ -313,13 +333,13 @@ class SamplingMolecularMetrics(nn.Module):
             enforced_types = ["ring_count_at_most", "ring_count_at_least", "ring_length_at_most", "ring_length_at_least", "planar", "tree", "lobster"]
             if constraint_type in enforced_types and constraint_value is not None:
                 # Constraint is enforced, only print enforcement check
-                check_ring_constraints(all_generated_smiles, constraint_type, constraint_value)
+                check_ring_constraints(all_generated_smiles, constraint_type, constraint_value, logger=lambda x: None)
                 
                 # Generate and print table report
                 print("\n" + "="*80)
                 print("🎯 TABLE-BASED CONSTRAINT ANALYSIS")
                 print("="*80)
-                table_report = self.generate_table_report(constraint_type, constraint_value, all_generated_smiles)
+                table_report = self.generate_table_report(constraint_type, constraint_value, all_generated_smiles, metrics)
                 print(table_report)
                 print("="*80)
             else:
@@ -329,19 +349,9 @@ class SamplingMolecularMetrics(nn.Module):
                 print("\n" + "="*80)
                 print("🎯 COMPREHENSIVE CONSTRAINT ANALYSIS (NO ENFORCED CONSTRAINT)")
                 print("="*80)
-                comprehensive_report = self.generate_comprehensive_report(all_generated_smiles)
+                comprehensive_report = self.generate_comprehensive_report(all_generated_smiles, metrics)
                 print(comprehensive_report)
                 print("="*80)
-
-        to_log_fcd = self.compute_fcd(generated_smiles=all_generated_smiles)
-        metrics.update(to_log_fcd)
-        
-        # Add chemical validation metrics (replacing PostGenerationValidator functionality)
-        if len(all_generated_smiles) > 0 and local_rank == 0:
-            chemical_validation_metrics = self.compute_chemical_validation_metrics(all_generated_smiles)
-            if wandb.run:
-                wandb.log(chemical_validation_metrics, commit=False)
-            print("Chemical validation metrics:", chemical_validation_metrics)
 
         # Save in any case in the graphs folder
         os.makedirs("graphs", exist_ok=True)
@@ -390,8 +400,8 @@ class SamplingMolecularMetrics(nn.Module):
 
         # if local_rank == 0:
         #     print(f"Sampling metrics", {k: round(val, 3) for k, val in metrics.items()})
-        if local_rank == 0:
-            print(f"Molecular metrics computed.")
+        # if local_rank == 0:
+        #     print(f"Molecular metrics computed.")
 
         return metrics
 
@@ -407,32 +417,35 @@ class SamplingMolecularMetrics(nn.Module):
             print("Not enough (<=1) valid smiles for FCD computation.")
             fcd_score = -1
         else:
-            gen_activations = fcd.get_predictions(fcd_model, generated_smiles)
-            gen_mu = np.mean(gen_activations, axis=0)
-            gen_sigma = np.cov(gen_activations.T)
-            target_mu = self.val_fcd_mu
-            target_sigma = self.val_fcd_sigma
             try:
-                fcd_score = fcd.calculate_frechet_distance(
-                    mu1=gen_mu,
-                    sigma1=gen_sigma,
-                    mu2=target_mu,
-                    sigma2=target_sigma,
-                )
-            except ValueError as e:
-                eps = 1e-6
-                print(f"Error in FCD computation: {e}. Increasing eps to {eps}")
-                eps_sigma = eps * np.eye(gen_sigma.shape[0])
-                gen_sigma = gen_sigma + eps_sigma
-                target_sigma = self.val_fcd_sigma + eps_sigma
-                fcd_score = fcd.calculate_frechet_distance(
-                    mu1=gen_mu,
-                    sigma1=gen_sigma,
-                    mu2=target_mu,
-                    sigma2=target_sigma,
-                )
+                gen_activations = fcd.get_predictions(fcd_model, generated_smiles)
+                gen_mu = np.mean(gen_activations, axis=0)
+                gen_sigma = np.cov(gen_activations.T)
+                target_mu = self.val_fcd_mu
+                target_sigma = self.val_fcd_sigma
+                try:
+                    fcd_score = fcd.calculate_frechet_distance(
+                        mu1=gen_mu,
+                        sigma1=gen_sigma,
+                        mu2=target_mu,
+                        sigma2=target_sigma,
+                    )
+                except ValueError as e:
+                    eps = 1e-6
+                    print(f"Error in FCD computation: {e}. Increasing eps to {eps}")
+                    eps_sigma = eps * np.eye(gen_sigma.shape[0])
+                    gen_sigma = gen_sigma + eps_sigma
+                    target_sigma = self.val_fcd_sigma + eps_sigma
+                    fcd_score = fcd.calculate_frechet_distance(
+                        mu1=gen_mu,
+                        sigma1=gen_sigma,
+                        mu2=target_mu,
+                        sigma2=target_sigma,
+                    )
+            except Exception as e:
+                print(f"FCD calculation failed: {e}")
+                fcd_score = -1
 
-        print(f"FCD score: {fcd_score}")
         key = "val_sampling" if not self.test else "test_sampling"
         return {f"{key}/fcd score": fcd_score}
 
@@ -542,7 +555,7 @@ class SamplingMolecularMetrics(nn.Module):
             f"{key}/post_gen/connectivity_issues": connectivity_issues_rate,
         }
 
-    def generate_table_report(self, constraint_type: str, constraint_value: int, all_generated_smiles: List[str]) -> str:
+    def generate_table_report(self, constraint_type: str, constraint_value: int, all_generated_smiles: List[str], computed_metrics: Dict = None) -> str:
         """
         Generate a comprehensive table report for constraint satisfaction metrics.
         Includes both ALL molecules (structural analysis) and VALID molecules (chemical analysis).
@@ -673,80 +686,118 @@ class SamplingMolecularMetrics(nn.Module):
         # QUALITY METRICS (VALID MOLECULES ONLY)
         # ============================================================================
         
-        # Calculate uniqueness (based on valid molecules only, same as evaluate method)
-        if len(valid_smiles) > 0:
-            unique_smiles = set(valid_smiles)
-            unique_molecules = len(unique_smiles)
-            uniqueness_rate = (unique_molecules / len(valid_smiles) * 100)  # Based on valid molecules
+        # Use computed metrics from the original wandb-submitting calculations
+        if computed_metrics is not None:
+            # Extract metrics from the computed_metrics dictionary
+            key = "test_sampling" if self.test else "val_sampling"
+            uniqueness_rate = computed_metrics.get(f"{key}/Uniqueness", 0.0)
+            novelty_rate = computed_metrics.get(f"{key}/Novelty", 0.0)
+            fcd_score = computed_metrics.get(f"{key}/fcd score", 0.0)
+            # Calculate unique and novel molecules for display (based on valid molecules only)
+            if len(valid_smiles) > 0:
+                unique_smiles = set(valid_smiles)
+                unique_molecules = len(unique_smiles)
+                uniqueness_rate = (unique_molecules / len(valid_smiles) * 100)  # Based on valid molecules
+            else:
+                uniqueness_rate = 0.0
+                unique_molecules = 0
+            
+            # Calculate novelty (based on valid molecules only, same as evaluate method)
+            if self.train_smiles is not None and len(unique_smiles) > 0:
+                novel_smiles = [s for s in unique_smiles if s not in self.train_smiles]
+                novel_molecules = len(novel_smiles)
+                novelty_rate = (len(novel_smiles) / len(unique_smiles) * 100)  # Based on unique valid molecules
+            else:
+                novelty_rate = 0.0
+                novel_molecules = 0
         else:
-            uniqueness_rate = 0.0
-            unique_molecules = 0
-        
-        # Calculate novelty (based on valid molecules only, same as evaluate method)
-        if self.train_smiles is not None and len(unique_smiles) > 0:
-            novel_smiles = [s for s in unique_smiles if s not in self.train_smiles]
-            novel_molecules = len(novel_smiles)
-            novelty_rate = (len(novel_smiles) / len(unique_smiles) * 100)  # Based on unique valid molecules
-        else:
-            novelty_rate = 0.0
-            novel_molecules = 0
-        
-        # Calculate FCD score (using actual compute_fcd method)
-        fcd_score = 0.0
-        if valid_smiles:
-            try:
-                # Use the same FCD calculation as compute_fcd method
-                fcd_model = fcd.load_ref_model()
-                canonical_smiles = [smile for smile in fcd.canonical_smiles(valid_smiles) if smile is not None]
-                
-                if len(canonical_smiles) > 1:
-                    gen_activations = fcd.get_predictions(fcd_model, canonical_smiles)
-                    gen_mu = np.mean(gen_activations, axis=0)
-                    gen_sigma = np.cov(gen_activations.T)
-                    target_mu = self.val_fcd_mu
-                    target_sigma = self.val_fcd_sigma
-                    try:
-                        fcd_score = fcd.calculate_frechet_distance(
-                            mu1=gen_mu, sigma1=gen_sigma, mu2=target_mu, sigma2=target_sigma
-                        )
-                    except ValueError as e:
-                        eps = 1e-6
-                        eps_sigma = eps * np.eye(gen_sigma.shape[0])
-                        gen_sigma = gen_sigma + eps_sigma
-                        target_sigma = self.val_fcd_sigma + eps_sigma
-                        fcd_score = fcd.calculate_frechet_distance(
-                            mu1=gen_mu, sigma1=gen_sigma, mu2=target_mu, sigma2=target_sigma
-                        )
-                else:
-                    fcd_score = -1
-            except Exception as e:
-                print(f"Error calculating FCD in table report: {e}")
-                fcd_score = 0.0
+            # Fallback to original calculation if computed_metrics not provided
+            if len(valid_smiles) > 0:
+                unique_smiles = set(valid_smiles)
+                unique_molecules = len(unique_smiles)
+                uniqueness_rate = (unique_molecules / len(valid_smiles) * 100)  # Based on valid molecules
+            else:
+                uniqueness_rate = 0.0
+                unique_molecules = 0
+            
+            # Calculate novelty (based on valid molecules only, same as evaluate method)
+            if self.train_smiles is not None and len(unique_smiles) > 0:
+                novel_smiles = [s for s in unique_smiles if s not in self.train_smiles]
+                novel_molecules = len(novel_smiles)
+                novelty_rate = (len(novel_smiles) / len(unique_smiles) * 100)  # Based on unique valid molecules
+            else:
+                novelty_rate = 0.0
+                novel_molecules = 0
+            
+            # Fallback FCD calculation
+            fcd_score = 0.0
         
         # ============================================================================
         # CREATE COMPREHENSIVE TABLES
         # ============================================================================
         
-        # Calculate disconnected rate using graph properties
-        disconnected_rate = 0.0
-        if all_generated_smiles:
-            try:
-                from ConStruct.analysis.constraint_validation import ConstraintValidator
-                validator = ConstraintValidator("temp", "temp")
-                graph_props = validator.check_graph_properties(all_generated_smiles)
-                disconnected_rate = (1 - graph_props['connectedness_rate']) * 100
-            except Exception as e:
-                print(f"Warning: Could not calculate disconnected rate: {e}")
-                disconnected_rate = 0.0
+        # Calculate disconnected rate using graph properties (matching final metric calculation)
+        # Get from computed_metrics if available, otherwise calculate
+        key = "test_sampling" if self.test else "val_sampling"
+        if computed_metrics is not None:
+            disconnected_rate = computed_metrics.get(f"{key}/Disconnected", 0.0)
+        else:
+            # Calculate disconnected rate if not provided
+            disconnected_rate = 0.0
+            if all_generated_smiles:
+                try:
+                    import networkx as nx
+                    from rdkit import Chem
+                    
+                    disconnected_count = 0
+                    total_count = 0
+                    
+                    for smiles in all_generated_smiles:
+                        if smiles and smiles != "error":
+                            total_count += 1
+                            try:
+                                mol = Chem.MolFromSmiles(smiles)
+                                if mol is not None:
+                                    # Convert to graph and check connectedness (same logic as connected_components function)
+                                    adj_matrix = Chem.GetAdjacencyMatrix(mol)
+                                    G = nx.from_numpy_array(adj_matrix)
+                                    if not nx.is_connected(G):
+                                        disconnected_count += 1
+                            except:
+                                # If molecule is invalid, count as disconnected (same as final metric)
+                                disconnected_count += 1
+                    
+                    disconnected_rate = (disconnected_count / total_count * 100) if total_count > 0 else 0.0
+                except Exception as e:
+                    print(f"Warning: Could not calculate disconnected rate: {e}")
+                    disconnected_rate = 0.0
         
         # Calculate disconnected rate for valid molecules only
         valid_disconnected_rate = 0.0
         if valid_smiles:
             try:
-                from ConStruct.analysis.constraint_validation import ConstraintValidator
-                validator = ConstraintValidator("temp", "temp")
-                valid_graph_props = validator.check_graph_properties(valid_smiles)
-                valid_disconnected_rate = (1 - valid_graph_props['connectedness_rate']) * 100
+                import networkx as nx
+                from rdkit import Chem
+                
+                disconnected_count = 0
+                total_count = 0
+                
+                for smiles in valid_smiles:
+                    if smiles and smiles != "error":
+                        total_count += 1
+                        try:
+                            mol = Chem.MolFromSmiles(smiles)
+                            if mol is not None:
+                                # Convert to graph and check connectedness (same logic as connected_components function)
+                                adj_matrix = Chem.GetAdjacencyMatrix(mol)
+                                G = nx.from_numpy_array(adj_matrix)
+                                if not nx.is_connected(G):
+                                    disconnected_count += 1
+                        except:
+                            # If molecule is invalid, count as disconnected (same as final metric)
+                            disconnected_count += 1
+                
+                valid_disconnected_rate = (disconnected_count / total_count * 100) if total_count > 0 else 0.0
             except Exception as e:
                 print(f"Warning: Could not calculate valid disconnected rate: {e}")
                 valid_disconnected_rate = 0.0
@@ -929,15 +980,29 @@ class SamplingMolecularMetrics(nn.Module):
                 chemical_ring_length_table = ""
         
         # Create comprehensive quality metrics table (ALL molecules)
+        # Use computed metrics for ALL molecules to avoid duplication
+        if computed_metrics is not None:
+            key = "test_sampling" if self.test else "val_sampling"
+            all_unique_molecules = int((computed_metrics.get(f"{key}/Uniqueness", 0.0) / 100) * total_molecules) if total_molecules > 0 else 0
+            all_novel_molecules = int((computed_metrics.get(f"{key}/Novelty", 0.0) / 100) * all_unique_molecules) if all_unique_molecules > 0 else 0
+            all_uniqueness_rate = computed_metrics.get(f"{key}/Uniqueness", 0.0)
+            all_novelty_rate = computed_metrics.get(f"{key}/Novelty", 0.0)
+        else:
+            # Fallback to original calculations
+            all_unique_molecules = self._calculate_unique_molecules(all_generated_smiles)
+            all_novel_molecules = self._calculate_novel_molecules(all_generated_smiles)
+            all_uniqueness_rate = self._calculate_uniqueness_rate(all_generated_smiles)
+            all_novelty_rate = self._calculate_novelty_rate(all_generated_smiles)
+        
         all_molecules_quality_data = [
             ["Total Molecules Generated", f"{total_molecules:,}"],
             ["Valid Molecules (RDKit)", f"{valid_molecules:,} ({validity_rate:.1f}%)"],
             ["Invalid Molecules", f"{total_molecules - valid_molecules:,} ({(total_molecules - valid_molecules) / total_molecules * 100:.1f}%)"],
             ["Disconnected Molecules", f"{disconnected_rate:.1f}%"],
-            ["Unique Molecules", f"{self._calculate_unique_molecules(all_generated_smiles):,}"],
-            ["Uniqueness Rate", f"{self._calculate_uniqueness_rate(all_generated_smiles):.1f}%"],
-            ["Novel Molecules", f"{self._calculate_novel_molecules(all_generated_smiles):,}"],
-            ["Novelty Rate", f"{self._calculate_novelty_rate(all_generated_smiles):.1f}%"],
+            ["Unique Molecules", f"{all_unique_molecules:,}"],
+            ["Uniqueness Rate", f"{all_uniqueness_rate:.1f}%"],
+            ["Novel Molecules", f"{all_novel_molecules:,}"],
+            ["Novelty Rate", f"{all_novelty_rate:.1f}%"],
             ["Average Molecular Weight", f"{self._calculate_avg_molecular_weight(all_generated_smiles):.1f}"],
             ["Average Number of Atoms", f"{self._calculate_avg_atom_count(all_generated_smiles):.1f}"],
             ["Average Number of Bonds", f"{self._calculate_avg_bond_count(all_generated_smiles):.1f}"],
@@ -993,22 +1058,62 @@ class SamplingMolecularMetrics(nn.Module):
         gap_table += tabulate(gap_data, headers=["Metric", "Value"], 
                              tablefmt="grid", numalign="left")
         
+        # Create chemical validation metrics table
+        # Get chemical validation metrics from computed_metrics if available
+        chemical_validation_data = []
+        if computed_metrics is not None:
+            key = "test_sampling" if self.test else "val_sampling"
+            structurally_valid_rate = computed_metrics.get(f"{key}/post_gen/structurally_valid", 0.0) * 100
+            chemically_valid_rate = computed_metrics.get(f"{key}/post_gen/chemically_valid", 0.0) * 100
+            rdkit_valid_rate = computed_metrics.get(f"{key}/post_gen/rdkit_valid", 0.0) * 100
+            valency_violations_rate = computed_metrics.get(f"{key}/post_gen/valency_violations", 0.0) * 100
+            connectivity_issues_rate = computed_metrics.get(f"{key}/post_gen/connectivity_issues", 0.0) * 100
+        else:
+            # Calculate chemical validation metrics if not provided
+            chemical_metrics = self.compute_chemical_validation_metrics(all_generated_smiles)
+            key = "test_sampling" if self.test else "val_sampling"
+            structurally_valid_rate = chemical_metrics.get(f"{key}/post_gen/structurally_valid", 0.0) * 100
+            chemically_valid_rate = chemical_metrics.get(f"{key}/post_gen/chemically_valid", 0.0) * 100
+            rdkit_valid_rate = chemical_metrics.get(f"{key}/post_gen/rdkit_valid", 0.0) * 100
+            valency_violations_rate = chemical_metrics.get(f"{key}/post_gen/valency_violations", 0.0) * 100
+            connectivity_issues_rate = chemical_metrics.get(f"{key}/post_gen/connectivity_issues", 0.0) * 100
+        
+        chemical_validation_data = [
+            ["Structurally Valid", f"{structurally_valid_rate:.1f}%", "Basic graph structure (atoms > 0, bonds ≥ 0)"],
+            ["Chemically Valid", f"{chemically_valid_rate:.1f}%", "Passes valency, connectivity, and atom type checks"],
+            ["RDKit Valid", f"{rdkit_valid_rate:.1f}%", "Can be parsed by RDKit library"],
+            ["Valency Violations", f"{valency_violations_rate:.1f}%", "Atoms with incorrect valence"],
+            ["Connectivity Issues", f"{connectivity_issues_rate:.1f}%", "Molecules with multiple disconnected components"],
+        ]
+        
+        chemical_validation_table = "\n\n🧪 CHEMICAL VALIDATION METRICS (ALL Generated Molecules):\n"
+        chemical_validation_table += tabulate(chemical_validation_data, headers=["Metric", "Rate", "Description"], 
+                                           tablefmt="grid", numalign="left")
+        
         # Combine all tables
         full_report = f"""🎯 COMPREHENSIVE CONSTRAINT SATISFACTION ANALYSIS
 {'='*80}
 
-{metrics_table}{structural_verification_table}{chemical_verification_table}{structural_distribution_table}{chemical_distribution_table}{structural_ring_length_table}{chemical_ring_length_table}{all_molecules_quality_table}{valid_molecules_quality_table}{gap_table}{timing_table}
+{metrics_table}{structural_verification_table}{chemical_verification_table}{structural_distribution_table}{chemical_distribution_table}{structural_ring_length_table}{chemical_ring_length_table}{all_molecules_quality_table}{valid_molecules_quality_table}{chemical_validation_table}{gap_table}{timing_table}
 
 {'='*80}
 """
         
         return full_report
 
-    def generate_comprehensive_report(self, all_generated_smiles: List[str]) -> str:
+    def generate_comprehensive_report(self, all_generated_smiles: List[str], computed_metrics: Dict = None) -> str:
         """
         Generates a comprehensive report for all constraint types, showing satisfaction rates.
-        Includes both ALL molecules (structural analysis) and VALID molecules (chemical analysis).
+        Uses computed metrics from the original wandb-submitting calculations to avoid duplication.
+        
+        Args:
+            all_generated_smiles: List of all generated SMILES strings
+            computed_metrics: Dictionary of already-computed metrics from the original calculations
+            
+        Returns:
+            Formatted comprehensive report string
         """
+        
         # Extract valid molecules first (same as in evaluate method)
         valid_smiles = [s for s in all_generated_smiles if s and s != "error"]
         total_molecules = len(all_generated_smiles)
@@ -1017,269 +1122,51 @@ class SamplingMolecularMetrics(nn.Module):
         # Calculate validity rate (based on total generated)
         validity_rate = (valid_molecules / total_molecules * 100) if total_molecules > 0 else 0.0
         
-        # Calculate uniqueness (based on valid molecules only, same as evaluate method)
-        if len(valid_smiles) > 0:
-            unique_smiles = set(valid_smiles)
-            unique_molecules = len(unique_smiles)
-            uniqueness_rate = (unique_molecules / len(valid_smiles) * 100)  # Based on valid molecules
-        else:
-            uniqueness_rate = 0.0
-            unique_molecules = 0
-        
-        # Calculate novelty (based on valid molecules only, same as evaluate method)
-        if self.train_smiles is not None and len(unique_smiles) > 0:
-            novel_smiles = [s for s in unique_smiles if s not in self.train_smiles]
-            novel_molecules = len(novel_smiles)
-            novelty_rate = (len(novel_smiles) / len(unique_smiles) * 100)  # Based on unique valid molecules
-        else:
-            novelty_rate = 0.0
-            novel_molecules = 0
-        
-        # Calculate FCD score (using actual compute_fcd method)
-        fcd_score = 0.0
-        if valid_smiles:
-            try:
-                # Use the same FCD calculation as compute_fcd method
-                fcd_model = fcd.load_ref_model()
-                canonical_smiles = [smile for smile in fcd.canonical_smiles(valid_smiles) if smile is not None]
-                
-                if len(canonical_smiles) > 1:
-                    gen_activations = fcd.get_predictions(fcd_model, canonical_smiles)
-                    gen_mu = np.mean(gen_activations, axis=0)
-                    gen_sigma = np.cov(gen_activations.T)
-                    target_mu = self.val_fcd_mu
-                    target_sigma = self.val_fcd_sigma
-                    try:
-                        fcd_score = fcd.calculate_frechet_distance(
-                            mu1=gen_mu, sigma1=gen_sigma, mu2=target_mu, sigma2=target_sigma
-                        )
-                    except ValueError as e:
-                        eps = 1e-6
-                        eps_sigma = eps * np.eye(gen_sigma.shape[0])
-                        gen_sigma = gen_sigma + eps_sigma
-                        target_sigma = self.val_fcd_sigma + eps_sigma
-                        fcd_score = fcd.calculate_frechet_distance(
-                            mu1=gen_mu, sigma1=gen_sigma, mu2=target_mu, sigma2=target_sigma
-                        )
-                else:
-                    fcd_score = -1
-            except Exception as e:
-                print(f"Error calculating FCD in comprehensive report: {e}")
-                fcd_score = 0.0
-        
-        # Calculate disconnected rate using graph properties
-        disconnected_rate = 0.0
-        if all_generated_smiles:
-            try:
-                from ConStruct.analysis.constraint_validation import ConstraintValidator
-                validator = ConstraintValidator("temp", "temp")
-                graph_props = validator.check_graph_properties(all_generated_smiles)
-                disconnected_rate = (1 - graph_props['connectedness_rate']) * 100
-            except Exception as e:
-                print(f"Warning: Could not calculate disconnected rate: {e}")
-                disconnected_rate = 0.0
-        
-        # Calculate disconnected rate for valid molecules only
-        valid_disconnected_rate = 0.0
-        if valid_smiles:
-            try:
-                from ConStruct.analysis.constraint_validation import ConstraintValidator
-                validator = ConstraintValidator("temp", "temp")
-                valid_graph_props = validator.check_graph_properties(valid_smiles)
-                valid_disconnected_rate = (1 - valid_graph_props['connectedness_rate']) * 100
-            except Exception as e:
-                print(f"Warning: Could not calculate valid disconnected rate: {e}")
-                valid_disconnected_rate = 0.0
-        
-        # Generate comprehensive quality metrics table (ALL molecules)
-        all_molecules_metrics_data = [
-            ["Total Molecules Generated", f"{total_molecules:,}"],
-            ["Valid Molecules (RDKit)", f"{valid_molecules:,} ({validity_rate:.1f}%)"],
-            ["Invalid Molecules", f"{total_molecules - valid_molecules:,} ({(total_molecules - valid_molecules) / total_molecules * 100:.1f}%)"],
-            ["Disconnected Molecules", f"{disconnected_rate:.1f}%"],
-            ["Unique Molecules", f"{self._calculate_unique_molecules(all_generated_smiles):,}"],
-            ["Uniqueness Rate", f"{self._calculate_uniqueness_rate(all_generated_smiles):.1f}%"],
-            ["Novel Molecules", f"{self._calculate_novel_molecules(all_generated_smiles):,}"],
-            ["Novelty Rate", f"{self._calculate_novelty_rate(all_generated_smiles):.1f}%"],
-            ["Average Molecular Weight", f"{self._calculate_avg_molecular_weight(all_generated_smiles):.1f}"],
-            ["Average Number of Atoms", f"{self._calculate_avg_atom_count(all_generated_smiles):.1f}"],
-            ["Average Number of Bonds", f"{self._calculate_avg_bond_count(all_generated_smiles):.1f}"],
-            ["Average Ring Count", f"{self._calculate_avg_ring_count(all_generated_smiles):.1f}"],
-        ]
-        
-        # Generate detailed quality metrics table (VALID molecules only)
-        valid_molecules_metrics_data = [
-            ["Valid Molecules Count", f"{valid_molecules:,}"],
-            ["Validity Rate", f"{validity_rate:.1f}%"],
-            ["Disconnected Molecules", f"{valid_disconnected_rate:.1f}%"],
-            ["Unique Molecules", f"{unique_molecules:,}"],
-            ["Uniqueness Rate", f"{uniqueness_rate:.1f}%"],
-            ["Novel Molecules", f"{novel_molecules:,}"],
-            ["Novelty Rate", f"{novelty_rate:.1f}%"],
-            ["FCD Score", f"{fcd_score:.3f}"],
-            ["Average Molecular Weight", f"{self._calculate_avg_molecular_weight(valid_smiles):.1f}"],
-            ["Average Number of Atoms", f"{self._calculate_avg_atom_count(valid_smiles):.1f}"],
-            ["Average Number of Bonds", f"{self._calculate_avg_bond_count(valid_smiles):.1f}"],
-            ["Average Ring Count", f"{self._calculate_avg_ring_count(valid_smiles):.1f}"],
-            ["Average Ring Length", f"{self._calculate_avg_ring_length(valid_smiles):.1f}"],
-            ["Average Valency", f"{self._calculate_avg_valency(valid_smiles):.1f}"],
-        ]
-        
-        # Generate timing metrics table
-        timing_data = [
-            ["Total Sampling Time", f"{getattr(self, 'total_sampling_time', 0):.2f} seconds"],
-            ["Average Time per Batch", f"{getattr(self, 'avg_sampling_time', 0):.2f} seconds"],
-            ["Number of Batches", f"{getattr(self, 'num_batches', 0)}"],
-        ]
-        
-        # ============================================================================
-        # STRUCTURAL ANALYSIS (ALL MOLECULES) - ConStruct Philosophy
-        # ============================================================================
-        
-        # Generate structural constraint satisfaction table (ALL molecules)
-        structural_constraint_data = []
-        constraint_types = ["ring_count_at_most", "ring_length_at_most", "planar"]
-        
-        for constraint_type in constraint_types:
-            # Test with common values for each constraint type
-            if constraint_type == "ring_count_at_most":
-                test_values = [0, 1, 2, 3, 4, 5]
-            elif constraint_type == "ring_length_at_most":
-                test_values = [3, 4, 5, 6, 7, 8]
-            elif constraint_type == "planar":
-                test_values = [None]  # Planar is binary
+        # Use computed metrics from the original wandb-submitting calculations
+        if computed_metrics is not None:
+            # Extract metrics from the computed_metrics dictionary
+            key = "test_sampling" if self.test else "val_sampling"
+            uniqueness_rate = computed_metrics.get(f"{key}/Uniqueness", 0.0)
+            novelty_rate = computed_metrics.get(f"{key}/Novelty", 0.0)
+            fcd_score = computed_metrics.get(f"{key}/fcd score", 0.0)
+            # Calculate unique and novel molecules for display (based on valid molecules only)
+            if len(valid_smiles) > 0:
+                unique_smiles = set(valid_smiles)
+                unique_molecules = len(unique_smiles)
+                uniqueness_rate = (unique_molecules / len(valid_smiles) * 100)  # Based on valid molecules
             else:
-                continue  # Skip other constraint types
+                uniqueness_rate = 0.0
+                unique_molecules = 0
             
-            for value in test_values:
-                if constraint_type == "planar":
-                    # For planar constraints, analyze ALL molecules for structural planarity
-                    structural_planar_count = 0
-                    structural_total = 0
-                    for smi in all_generated_smiles:
-                        if smi and smi != "error":
-                            try:
-                                mol = Chem.MolFromSmiles(smi)
-                                if mol is not None:
-                                    structural_total += 1
-                                    # Convert RDKit molecule to NetworkX graph and check planarity
-                                    try:
-                                        # Convert to adjacency matrix
-                                        adj_matrix = Chem.GetAdjacencyMatrix(mol)
-                                        # Create NetworkX graph
-                                        import networkx as nx
-                                        g = nx.from_numpy_array(adj_matrix)
-                                        # Use the same planarity function as the constraint enforcement
-                                        from ConStruct.projector.is_planar import is_planar
-                                        if is_planar(g):
-                                            structural_planar_count += 1
-                                    except:
-                                        # If conversion fails, assume non-planar
-                                        pass
-                            except:
-                                pass
-                    
-                    structural_satisfaction_rate = (structural_planar_count / structural_total * 100) if structural_total > 0 else 0.0
-                    structural_constraint_data.append({
-                        "Constraint Type": constraint_type,
-                        "Constraint Value": "Planar",
-                        "Total Molecules": structural_total,
-                        "Satisfied Molecules": structural_planar_count,
-                        "Satisfaction Rate": f"{structural_satisfaction_rate:.1f}%"
-                    })
-                    break  # Only one entry for planar
-                else:
-                    # For ring-based constraints, use the ALL molecules function
-                    structural_results = check_ring_constraints_all_molecules(all_generated_smiles, constraint_type, value, logger=lambda x: None)
-                    structural_constraint_data.append({
-                        "Constraint Type": constraint_type,
-                        "Constraint Value": f"≤{value}",
-                        "Total Molecules": structural_results['total_molecules'],
-                        "Satisfied Molecules": structural_results['satisfied_molecules'],
-                        "Satisfaction Rate": f"{structural_results['satisfaction_rate'] * 100:.1f}%"
-                    })
-        
-        # ============================================================================
-        # CHEMICAL ANALYSIS (VALID MOLECULES ONLY) - Traditional Analysis
-        # ============================================================================
-        
-        # Generate chemical constraint satisfaction table (VALID molecules only)
-        chemical_constraint_data = []
-        
-        for constraint_type in constraint_types:
-            # Test with common values for each constraint type
-            if constraint_type == "ring_count_at_most":
-                test_values = [0, 1, 2, 3, 4, 5]
-            elif constraint_type == "ring_length_at_most":
-                test_values = [3, 4, 5, 6, 7, 8]
-            elif constraint_type == "planar":
-                test_values = [None]  # Planar is binary
+            # Calculate novelty (based on valid molecules only, same as evaluate method)
+            if self.train_smiles is not None and len(unique_smiles) > 0:
+                novel_smiles = [s for s in unique_smiles if s not in self.train_smiles]
+                novel_molecules = len(novel_smiles)
+                novelty_rate = (len(novel_smiles) / len(unique_smiles) * 100)  # Based on unique valid molecules
             else:
-                continue  # Skip other constraint types
+                novelty_rate = 0.0
+                novel_molecules = 0
+        else:
+            # Fallback to original calculation if computed_metrics not provided
+            if len(valid_smiles) > 0:
+                unique_smiles = set(valid_smiles)
+                unique_molecules = len(unique_smiles)
+                uniqueness_rate = (unique_molecules / len(valid_smiles) * 100)  # Based on valid molecules
+            else:
+                uniqueness_rate = 0.0
+                unique_molecules = 0
             
-            for value in test_values:
-                if constraint_type == "planar":
-                    # For planar constraints, check planarity using the same method as constraint enforcement
-                    chemical_planar_count = 0
-                    chemical_total = 0
-                    for smi in valid_smiles:
-                        try:
-                            mol = Chem.MolFromSmiles(smi)
-                            if mol is not None:
-                                chemical_total += 1
-                                # Convert RDKit molecule to NetworkX graph and check planarity
-                                try:
-                                    # Convert to adjacency matrix
-                                    adj_matrix = Chem.GetAdjacencyMatrix(mol)
-                                    # Create NetworkX graph
-                                    import networkx as nx
-                                    g = nx.from_numpy_array(adj_matrix)
-                                    # Use the same planarity function as the constraint enforcement
-                                    from ConStruct.projector.is_planar import is_planar
-                                    if is_planar(g):
-                                        chemical_planar_count += 1
-                                except:
-                                    # If conversion fails, assume non-planar
-                                    pass
-                        except:
-                            pass
-                    
-                    chemical_satisfaction_rate = (chemical_planar_count / chemical_total * 100) if chemical_total > 0 else 0.0
-                    chemical_constraint_data.append({
-                        "Constraint Type": constraint_type,
-                        "Constraint Value": "Planar",
-                        "Total Molecules": chemical_total,
-                        "Satisfied Molecules": chemical_planar_count,
-                        "Satisfaction Rate": f"{chemical_satisfaction_rate:.1f}%"
-                    })
-                    break  # Only one entry for planar
-                else:
-                    # For ring-based constraints, use the existing function for valid molecules
-                    chemical_results = check_ring_constraints(valid_smiles, constraint_type, value, logger=lambda x: None)
-                    chemical_constraint_data.append({
-                        "Constraint Type": constraint_type,
-                        "Constraint Value": f"≤{value}",
-                        "Total Molecules": chemical_results['total_molecules'],
-                        "Satisfied Molecules": chemical_results['satisfied_molecules'],
-                        "Satisfaction Rate": f"{chemical_results['satisfaction_rate'] * 100:.1f}%"
-                    })
-        
-        # ============================================================================
-        # GAP ANALYSIS
-        # ============================================================================
-        
-        # Create gap analysis table
-        gap_data = []
-        for i in range(len(structural_constraint_data)):
-            structural_rate = float(structural_constraint_data[i]["Satisfaction Rate"].replace('%', ''))
-            chemical_rate = float(chemical_constraint_data[i]["Satisfaction Rate"].replace('%', ''))
-            gap = structural_rate - chemical_rate
-            gap_data.append({
-                "Constraint": f"{structural_constraint_data[i]['Constraint Type']} {structural_constraint_data[i]['Constraint Value']}",
-                "Structural (ALL)": f"{structural_rate:.1f}%",
-                "Chemical (Valid)": f"{chemical_rate:.1f}%",
-                "Gap": f"{gap:.1f}%"
-            })
+            # Calculate novelty (based on valid molecules only, same as evaluate method)
+            if self.train_smiles is not None and len(unique_smiles) > 0:
+                novel_smiles = [s for s in unique_smiles if s not in self.train_smiles]
+                novel_molecules = len(novel_smiles)
+                novelty_rate = (len(novel_smiles) / len(unique_smiles) * 100)  # Based on unique valid molecules
+            else:
+                novelty_rate = 0.0
+                novel_molecules = 0
+            
+            # Fallback FCD calculation
+            fcd_score = 0.0
         
         # ============================================================================
         # CREATE COMPREHENSIVE REPORT
@@ -1290,12 +1177,12 @@ class SamplingMolecularMetrics(nn.Module):
         
         # ALL Molecules quality metrics table
         full_report += "📊 MOLECULAR QUALITY METRICS (ALL Molecules)\n"
-        full_report += tabulate(all_molecules_metrics_data, headers=["Metric", "Value"], tablefmt="grid", numalign="left")
+        full_report += tabulate(all_molecules_quality_data, headers=["Metric", "Value"], tablefmt="grid", numalign="left")
         full_report += "\n\n"
         
         # Valid Molecules quality metrics table
         full_report += "🎯 MOLECULAR QUALITY METRICS (Valid Molecules Only)\n"
-        full_report += tabulate(valid_molecules_metrics_data, headers=["Metric", "Value"], tablefmt="grid", numalign="left")
+        full_report += tabulate(valid_molecules_quality_data, headers=["Metric", "Value"], tablefmt="grid", numalign="left")
         full_report += "\n\n"
         
         # Timing table
@@ -1311,6 +1198,38 @@ class SamplingMolecularMetrics(nn.Module):
         # Chemical constraint satisfaction table
         full_report += "🧪 CHEMICAL CONSTRAINT SATISFACTION (Valid Molecules Only)\n"
         full_report += tabulate(chemical_constraint_data, headers="keys", tablefmt="grid", numalign="left")
+        full_report += "\n\n"
+        
+        # Chemical validation metrics table
+        # Get chemical validation metrics from computed_metrics if available
+        chemical_validation_data = []
+        if computed_metrics is not None:
+            key = "test_sampling" if self.test else "val_sampling"
+            structurally_valid_rate = computed_metrics.get(f"{key}/post_gen/structurally_valid", 0.0) * 100
+            chemically_valid_rate = computed_metrics.get(f"{key}/post_gen/chemically_valid", 0.0) * 100
+            rdkit_valid_rate = computed_metrics.get(f"{key}/post_gen/rdkit_valid", 0.0) * 100
+            valency_violations_rate = computed_metrics.get(f"{key}/post_gen/valency_violations", 0.0) * 100
+            connectivity_issues_rate = computed_metrics.get(f"{key}/post_gen/connectivity_issues", 0.0) * 100
+        else:
+            # Calculate chemical validation metrics if not provided
+            chemical_metrics = self.compute_chemical_validation_metrics(all_generated_smiles)
+            key = "test_sampling" if self.test else "val_sampling"
+            structurally_valid_rate = chemical_metrics.get(f"{key}/post_gen/structurally_valid", 0.0) * 100
+            chemically_valid_rate = chemical_metrics.get(f"{key}/post_gen/chemically_valid", 0.0) * 100
+            rdkit_valid_rate = chemical_metrics.get(f"{key}/post_gen/rdkit_valid", 0.0) * 100
+            valency_violations_rate = chemical_metrics.get(f"{key}/post_gen/valency_violations", 0.0) * 100
+            connectivity_issues_rate = chemical_metrics.get(f"{key}/post_gen/connectivity_issues", 0.0) * 100
+        
+        chemical_validation_data = [
+            ["Structurally Valid", f"{structurally_valid_rate:.1f}%", "Basic graph structure (atoms > 0, bonds ≥ 0)"],
+            ["Chemically Valid", f"{chemically_valid_rate:.1f}%", "Passes valency, connectivity, and atom type checks"],
+            ["RDKit Valid", f"{rdkit_valid_rate:.1f}%", "Can be parsed by RDKit library"],
+            ["Valency Violations", f"{valency_violations_rate:.1f}%", "Atoms with incorrect valence"],
+            ["Connectivity Issues", f"{connectivity_issues_rate:.1f}%", "Molecules with multiple disconnected components"],
+        ]
+        
+        full_report += "🧪 CHEMICAL VALIDATION METRICS (ALL Generated Molecules)\n"
+        full_report += tabulate(chemical_validation_data, headers=["Metric", "Rate", "Description"], tablefmt="grid", numalign="left")
         full_report += "\n\n"
         
         # Gap analysis table
@@ -1338,10 +1257,30 @@ class SamplingMolecularMetrics(nn.Module):
                 try:
                     mol = Chem.MolFromSmiles(smiles)
                     if mol is not None:
-                        weight = Chem.Descriptors.MolWt(mol)
-                        total_weight += weight
-                        valid_count += 1
-                except:
+                        # Try to sanitize the molecule first
+                        try:
+                            Chem.SanitizeMol(mol)
+                        except:
+                            pass  # Continue even if sanitization fails
+                        
+                        # Try different methods to get molecular weight
+                        weight = 0.0
+                        try:
+                            # Method 1: Use Descriptors.MolWt (proper import)
+                            weight = Descriptors.MolWt(mol)
+                        except Exception as e:
+                            try:
+                                # Method 2: Manual calculation as fallback
+                                weight = 0.0
+                                for atom in mol.GetAtoms():
+                                    weight += atom.GetMass()
+                            except Exception as e2:
+                                continue
+                        
+                        if weight > 0:  # Only count if we got a valid weight
+                            total_weight += weight
+                            valid_count += 1
+                except Exception as e:
                     continue
         
         return total_weight / valid_count if valid_count > 0 else 0.0
@@ -1893,21 +1832,21 @@ def check_ring_constraints(smiles_list, constraint_type, constraint_value, logge
     satisfaction_rate = (passed / total * 100) if total > 0 else 0.0
     
     # Enhanced output with distribution information
-    logger(f"[Constraint Check] {passed}/{total} molecules satisfy {constraint_type} {operator} {constraint_value} ({satisfaction_rate:.1f}%)")
+    # logger(f"[Constraint Check] {passed}/{total} molecules satisfy {constraint_type} {operator} {constraint_value} ({satisfaction_rate:.1f}%)")
     
     # Add distribution information for better understanding
-    if ring_counts and constraint_type.startswith("ring_count"):
-        from collections import Counter
-        count_dist = Counter(ring_counts)
-        # Format distribution in a readable way
-        dist_str = ", ".join([f"{count} rings: {freq} molecules" for count, freq in sorted(count_dist.items())])
-        logger(f"[Distribution] Ring counts: {dist_str}")
-    elif ring_lengths and constraint_type.startswith("ring_length"):
-        from collections import Counter
-        length_dist = Counter(ring_lengths)
-        # Format distribution in a readable way
-        dist_str = ", ".join([f"{length}-atom rings: {freq} rings" for length, freq in sorted(length_dist.items())])
-        logger(f"[Distribution] Ring lengths: {dist_str}")
+    # if ring_counts and constraint_type.startswith("ring_count"):
+    #     from collections import Counter
+    #     count_dist = Counter(ring_counts)
+    #     # Format distribution in a readable way
+    #     dist_str = ", ".join([f"{count} rings: {freq} molecules" for count, freq in sorted(count_dist.items())])
+    #     logger(f"[Distribution] Ring counts: {dist_str}")
+    # elif ring_lengths and constraint_type.startswith("ring_length"):
+    #     from collections import Counter
+    #     length_dist = Counter(ring_lengths)
+    #     # Format distribution in a readable way
+    #     dist_str = ", ".join([f"{length}-atom rings: {freq} rings" for length, freq in sorted(length_dist.items())])
+    #     logger(f"[Distribution] Ring lengths: {dist_str}")
     
     # Return results for potential use
     return {

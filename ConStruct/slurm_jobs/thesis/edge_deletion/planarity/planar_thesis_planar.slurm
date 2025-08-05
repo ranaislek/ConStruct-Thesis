@@ -6,7 +6,7 @@
 #SBATCH --mem=40G  
 #SBATCH --gres=gpu:1
 #SBATCH --time=48:00:00
-#SBATCH --partition=allgroups,testing
+#SBATCH --partition=testing
 
 # Load environment
 cd /home/rislek/ConStruct-Thesis

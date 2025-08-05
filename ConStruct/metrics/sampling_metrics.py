@@ -201,8 +201,10 @@ class SamplingMetrics(nn.Module):
         }
 
         if self.domain_metrics is not None:
+            # Get the Disconnected metric to pass to domain_metrics
+            disconnected_rate = self.disconnected.compute().item() * 100
             log_domain_metrics = self.domain_metrics.forward(
-                generated_graphs, current_epoch, local_rank
+                generated_graphs, current_epoch, local_rank, disconnected_rate=disconnected_rate
             )
             to_log.update(log_domain_metrics)
             ratios = self.compute_ratios_to_ref(
@@ -226,11 +228,11 @@ class SamplingMetrics(nn.Module):
                 'fcd_score': to_log.get(f"{key}/fcd score", 0),
                 'disconnected': to_log.get(f"{key}/Disconnected", 0),
             }
-            print(f"📊 Sampling metrics: {key_metrics['validity']:.1f}% valid, "
-                  f"{key_metrics['uniqueness']:.1f}% unique, "
-                  f"{key_metrics['novelty']:.1f}% novel, "
-                  f"FCD: {key_metrics['fcd_score']:.3f}, "
-                  f"Disconnected: {key_metrics['disconnected']:.1f}%")
+            # print(f"📊 Sampling metrics: {key_metrics['validity']:.1f}% valid, "
+            #       f"{key_metrics['uniqueness']:.1f}% unique, "
+            #       f"{key_metrics['novelty']:.1f}% novel, "
+            #       f"FCD: {key_metrics['fcd_score']:.3f}, "
+            #       f"Disconnected: {key_metrics['disconnected']:.1f}%")
 
         return to_log, edge_tv_per_class
 
