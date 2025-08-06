@@ -5,9 +5,10 @@
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=40G
 #SBATCH --gres=gpu:1
+#SBATCH --exclude=vgpu5-0
 #SBATCH --constraint=A6000|A5000
-#SBATCH --time=48:00:00
-#SBATCH --partition=allgroups,testing
+#SBATCH --time=36:00:00
+#SBATCH --partition=testing
 
 # Load environment
 cd /home/rislek/ConStruct-Thesis
@@ -25,7 +26,7 @@ export WANDB_NETWORK_TIMEOUT=300
 export WANDB_HTTP_TIMEOUT=300
 
 # CUDA optimizations
-export CUDA_LAUNCH_BLOCKING=1
+# export CUDA_LAUNCH_BLOCKING=1  # Commented out to match enforced constraint
 
 # Force unbuffered output for better logging
 export PYTHONUNBUFFERED=1

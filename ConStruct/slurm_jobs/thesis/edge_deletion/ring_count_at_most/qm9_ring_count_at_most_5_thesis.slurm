@@ -5,8 +5,9 @@
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=40G
 #SBATCH --gres=gpu:1
+#SBATCH --exclude=vgpu5-0
 #SBATCH --constraint=A6000|A5000
-#SBATCH --time=48:00:00
+#SBATCH --time=36:00:00
 #SBATCH --partition=allgroups,testing
 
 # Load environment

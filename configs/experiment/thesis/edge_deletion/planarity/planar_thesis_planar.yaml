@@ -7,13 +7,13 @@ general:
   test_only: null
   check_val_every_n_epochs: 20
   sample_every_val: 5
-  samples_to_generate: 500
+  samples_to_generate: 1000
   samples_to_save: 200
-  chains_to_save: 20
-  final_model_samples_to_generate: 1000
+  chains_to_save: 10
+  final_model_samples_to_generate: 2000
   final_model_samples_to_save: 500
-  final_model_chains_to_save: 50
-  number_chain_steps: 100
+  final_model_chains_to_save: 100
+  number_chain_steps: 200
 
 train:
   n_epochs: 1000

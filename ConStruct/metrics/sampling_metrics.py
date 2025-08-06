@@ -43,6 +43,11 @@ class SamplingMetrics(nn.Module):
         self.mean_planarity = MeanMetric()
         self.mean_no_cycles = MeanMetric()
         self.mean_lobster_components = MeanMetric()
+        
+        # Add ring constraint metrics
+        self.mean_ring_count_satisfaction = MeanMetric()
+        self.mean_ring_length_satisfaction = MeanMetric()
+        
         self.deg_histogram = DegreeHistogramMetric(self.stat)
 
         if dataset_infos.is_molecular:
@@ -124,6 +129,8 @@ class SamplingMetrics(nn.Module):
             self.mean_planarity,
             self.mean_no_cycles,
             self.mean_lobster_components,
+            self.mean_ring_count_satisfaction,
+            self.mean_ring_length_satisfaction,
             self.deg_histogram,
         ]:
             metric.reset()
@@ -173,6 +180,21 @@ class SamplingMetrics(nn.Module):
         )
         self.mean_lobster_components(lobster_components_ratios)
 
+        # Ring constraint satisfaction (similar to planarity)
+        ring_constraint_info = None
+        if hasattr(self, 'cfg') and self.cfg and hasattr(self.cfg.model, 'rev_proj'):
+            if self.cfg.model.rev_proj == 'ring_count_at_most':
+                max_rings = getattr(self.cfg.model, 'max_rings', 3)
+                ring_count_ratios = ring_count_satisfaction_ratio(generated_graphs, max_rings).to(device)
+                self.mean_ring_count_satisfaction(ring_count_ratios)
+                ring_constraint_info = ('ring_count_at_most', max_rings)
+            
+            elif self.cfg.model.rev_proj == 'ring_length_at_most':
+                max_ring_length = getattr(self.cfg.model, 'max_ring_length', 6)
+                ring_length_ratios = ring_length_satisfaction_ratio(generated_graphs, max_ring_length).to(device)
+                self.mean_ring_length_satisfaction(ring_length_ratios)
+                ring_constraint_info = ('ring_length_at_most', max_ring_length)
+
         # Degree distributions
         self.deg_histogram(generated_graphs)
 
@@ -199,12 +221,19 @@ class SamplingMetrics(nn.Module):
             f"{key}/diff_deg_hist": wandb.Histogram(np_histogram=diff_deg_hist),
             f"{key}/abs_diff_deg_hist": wandb.Histogram(np_histogram=abs_diff_deg_hist),
         }
+        
+        # Add ring constraint metrics to WandB logging (using stored info)
+        if ring_constraint_info:
+            constraint_type, constraint_value = ring_constraint_info
+            if constraint_type == 'ring_count_at_most':
+                to_log[f"{key}/ring_count_satisfaction"] = self.mean_ring_count_satisfaction.compute().item()
+            elif constraint_type == 'ring_length_at_most':
+                to_log[f"{key}/ring_length_satisfaction"] = self.mean_ring_length_satisfaction.compute().item()
 
         if self.domain_metrics is not None:
-            # Get the Disconnected metric to pass to domain_metrics
-            disconnected_rate = self.disconnected.compute().item() * 100
+            # Compute domain metrics normally
             log_domain_metrics = self.domain_metrics.forward(
-                generated_graphs, current_epoch, local_rank, disconnected_rate=disconnected_rate
+                generated_graphs, current_epoch, local_rank
             )
             to_log.update(log_domain_metrics)
             ratios = self.compute_ratios_to_ref(
@@ -228,6 +257,8 @@ class SamplingMetrics(nn.Module):
                 'fcd_score': to_log.get(f"{key}/fcd score", 0),
                 'disconnected': to_log.get(f"{key}/Disconnected", 0),
             }
+            
+            
             # print(f"📊 Sampling metrics: {key_metrics['validity']:.1f}% valid, "
             #       f"{key_metrics['uniqueness']:.1f}% unique, "
             #       f"{key_metrics['novelty']:.1f}% novel, "
@@ -410,6 +441,76 @@ def lobster_components_ratio(generated_graphs: List[PlaceHolder]):
         lobster_components_list, device=generated_graphs[0].X.device
     )
     return lobster_components_tg
+
+
+def ring_count_satisfaction_ratio(generated_graphs: List[PlaceHolder], max_rings: int):
+    """
+    Calculate the ratio of graphs that satisfy ring count constraint.
+    
+    Args:
+        generated_graphs: List of generated graph batches
+        max_rings: Maximum allowed rings (constraint value)
+    
+    Returns:
+        Tensor of satisfaction ratios (1 for satisfied, 0 for not satisfied)
+    """
+    satisfaction_ratios = []
+    
+    for batch in generated_graphs:
+        for edge_mat, mask in zip(batch.E, batch.node_mask):
+            n = torch.sum(mask)
+            edge_mat = edge_mat[:n, :n]
+            adj = (edge_mat > 0).int()
+            nx_graph = nx.from_numpy_array(adj.cpu().numpy())
+            
+            # Check if graph satisfies ring count constraint
+            try:
+                from ConStruct.projector.is_ring.is_ring_count_at_most.is_ring_count_at_most import has_at_most_n_rings
+                satisfies_constraint = int(has_at_most_n_rings(nx_graph, max_rings))
+            except ImportError:
+                # Fallback if ring functions not available
+                satisfies_constraint = 1
+            satisfaction_ratios.append(satisfies_constraint)
+    
+    satisfaction_ratios = torch.tensor(
+        satisfaction_ratios, device=generated_graphs[0].X.device
+    )
+    return satisfaction_ratios
+
+
+def ring_length_satisfaction_ratio(generated_graphs: List[PlaceHolder], max_ring_length: int):
+    """
+    Calculate the ratio of graphs that satisfy ring length constraint.
+    
+    Args:
+        generated_graphs: List of generated graph batches
+        max_ring_length: Maximum allowed ring length (constraint value)
+    
+    Returns:
+        Tensor of satisfaction ratios (1 for satisfied, 0 for not satisfied)
+    """
+    satisfaction_ratios = []
+    
+    for batch in generated_graphs:
+        for edge_mat, mask in zip(batch.E, batch.node_mask):
+            n = torch.sum(mask)
+            edge_mat = edge_mat[:n, :n]
+            adj = (edge_mat > 0).int()
+            nx_graph = nx.from_numpy_array(adj.cpu().numpy())
+            
+            # Check if graph satisfies ring length constraint
+            try:
+                from ConStruct.projector.is_ring.is_ring_length_at_most.is_ring_length_at_most import has_rings_of_length_at_most
+                satisfies_constraint = int(has_rings_of_length_at_most(nx_graph, max_ring_length))
+            except ImportError:
+                # Fallback if ring functions not available
+                satisfies_constraint = 1
+            satisfaction_ratios.append(satisfies_constraint)
+    
+    satisfaction_ratios = torch.tensor(
+        satisfaction_ratios, device=generated_graphs[0].X.device
+    )
+    return satisfaction_ratios
 
 
 class DegreeHistogramMetric(Metric):
