@@ -1,3 +1,4 @@
+# @package _global_
 general:
   name: qm9_thesis_no_constraint
   wandb: online
@@ -33,8 +34,10 @@ model:
     dim_ffX: 256
     dim_ffE: 256
     dim_ffy: 256
-  rev_proj: null
+  # No constraint settings - explicitly set to null for no constraint
+  rev_proj: null          # No constraint projector (null, not False)
   transition: absorbing_edges
+  # ConStruct philosophy: Post-generation validation
   post_gen_validation: true
   post_gen_validation_config:
     enable_rdkit: true
