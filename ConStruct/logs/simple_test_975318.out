@@ -1,0 +1,11 @@
+=== Simple Test Started ===
+Job ID: 975318
+Node: debug00
+Time: Thu 07 Aug 2025 11:25:36 PM UTC
+Current directory: /home/rislek/ConStruct-Thesis/ConStruct/slurm_jobs/debug
+Testing basic commands...
+/home/rislek/.conda/envs/construct-env/bin/python
+/conf/shared-software/anaconda/condabin/conda
+Python version: Python 3.9.23
+=== Simple Test Completed ===
+Test completed at Thu 07 Aug 2025 11:25:38 PM UTC

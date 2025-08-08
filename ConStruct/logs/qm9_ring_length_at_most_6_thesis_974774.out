@@ -1,0 +1,756 @@
+torch version: 2.0.1+cu118
+/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/torch/cuda/__init__.py:107: UserWarning: CUDA initialization: CUDA unknown error - this may be due to an incorrectly set up environment, e.g. changing env variable CUDA_VISIBLE_DEVICES after program start. Setting the available devices to be zero. (Triggered internally at ../c10/cuda/CUDAFunctions.cpp:109.)
+  return torch._C._cuda_getDeviceCount() > 0
+CUDA available: False
+CUDA device: None
+=== Running Experiment: ring_length_at_most_6_thesis ===
+Config: thesis/edge_deletion/ring_length_at_most/qm9_thesis_ring_length_at_most_6
+Job ID: 974774
+Node: vgpu5-0
+Time: Sun 03 Aug 2025 08:36:23 PM UTC
+/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/torch/cuda/__init__.py:546: UserWarning: Can't initialize NVML
+  warnings.warn("Can't initialize NVML")
+/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/torch/cuda/__init__.py:651: UserWarning: CUDA initialization: CUDA unknown error - this may be due to an incorrectly set up environment, e.g. changing env variable CUDA_VISIBLE_DEVICES after program start. Setting the available devices to be zero. (Triggered internally at ../c10/cuda/CUDAFunctions.cpp:109.)
+  return torch._C._cuda_getDeviceCount() if nvml_count < 0 else nvml_count
+<frozen importlib._bootstrap>:228: RuntimeWarning: to-Python converter for std::pair<double, double> already registered; second conversion method ignored.
+[rank: 0] Global seed set to 0
+Loading reference metrics.
+Edge-deletion transition model (for 'at most' constraints)
+GPU available: False, used: False
+TPU available: False, using: 0 TPU cores
+IPU available: False, using: 0 IPUs
+HPU available: False, using: 0 HPUs
+[rank: 0] Global seed set to 0
+Initializing distributed: GLOBAL_RANK: 0, MEMBER: 1/1
+[2025-08-03 20:36:32,282][torch.distributed.distributed_c10d][INFO] - Added key: store_based_barrier_key:1 to store for rank: 0
+[2025-08-03 20:36:32,282][torch.distributed.distributed_c10d][INFO] - Rank 0: Completed store-based barrier for key:store_based_barrier_key:1 with 1 nodes.
+----------------------------------------------------------------------------------------------------
+distributed_backend=gloo
+All distributed processes registered. Starting with 1 processes
+----------------------------------------------------------------------------------------------------
+
+
+  | Name                  | Type                  | Params
+----------------------------------------------------------------
+0 | train_loss            | TrainLoss             | 0     
+1 | train_metrics         | TrainMolecularMetrics | 0     
+2 | val_metrics           | MetricCollection      | 0     
+3 | val_nll               | NLL                   | 0     
+4 | val_sampling_metrics  | SamplingMetrics       | 0     
+5 | test_metrics          | MetricCollection      | 0     
+6 | test_nll              | NLL                   | 0     
+7 | test_sampling_metrics | SamplingMetrics       | 0     
+8 | model                 | GraphTransformer      | 3.5 M 
+----------------------------------------------------------------
+3.5 M     Trainable params
+0         Non-trainable params
+3.5 M     Total params
+13.901    Total estimated model params size (MB)
+wandb: Currently logged in as: islekrana (islekrana-universit-di-padova). Use `wandb login --relogin` to force relogin
+wandb: wandb version 0.21.0 is available!  To upgrade, please run:
+wandb:  $ pip install wandb --upgrade
+wandb: Tracking run with wandb version 0.15.4
+wandb: Run data is saved locally in /extra/rislek/ConStruct-Thesis/ConStruct/wandb/run-20250803_203634-7pol76hd
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run qm9_thesis_ring_length_at_most_6
+wandb: ⭐️ View project at https://wandb.ai/islekrana-universit-di-padova/ConStruct_qm9
+wandb: 🚀 View run at https://wandb.ai/islekrana-universit-di-padova/ConStruct_qm9/runs/7pol76hd
+SLURM auto-requeueing enabled. Setting signal handlers.
+Epoch 0: val/epoch_NLL: 292.20 -- val/X_kl: 6.39 -- val/E_kl: 264.16 -- val/charges_kl: 16.99 
+Val loss: 292.2038 	 Best val loss:  292.2038
+
+Val epoch 0 ends
+Starting epoch 0
+[2025-08-03 20:36:43,593][torch.nn.parallel.distributed][INFO] - Reducer buckets have been rebuilt in this iteration.
+Train epoch 0 ends
+Epoch 0 finished: X: 0.52 -- charges: 0.10 -- E: 0.40 -- y: -1.00 -- 556.8s 
+Epoch 0: {'CarbonCE': 0.395, 'NitroCE': 0.237, 'OxyCE': 0.284, 'FluorCE': 0.013} -- {'NoBondCE': 0.34, 'SingleCE': 0.317, 'DoubleCE': 0.065, 'TripleCE': 0.025, 'AromaticCE': 0.002}
+Starting epoch 1
+Train epoch 1 ends
+Epoch 1 finished: X: 0.48 -- charges: 0.09 -- E: 0.38 -- y: -1.00 -- 540.3s 
+Epoch 1: {'CarbonCE': 0.37, 'NitroCE': 0.221, 'OxyCE': 0.266, 'FluorCE': 0.01} -- {'NoBondCE': 0.328, 'SingleCE': 0.307, 'DoubleCE': 0.06, 'TripleCE': 0.022, 'AromaticCE': 0.0}
+Starting epoch 2
+Train epoch 2 ends
+Epoch 2 finished: X: 0.47 -- charges: 0.08 -- E: 0.38 -- y: -1.00 -- 539.6s 
+Epoch 2: {'CarbonCE': 0.364, 'NitroCE': 0.217, 'OxyCE': 0.263, 'FluorCE': 0.01} -- {'NoBondCE': 0.324, 'SingleCE': 0.303, 'DoubleCE': 0.059, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 3
+Train epoch 3 ends
+Epoch 3 finished: X: 0.47 -- charges: 0.08 -- E: 0.38 -- y: -1.00 -- 539.2s 
+Epoch 3: {'CarbonCE': 0.364, 'NitroCE': 0.216, 'OxyCE': 0.263, 'FluorCE': 0.009} -- {'NoBondCE': 0.323, 'SingleCE': 0.303, 'DoubleCE': 0.059, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 4
+Train epoch 4 ends
+Epoch 4 finished: X: 0.47 -- charges: 0.08 -- E: 0.38 -- y: -1.00 -- 539.5s 
+Epoch 4: {'CarbonCE': 0.362, 'NitroCE': 0.215, 'OxyCE': 0.261, 'FluorCE': 0.009} -- {'NoBondCE': 0.323, 'SingleCE': 0.302, 'DoubleCE': 0.059, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 5
+Train epoch 5 ends
+Epoch 5 finished: X: 0.47 -- charges: 0.08 -- E: 0.38 -- y: -1.00 -- 537.5s 
+Epoch 5: {'CarbonCE': 0.361, 'NitroCE': 0.215, 'OxyCE': 0.261, 'FluorCE': 0.009} -- {'NoBondCE': 0.323, 'SingleCE': 0.302, 'DoubleCE': 0.059, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 6
+Train epoch 6 ends
+Epoch 6 finished: X: 0.47 -- charges: 0.08 -- E: 0.38 -- y: -1.00 -- 537.3s 
+Epoch 6: {'CarbonCE': 0.361, 'NitroCE': 0.215, 'OxyCE': 0.261, 'FluorCE': 0.009} -- {'NoBondCE': 0.322, 'SingleCE': 0.301, 'DoubleCE': 0.059, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 7
+Train epoch 7 ends
+Epoch 7 finished: X: 0.47 -- charges: 0.08 -- E: 0.38 -- y: -1.00 -- 536.8s 
+Epoch 7: {'CarbonCE': 0.361, 'NitroCE': 0.215, 'OxyCE': 0.261, 'FluorCE': 0.009} -- {'NoBondCE': 0.322, 'SingleCE': 0.301, 'DoubleCE': 0.059, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 8
+Train epoch 8 ends
+Epoch 8 finished: X: 0.47 -- charges: 0.08 -- E: 0.38 -- y: -1.00 -- 539.8s 
+Epoch 8: {'CarbonCE': 0.359, 'NitroCE': 0.214, 'OxyCE': 0.26, 'FluorCE': 0.009} -- {'NoBondCE': 0.321, 'SingleCE': 0.3, 'DoubleCE': 0.059, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 9
+Train epoch 9 ends
+Epoch 9 finished: X: 0.47 -- charges: 0.08 -- E: 0.38 -- y: -1.00 -- 535.7s 
+Epoch 9: {'CarbonCE': 0.359, 'NitroCE': 0.213, 'OxyCE': 0.26, 'FluorCE': 0.009} -- {'NoBondCE': 0.321, 'SingleCE': 0.3, 'DoubleCE': 0.059, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 10
+Train epoch 10 ends
+Epoch 10 finished: X: 0.46 -- charges: 0.08 -- E: 0.38 -- y: -1.00 -- 537.3s 
+Epoch 10: {'CarbonCE': 0.358, 'NitroCE': 0.213, 'OxyCE': 0.259, 'FluorCE': 0.009} -- {'NoBondCE': 0.321, 'SingleCE': 0.3, 'DoubleCE': 0.059, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 11
+Train epoch 11 ends
+Epoch 11 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 536.3s 
+Epoch 11: {'CarbonCE': 0.359, 'NitroCE': 0.213, 'OxyCE': 0.26, 'FluorCE': 0.009} -- {'NoBondCE': 0.32, 'SingleCE': 0.3, 'DoubleCE': 0.059, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 12
+Train epoch 12 ends
+Epoch 12 finished: X: 0.46 -- charges: 0.08 -- E: 0.38 -- y: -1.00 -- 535.6s 
+Epoch 12: {'CarbonCE': 0.359, 'NitroCE': 0.213, 'OxyCE': 0.26, 'FluorCE': 0.009} -- {'NoBondCE': 0.32, 'SingleCE': 0.3, 'DoubleCE': 0.059, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 13
+Train epoch 13 ends
+Epoch 13 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 534.9s 
+Epoch 13: {'CarbonCE': 0.358, 'NitroCE': 0.213, 'OxyCE': 0.259, 'FluorCE': 0.009} -- {'NoBondCE': 0.32, 'SingleCE': 0.299, 'DoubleCE': 0.059, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 14
+Train epoch 14 ends
+Epoch 14 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 534.7s 
+Epoch 14: {'CarbonCE': 0.357, 'NitroCE': 0.212, 'OxyCE': 0.258, 'FluorCE': 0.009} -- {'NoBondCE': 0.319, 'SingleCE': 0.298, 'DoubleCE': 0.059, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 15
+Train epoch 15 ends
+Epoch 15 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 539.6s 
+Epoch 15: {'CarbonCE': 0.358, 'NitroCE': 0.213, 'OxyCE': 0.259, 'FluorCE': 0.009} -- {'NoBondCE': 0.319, 'SingleCE': 0.299, 'DoubleCE': 0.059, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 16
+Train epoch 16 ends
+Epoch 16 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 534.9s 
+Epoch 16: {'CarbonCE': 0.357, 'NitroCE': 0.212, 'OxyCE': 0.259, 'FluorCE': 0.009} -- {'NoBondCE': 0.319, 'SingleCE': 0.299, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 17
+Train epoch 17 ends
+Epoch 17 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 533.6s 
+Epoch 17: {'CarbonCE': 0.357, 'NitroCE': 0.213, 'OxyCE': 0.258, 'FluorCE': 0.009} -- {'NoBondCE': 0.318, 'SingleCE': 0.298, 'DoubleCE': 0.059, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 18
+Train epoch 18 ends
+Epoch 18 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 534.0s 
+Epoch 18: {'CarbonCE': 0.357, 'NitroCE': 0.212, 'OxyCE': 0.259, 'FluorCE': 0.009} -- {'NoBondCE': 0.319, 'SingleCE': 0.298, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 19
+Epoch 19: val/epoch_NLL: 72.70 -- val/X_kl: 3.07 -- val/E_kl: 68.47 -- val/charges_kl: 0.61 
+Val loss: 72.6992 	 Best val loss:  72.6992
+
+Val epoch 19 ends
+Train epoch 19 ends
+Epoch 19 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 584.1s 
+Epoch 19: {'CarbonCE': 0.358, 'NitroCE': 0.213, 'OxyCE': 0.259, 'FluorCE': 0.009} -- {'NoBondCE': 0.319, 'SingleCE': 0.299, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 20
+Train epoch 20 ends
+Epoch 20 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 539.2s 
+Epoch 20: {'CarbonCE': 0.357, 'NitroCE': 0.213, 'OxyCE': 0.258, 'FluorCE': 0.008} -- {'NoBondCE': 0.317, 'SingleCE': 0.297, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 21
+Train epoch 21 ends
+Epoch 21 finished: X: 0.47 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 536.6s 
+Epoch 21: {'CarbonCE': 0.359, 'NitroCE': 0.214, 'OxyCE': 0.26, 'FluorCE': 0.009} -- {'NoBondCE': 0.319, 'SingleCE': 0.299, 'DoubleCE': 0.059, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 22
+Train epoch 22 ends
+Epoch 22 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 537.8s 
+Epoch 22: {'CarbonCE': 0.357, 'NitroCE': 0.212, 'OxyCE': 0.259, 'FluorCE': 0.009} -- {'NoBondCE': 0.318, 'SingleCE': 0.298, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 23
+Train epoch 23 ends
+Epoch 23 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 535.3s 
+Epoch 23: {'CarbonCE': 0.357, 'NitroCE': 0.213, 'OxyCE': 0.258, 'FluorCE': 0.009} -- {'NoBondCE': 0.319, 'SingleCE': 0.298, 'DoubleCE': 0.059, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 24
+Train epoch 24 ends
+Epoch 24 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 543.1s 
+Epoch 24: {'CarbonCE': 0.355, 'NitroCE': 0.211, 'OxyCE': 0.257, 'FluorCE': 0.009} -- {'NoBondCE': 0.317, 'SingleCE': 0.296, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 25
+Train epoch 25 ends
+Epoch 25 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 536.7s 
+Epoch 25: {'CarbonCE': 0.355, 'NitroCE': 0.211, 'OxyCE': 0.257, 'FluorCE': 0.009} -- {'NoBondCE': 0.317, 'SingleCE': 0.297, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 26
+Train epoch 26 ends
+Epoch 26 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 537.9s 
+Epoch 26: {'CarbonCE': 0.357, 'NitroCE': 0.212, 'OxyCE': 0.258, 'FluorCE': 0.009} -- {'NoBondCE': 0.318, 'SingleCE': 0.298, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 27
+Train epoch 27 ends
+Epoch 27 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 536.4s 
+Epoch 27: {'CarbonCE': 0.357, 'NitroCE': 0.213, 'OxyCE': 0.258, 'FluorCE': 0.009} -- {'NoBondCE': 0.318, 'SingleCE': 0.298, 'DoubleCE': 0.059, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 28
+Train epoch 28 ends
+Epoch 28 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 535.7s 
+Epoch 28: {'CarbonCE': 0.357, 'NitroCE': 0.213, 'OxyCE': 0.258, 'FluorCE': 0.009} -- {'NoBondCE': 0.318, 'SingleCE': 0.297, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 29
+Train epoch 29 ends
+Epoch 29 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 536.7s 
+Epoch 29: {'CarbonCE': 0.357, 'NitroCE': 0.212, 'OxyCE': 0.258, 'FluorCE': 0.009} -- {'NoBondCE': 0.317, 'SingleCE': 0.297, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 30
+Train epoch 30 ends
+Epoch 30 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 536.4s 
+Epoch 30: {'CarbonCE': 0.355, 'NitroCE': 0.212, 'OxyCE': 0.257, 'FluorCE': 0.009} -- {'NoBondCE': 0.317, 'SingleCE': 0.297, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 31
+Train epoch 31 ends
+Epoch 31 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 537.4s 
+Epoch 31: {'CarbonCE': 0.356, 'NitroCE': 0.211, 'OxyCE': 0.258, 'FluorCE': 0.009} -- {'NoBondCE': 0.317, 'SingleCE': 0.296, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 32
+Train epoch 32 ends
+Epoch 32 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 538.1s 
+Epoch 32: {'CarbonCE': 0.356, 'NitroCE': 0.212, 'OxyCE': 0.258, 'FluorCE': 0.009} -- {'NoBondCE': 0.317, 'SingleCE': 0.297, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 33
+Train epoch 33 ends
+Epoch 33 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 537.7s 
+Epoch 33: {'CarbonCE': 0.355, 'NitroCE': 0.212, 'OxyCE': 0.257, 'FluorCE': 0.009} -- {'NoBondCE': 0.316, 'SingleCE': 0.296, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 34
+Train epoch 34 ends
+Epoch 34 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 534.7s 
+Epoch 34: {'CarbonCE': 0.354, 'NitroCE': 0.211, 'OxyCE': 0.256, 'FluorCE': 0.009} -- {'NoBondCE': 0.316, 'SingleCE': 0.295, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 35
+Train epoch 35 ends
+Epoch 35 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 535.3s 
+Epoch 35: {'CarbonCE': 0.355, 'NitroCE': 0.211, 'OxyCE': 0.257, 'FluorCE': 0.009} -- {'NoBondCE': 0.316, 'SingleCE': 0.295, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 36
+Train epoch 36 ends
+Epoch 36 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 539.4s 
+Epoch 36: {'CarbonCE': 0.356, 'NitroCE': 0.212, 'OxyCE': 0.258, 'FluorCE': 0.009} -- {'NoBondCE': 0.317, 'SingleCE': 0.297, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 37
+Train epoch 37 ends
+Epoch 37 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 537.0s 
+Epoch 37: {'CarbonCE': 0.356, 'NitroCE': 0.212, 'OxyCE': 0.257, 'FluorCE': 0.009} -- {'NoBondCE': 0.316, 'SingleCE': 0.296, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 38
+Train epoch 38 ends
+Epoch 38 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 537.7s 
+Epoch 38: {'CarbonCE': 0.355, 'NitroCE': 0.211, 'OxyCE': 0.257, 'FluorCE': 0.009} -- {'NoBondCE': 0.316, 'SingleCE': 0.296, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 39
+Epoch 39: val/epoch_NLL: 69.28 -- val/X_kl: 3.11 -- val/E_kl: 65.00 -- val/charges_kl: 0.61 
+Val loss: 69.2783 	 Best val loss:  69.2783
+
+Val epoch 39 ends
+Train epoch 39 ends
+Epoch 39 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 583.0s 
+Epoch 39: {'CarbonCE': 0.356, 'NitroCE': 0.212, 'OxyCE': 0.257, 'FluorCE': 0.009} -- {'NoBondCE': 0.316, 'SingleCE': 0.296, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 40
+Train epoch 40 ends
+Epoch 40 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 539.2s 
+Epoch 40: {'CarbonCE': 0.356, 'NitroCE': 0.212, 'OxyCE': 0.258, 'FluorCE': 0.009} -- {'NoBondCE': 0.317, 'SingleCE': 0.296, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 41
+Train epoch 41 ends
+Epoch 41 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 538.8s 
+Epoch 41: {'CarbonCE': 0.355, 'NitroCE': 0.212, 'OxyCE': 0.256, 'FluorCE': 0.009} -- {'NoBondCE': 0.315, 'SingleCE': 0.295, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 42
+Train epoch 42 ends
+Epoch 42 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 537.8s 
+Epoch 42: {'CarbonCE': 0.355, 'NitroCE': 0.211, 'OxyCE': 0.256, 'FluorCE': 0.009} -- {'NoBondCE': 0.315, 'SingleCE': 0.295, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 43
+Train epoch 43 ends
+Epoch 43 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 542.0s 
+Epoch 43: {'CarbonCE': 0.354, 'NitroCE': 0.211, 'OxyCE': 0.257, 'FluorCE': 0.009} -- {'NoBondCE': 0.315, 'SingleCE': 0.295, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 44
+Train epoch 44 ends
+Epoch 44 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 539.7s 
+Epoch 44: {'CarbonCE': 0.356, 'NitroCE': 0.212, 'OxyCE': 0.258, 'FluorCE': 0.009} -- {'NoBondCE': 0.316, 'SingleCE': 0.296, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 45
+Train epoch 45 ends
+Epoch 45 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 536.3s 
+Epoch 45: {'CarbonCE': 0.356, 'NitroCE': 0.212, 'OxyCE': 0.258, 'FluorCE': 0.009} -- {'NoBondCE': 0.316, 'SingleCE': 0.296, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 46
+Train epoch 46 ends
+Epoch 46 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 533.0s 
+Epoch 46: {'CarbonCE': 0.355, 'NitroCE': 0.211, 'OxyCE': 0.258, 'FluorCE': 0.008} -- {'NoBondCE': 0.315, 'SingleCE': 0.295, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 47
+Train epoch 47 ends
+Epoch 47 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 536.6s 
+Epoch 47: {'CarbonCE': 0.356, 'NitroCE': 0.212, 'OxyCE': 0.258, 'FluorCE': 0.008} -- {'NoBondCE': 0.316, 'SingleCE': 0.296, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 48
+Train epoch 48 ends
+Epoch 48 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 538.7s 
+Epoch 48: {'CarbonCE': 0.356, 'NitroCE': 0.211, 'OxyCE': 0.258, 'FluorCE': 0.009} -- {'NoBondCE': 0.316, 'SingleCE': 0.296, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 49
+Train epoch 49 ends
+Epoch 49 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 535.1s 
+Epoch 49: {'CarbonCE': 0.355, 'NitroCE': 0.211, 'OxyCE': 0.257, 'FluorCE': 0.008} -- {'NoBondCE': 0.315, 'SingleCE': 0.295, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 50
+Train epoch 50 ends
+Epoch 50 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 536.9s 
+Epoch 50: {'CarbonCE': 0.354, 'NitroCE': 0.211, 'OxyCE': 0.257, 'FluorCE': 0.009} -- {'NoBondCE': 0.315, 'SingleCE': 0.295, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 51
+Train epoch 51 ends
+Epoch 51 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 538.4s 
+Epoch 51: {'CarbonCE': 0.354, 'NitroCE': 0.211, 'OxyCE': 0.257, 'FluorCE': 0.009} -- {'NoBondCE': 0.314, 'SingleCE': 0.294, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 52
+Train epoch 52 ends
+Epoch 52 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 535.1s 
+Epoch 52: {'CarbonCE': 0.355, 'NitroCE': 0.211, 'OxyCE': 0.258, 'FluorCE': 0.009} -- {'NoBondCE': 0.315, 'SingleCE': 0.295, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 53
+Train epoch 53 ends
+Epoch 53 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 539.2s 
+Epoch 53: {'CarbonCE': 0.356, 'NitroCE': 0.212, 'OxyCE': 0.258, 'FluorCE': 0.008} -- {'NoBondCE': 0.315, 'SingleCE': 0.295, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 54
+Train epoch 54 ends
+Epoch 54 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 539.3s 
+Epoch 54: {'CarbonCE': 0.355, 'NitroCE': 0.211, 'OxyCE': 0.257, 'FluorCE': 0.008} -- {'NoBondCE': 0.315, 'SingleCE': 0.295, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 55
+Train epoch 55 ends
+Epoch 55 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 537.1s 
+Epoch 55: {'CarbonCE': 0.354, 'NitroCE': 0.21, 'OxyCE': 0.257, 'FluorCE': 0.008} -- {'NoBondCE': 0.314, 'SingleCE': 0.294, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 56
+Train epoch 56 ends
+Epoch 56 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 533.3s 
+Epoch 56: {'CarbonCE': 0.354, 'NitroCE': 0.211, 'OxyCE': 0.255, 'FluorCE': 0.009} -- {'NoBondCE': 0.314, 'SingleCE': 0.294, 'DoubleCE': 0.057, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 57
+Train epoch 57 ends
+Epoch 57 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 534.8s 
+Epoch 57: {'CarbonCE': 0.355, 'NitroCE': 0.211, 'OxyCE': 0.257, 'FluorCE': 0.009} -- {'NoBondCE': 0.315, 'SingleCE': 0.295, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 58
+Train epoch 58 ends
+Epoch 58 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 534.3s 
+Epoch 58: {'CarbonCE': 0.356, 'NitroCE': 0.211, 'OxyCE': 0.258, 'FluorCE': 0.009} -- {'NoBondCE': 0.315, 'SingleCE': 0.295, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 59
+Epoch 59: val/epoch_NLL: 70.73 -- val/X_kl: 3.06 -- val/E_kl: 66.51 -- val/charges_kl: 0.59 
+Val loss: 70.7317 	 Best val loss:  69.2783
+
+Val epoch 59 ends
+Train epoch 59 ends
+Epoch 59 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 581.9s 
+Epoch 59: {'CarbonCE': 0.355, 'NitroCE': 0.211, 'OxyCE': 0.257, 'FluorCE': 0.009} -- {'NoBondCE': 0.315, 'SingleCE': 0.295, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 60
+Train epoch 60 ends
+Epoch 60 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 538.4s 
+Epoch 60: {'CarbonCE': 0.355, 'NitroCE': 0.211, 'OxyCE': 0.257, 'FluorCE': 0.008} -- {'NoBondCE': 0.314, 'SingleCE': 0.295, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 61
+Train epoch 61 ends
+Epoch 61 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 539.1s 
+Epoch 61: {'CarbonCE': 0.355, 'NitroCE': 0.212, 'OxyCE': 0.257, 'FluorCE': 0.009} -- {'NoBondCE': 0.315, 'SingleCE': 0.294, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 62
+Train epoch 62 ends
+Epoch 62 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 536.1s 
+Epoch 62: {'CarbonCE': 0.356, 'NitroCE': 0.212, 'OxyCE': 0.258, 'FluorCE': 0.008} -- {'NoBondCE': 0.315, 'SingleCE': 0.295, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 63
+Train epoch 63 ends
+Epoch 63 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 537.9s 
+Epoch 63: {'CarbonCE': 0.354, 'NitroCE': 0.211, 'OxyCE': 0.256, 'FluorCE': 0.009} -- {'NoBondCE': 0.313, 'SingleCE': 0.294, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 64
+Train epoch 64 ends
+Epoch 64 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 536.8s 
+Epoch 64: {'CarbonCE': 0.355, 'NitroCE': 0.212, 'OxyCE': 0.257, 'FluorCE': 0.009} -- {'NoBondCE': 0.314, 'SingleCE': 0.294, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 65
+Train epoch 65 ends
+Epoch 65 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 540.7s 
+Epoch 65: {'CarbonCE': 0.355, 'NitroCE': 0.211, 'OxyCE': 0.257, 'FluorCE': 0.009} -- {'NoBondCE': 0.314, 'SingleCE': 0.294, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 66
+Train epoch 66 ends
+Epoch 66 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 536.7s 
+Epoch 66: {'CarbonCE': 0.355, 'NitroCE': 0.211, 'OxyCE': 0.257, 'FluorCE': 0.009} -- {'NoBondCE': 0.315, 'SingleCE': 0.295, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 67
+Train epoch 67 ends
+Epoch 67 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 538.3s 
+Epoch 67: {'CarbonCE': 0.354, 'NitroCE': 0.211, 'OxyCE': 0.256, 'FluorCE': 0.009} -- {'NoBondCE': 0.314, 'SingleCE': 0.294, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 68
+Train epoch 68 ends
+Epoch 68 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 537.9s 
+Epoch 68: {'CarbonCE': 0.354, 'NitroCE': 0.21, 'OxyCE': 0.257, 'FluorCE': 0.009} -- {'NoBondCE': 0.313, 'SingleCE': 0.293, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 69
+Train epoch 69 ends
+Epoch 69 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 539.5s 
+Epoch 69: {'CarbonCE': 0.354, 'NitroCE': 0.211, 'OxyCE': 0.257, 'FluorCE': 0.009} -- {'NoBondCE': 0.314, 'SingleCE': 0.294, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 70
+Train epoch 70 ends
+Epoch 70 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 535.3s 
+Epoch 70: {'CarbonCE': 0.352, 'NitroCE': 0.21, 'OxyCE': 0.256, 'FluorCE': 0.009} -- {'NoBondCE': 0.313, 'SingleCE': 0.293, 'DoubleCE': 0.057, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 71
+Train epoch 71 ends
+Epoch 71 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 548.3s 
+Epoch 71: {'CarbonCE': 0.355, 'NitroCE': 0.211, 'OxyCE': 0.257, 'FluorCE': 0.009} -- {'NoBondCE': 0.314, 'SingleCE': 0.294, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 72
+Train epoch 72 ends
+Epoch 72 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 537.3s 
+Epoch 72: {'CarbonCE': 0.355, 'NitroCE': 0.211, 'OxyCE': 0.257, 'FluorCE': 0.009} -- {'NoBondCE': 0.314, 'SingleCE': 0.295, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 73
+Train epoch 73 ends
+Epoch 73 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 537.3s 
+Epoch 73: {'CarbonCE': 0.354, 'NitroCE': 0.211, 'OxyCE': 0.256, 'FluorCE': 0.008} -- {'NoBondCE': 0.313, 'SingleCE': 0.293, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 74
+Train epoch 74 ends
+Epoch 74 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 535.9s 
+Epoch 74: {'CarbonCE': 0.356, 'NitroCE': 0.212, 'OxyCE': 0.258, 'FluorCE': 0.009} -- {'NoBondCE': 0.314, 'SingleCE': 0.294, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 75
+Train epoch 75 ends
+Epoch 75 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 535.6s 
+Epoch 75: {'CarbonCE': 0.353, 'NitroCE': 0.21, 'OxyCE': 0.256, 'FluorCE': 0.008} -- {'NoBondCE': 0.313, 'SingleCE': 0.293, 'DoubleCE': 0.057, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 76
+Train epoch 76 ends
+Epoch 76 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 535.8s 
+Epoch 76: {'CarbonCE': 0.355, 'NitroCE': 0.211, 'OxyCE': 0.257, 'FluorCE': 0.009} -- {'NoBondCE': 0.314, 'SingleCE': 0.294, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 77
+Train epoch 77 ends
+Epoch 77 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 535.4s 
+Epoch 77: {'CarbonCE': 0.353, 'NitroCE': 0.211, 'OxyCE': 0.256, 'FluorCE': 0.009} -- {'NoBondCE': 0.313, 'SingleCE': 0.293, 'DoubleCE': 0.057, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 78
+Train epoch 78 ends
+Epoch 78 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 535.8s 
+Epoch 78: {'CarbonCE': 0.353, 'NitroCE': 0.211, 'OxyCE': 0.256, 'FluorCE': 0.009} -- {'NoBondCE': 0.314, 'SingleCE': 0.294, 'DoubleCE': 0.057, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 79
+Epoch 79: val/epoch_NLL: 68.88 -- val/X_kl: 3.19 -- val/E_kl: 64.57 -- val/charges_kl: 0.57 
+Val loss: 68.8826 	 Best val loss:  68.8826
+
+Sampling start
+Sampling a batch with 200 graphs on local rank 0. Saving 200 visualization and 10 full chains.
+[2025-08-04 08:37:10,280][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0084s, mode=INCREMENTAL
+[2025-08-04 08:37:51,218][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0056s, mode=INCREMENTAL
+[2025-08-04 08:38:32,096][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0055s, mode=INCREMENTAL
+[2025-08-04 08:39:13,023][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0056s, mode=INCREMENTAL
+[2025-08-04 08:39:54,195][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0091s, mode=INCREMENTAL
+Batch sampled. Visualizing chains starts!
+1/10 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch79/batch200_GR0/molecule_200_0.gif to wandb
+2/10 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch79/batch200_GR0/molecule_201_0.gif to wandb
+3/10 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch79/batch200_GR0/molecule_202_0.gif to wandb
+4/10 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch79/batch200_GR0/molecule_203_0.gif to wandb
+5/10 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch79/batch200_GR0/molecule_204_0.gif to wandb
+6/10 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch79/batch200_GR0/molecule_205_0.gif to wandb
+7/10 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch79/batch200_GR0/molecule_206_0.gif to wandb
+8/10 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch79/batch200_GR0/molecule_207_0.gif to wandb
+9/10 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch79/batch200_GR0/molecule_208_0.gif to wandb
+10/10 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch79/batch200_GR0/molecule_209_0.gif to wandb
+Visualizing 200 graphs out of 200
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/qm9_thesis_ring_length_at_most_6/epoch79_b200/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/qm9_thesis_ring_length_at_most_6/epoch79_b200/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/qm9_thesis_ring_length_at_most_6/epoch79_b200/graph_2.png to wandb
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-04 08:42:20,211][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0099s, mode=INCREMENTAL
+[2025-08-04 08:43:08,006][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0063s, mode=INCREMENTAL
+[2025-08-04 08:43:55,089][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0065s, mode=INCREMENTAL
+[2025-08-04 08:44:41,834][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0063s, mode=INCREMENTAL
+[2025-08-04 08:45:28,728][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0074s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-04 08:46:14,916][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0064s, mode=INCREMENTAL
+[2025-08-04 08:47:01,465][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0063s, mode=INCREMENTAL
+[2025-08-04 08:47:48,152][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0064s, mode=INCREMENTAL
+[2025-08-04 08:48:34,957][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0063s, mode=INCREMENTAL
+[2025-08-04 08:49:21,793][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0072s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-04 08:50:08,099][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0064s, mode=INCREMENTAL
+[2025-08-04 08:50:54,616][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0062s, mode=INCREMENTAL
+[2025-08-04 08:51:41,280][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0064s, mode=INCREMENTAL
+[2025-08-04 08:52:28,130][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0064s, mode=INCREMENTAL
+[2025-08-04 08:53:14,969][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0071s, mode=INCREMENTAL
+Done.
+Sampling a batch with 107 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-04 08:53:37,980][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0032s, mode=INCREMENTAL
+[2025-08-04 08:54:00,941][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0031s, mode=INCREMENTAL
+[2025-08-04 08:54:24,011][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0031s, mode=INCREMENTAL
+[2025-08-04 08:54:47,372][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0032s, mode=INCREMENTAL
+[2025-08-04 08:55:10,629][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0031s, mode=INCREMENTAL
+Done.
+Sampled 5 batches on local rank 0. Sampling took 1121.42 seconds
+
+Computing sampling metrics on 0...
+Error messages: AtomValence 11, Kekulize 0, other 0,  -- No error 989
+Some generated smiles: C1=C2NON=C2OCN1 CC1CCC2=C1COC2 O=C1CC23CC=CC12N3 NC(=O)N1C2CC(O)C21 CC1(C#N)OC([NH-])C1O CC1C2C3C1C1C2[NH+]31 OC=C1C=CC=CN1 CC(C)OC1(C)COC1 Cc1cc(C=O)c(N)[nH]1 C#CCC[NH+](C)CC#N
+[Constraint Check] 989/989 molecules satisfy ring_length_at_most ≤ 6 (100.0%)
+[Distribution] Ring lengths: 0-atom rings: 126 rings, 3-atom rings: 79 rings, 4-atom rings: 234 rings, 5-atom rings: 394 rings, 6-atom rings: 156 rings
+
+================================================================================
+🎯 TABLE-BASED CONSTRAINT ANALYSIS
+================================================================================
+[rank: 0] Received SIGTERM: 15
+Bypassing SIGTERM: 15
+🎯 COMPREHENSIVE CONSTRAINT SATISFACTION ANALYSIS
+================================================================================
+
++---------------------------+-------------------------+
+| Metric                    | Value                   |
++===========================+=========================+
+| Total Molecules Generated | 1,000                   |
++---------------------------+-------------------------+
+| Valid Molecules (RDKit)   | 989 (98.9%)             |
++---------------------------+-------------------------+
+| Invalid Molecules         | 11 (1.1%)               |
++---------------------------+-------------------------+
+| Disconnected Molecules    | 0.0%                    |
++---------------------------+-------------------------+
+| Constraint Type           | ring_length_at_most ≤ 6 |
++---------------------------+-------------------------+
+
+🏗️ STRUCTURAL CONSTRAINT ENFORCEMENT (ALL Molecules - ConStruct Philosophy):
++--------------+-------------+--------+------------+
+| Constraint   | Satisfied   | Rate   | Status     |
++==============+=============+========+============+
+| ≤3           | 205/1000    | 20.5%  |            |
++--------------+-------------+--------+------------+
+| ≤4           | 439/1000    | 43.9%  |            |
++--------------+-------------+--------+------------+
+| ≤5           | 833/1000    | 83.3%  |            |
++--------------+-------------+--------+------------+
+| ≤6           | 989/1000    | 98.9%  | ⭐ ENFORCED |
++--------------+-------------+--------+------------+
+| ≤7           | 989/1000    | 98.9%  |            |
++--------------+-------------+--------+------------+
+| ≤8           | 989/1000    | 98.9%  |            |
++--------------+-------------+--------+------------+
+
+🧪 CHEMICAL CONSTRAINT ENFORCEMENT (Valid Molecules Only):
++--------------+-------------+--------+------------+
+| Constraint   | Satisfied   | Rate   | Status     |
++==============+=============+========+============+
+| ≤3           | 205/989     | 20.7%  |            |
++--------------+-------------+--------+------------+
+| ≤4           | 439/989     | 44.4%  |            |
++--------------+-------------+--------+------------+
+| ≤5           | 833/989     | 84.2%  |            |
++--------------+-------------+--------+------------+
+| ≤6           | 989/989     | 100.0% | ⭐ ENFORCED |
++--------------+-------------+--------+------------+
+| ≤7           | 989/989     | 100.0% |            |
++--------------+-------------+--------+------------+
+| ≤8           | 989/989     | 100.0% |            |
++--------------+-------------+--------+------------+
+
+📊 STRUCTURAL RING LENGTH DISTRIBUTION (ALL Molecules):
++---------------+---------+--------------+
+| Ring Length   | Count   | Percentage   |
++===============+=========+==============+
+| 0             | 126     | 12.6%        |
++---------------+---------+--------------+
+| 3             | 79      | 7.9%         |
++---------------+---------+--------------+
+| 4             | 234     | 23.4%        |
++---------------+---------+--------------+
+| 5             | 394     | 39.4%        |
++---------------+---------+--------------+
+| 6             | 156     | 15.6%        |
++---------------+---------+--------------+
+
+📊 CHEMICAL RING LENGTH DISTRIBUTION (Valid Molecules Only):
++---------------+---------+--------------+
+| Ring Length   | Count   | Percentage   |
++===============+=========+==============+
+| 0             | 126     | 12.7%        |
++---------------+---------+--------------+
+| 3             | 79      | 8.0%         |
++---------------+---------+--------------+
+| 4             | 234     | 23.7%        |
++---------------+---------+--------------+
+| 5             | 394     | 39.8%        |
++---------------+---------+--------------+
+| 6             | 156     | 15.8%        |
++---------------+---------+--------------+
+
+📊 MOLECULAR QUALITY METRICS (ALL Molecules):
++---------------------------+-------------+
+| Metric                    | Value       |
++===========================+=============+
+| Total Molecules Generated | 1,000       |
++---------------------------+-------------+
+| Valid Molecules (RDKit)   | 989 (98.9%) |
++---------------------------+-------------+
+| Invalid Molecules         | 11 (1.1%)   |
++---------------------------+-------------+
+| Disconnected Molecules    | 0.0%        |
++---------------------------+-------------+
+| Unique Molecules          | 989         |
++---------------------------+-------------+
+| Uniqueness Rate           | 100.0%      |
++---------------------------+-------------+
+| Novel Molecules           | 989         |
++---------------------------+-------------+
+| Novelty Rate              | 100.0%      |
++---------------------------+-------------+
+| Average Molecular Weight  | 122.6       |
++---------------------------+-------------+
+| Average Number of Atoms   | 8.8         |
++---------------------------+-------------+
+| Average Number of Bonds   | 9.3         |
++---------------------------+-------------+
+| Average Ring Count        | 1.7         |
++---------------------------+-------------+
+
+🎯 MOLECULAR QUALITY METRICS (Valid Molecules Only):
++--------------------------+---------+
+| Metric                   | Value   |
++==========================+=========+
+| Valid Molecules Count    | 989     |
++--------------------------+---------+
+| Validity Rate            | 98.9%   |
++--------------------------+---------+
+| Disconnected Molecules   | 0.0%    |
++--------------------------+---------+
+| Unique Molecules         | 989     |
++--------------------------+---------+
+| Uniqueness Rate          | 100.0%  |
++--------------------------+---------+
+| Novel Molecules          | 989     |
++--------------------------+---------+
+| Novelty Rate             | 100.0%  |
++--------------------------+---------+
+| FCD Score                | 1.311   |
++--------------------------+---------+
+| Average Molecular Weight | 122.6   |
++--------------------------+---------+
+| Average Number of Atoms  | 8.8     |
++--------------------------+---------+
+| Average Number of Bonds  | 9.3     |
++--------------------------+---------+
+| Average Ring Count       | 1.7     |
++--------------------------+---------+
+| Average Ring Length      | 4.3     |
++--------------------------+---------+
+| Average Valency          | 3.5     |
++--------------------------+---------+
+
+🔍 GAP ANALYSIS (ConStruct Philosophy):
++-------------------------------+-----------------------------------------------------------------------+
+| Metric                        | Value                                                                 |
++===============================+=======================================================================+
+| Structural Satisfaction (ALL) | 98.9%                                                                 |
++-------------------------------+-----------------------------------------------------------------------+
+| Chemical Satisfaction (Valid) | 100.0%                                                                |
++-------------------------------+-----------------------------------------------------------------------+
+| Gap (Structural - Chemical)   | -1.1%                                                                 |
++-------------------------------+-----------------------------------------------------------------------+
+| Gap Explanation               | Shows difference between structural enforcement and chemical validity |
++-------------------------------+-----------------------------------------------------------------------+
+
+⏱️ TIMING METRICS:
++------------------------+-----------------+
+| Metric                 | Value           |
++========================+=================+
+| Total Sampling Time    | 1121.31 seconds |
++------------------------+-----------------+
+| Average Time per Batch | 224.26 seconds  |
++------------------------+-----------------+
+| Number of Batches      | 5               |
++------------------------+-----------------+
+
+================================================================================
+
+================================================================================
+[rank: 0] Received SIGTERM: 15
+Bypassing SIGTERM: 15
+FCD score: 1.310769085824024
+Chemical validation metrics: {'val_sampling/post_gen/structurally_valid': 0.989, 'val_sampling/post_gen/chemically_valid': 0.836, 'val_sampling/post_gen/rdkit_valid': 0.989, 'val_sampling/post_gen/valency_violations': 0.153, 'val_sampling/post_gen/connectivity_issues': 0.0}
+Molecular metrics computed.
+📊 Sampling metrics: 98.9% valid, 100.0% unique, 100.0% novel, FCD: 1.311, Disconnected: 1.8%
+Val epoch 79 ends
+Train epoch 79 ends
+Epoch 79 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 1737.1s 
+Epoch 79: {'CarbonCE': 0.354, 'NitroCE': 0.211, 'OxyCE': 0.256, 'FluorCE': 0.009} -- {'NoBondCE': 0.313, 'SingleCE': 0.293, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 80
+Train epoch 80 ends
+Epoch 80 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 542.1s 
+Epoch 80: {'CarbonCE': 0.353, 'NitroCE': 0.211, 'OxyCE': 0.256, 'FluorCE': 0.009} -- {'NoBondCE': 0.313, 'SingleCE': 0.293, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 81
+Train epoch 81 ends
+Epoch 81 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 541.9s 
+Epoch 81: {'CarbonCE': 0.353, 'NitroCE': 0.21, 'OxyCE': 0.256, 'FluorCE': 0.009} -- {'NoBondCE': 0.313, 'SingleCE': 0.293, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 82
+Train epoch 82 ends
+Epoch 82 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 542.8s 
+Epoch 82: {'CarbonCE': 0.354, 'NitroCE': 0.211, 'OxyCE': 0.257, 'FluorCE': 0.009} -- {'NoBondCE': 0.314, 'SingleCE': 0.294, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 83
+Train epoch 83 ends
+Epoch 83 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 540.9s 
+Epoch 83: {'CarbonCE': 0.355, 'NitroCE': 0.212, 'OxyCE': 0.257, 'FluorCE': 0.008} -- {'NoBondCE': 0.313, 'SingleCE': 0.293, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 84
+Train epoch 84 ends
+Epoch 84 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 538.8s 
+Epoch 84: {'CarbonCE': 0.355, 'NitroCE': 0.211, 'OxyCE': 0.258, 'FluorCE': 0.008} -- {'NoBondCE': 0.314, 'SingleCE': 0.294, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 85
+Train epoch 85 ends
+Epoch 85 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 539.8s 
+Epoch 85: {'CarbonCE': 0.353, 'NitroCE': 0.21, 'OxyCE': 0.256, 'FluorCE': 0.008} -- {'NoBondCE': 0.312, 'SingleCE': 0.293, 'DoubleCE': 0.057, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 86
+Train epoch 86 ends
+Epoch 86 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 544.1s 
+Epoch 86: {'CarbonCE': 0.355, 'NitroCE': 0.211, 'OxyCE': 0.257, 'FluorCE': 0.009} -- {'NoBondCE': 0.313, 'SingleCE': 0.293, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 87
+Train epoch 87 ends
+Epoch 87 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 544.2s 
+Epoch 87: {'CarbonCE': 0.355, 'NitroCE': 0.212, 'OxyCE': 0.257, 'FluorCE': 0.008} -- {'NoBondCE': 0.314, 'SingleCE': 0.294, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 88
+Train epoch 88 ends
+Epoch 88 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 540.2s 
+Epoch 88: {'CarbonCE': 0.353, 'NitroCE': 0.211, 'OxyCE': 0.256, 'FluorCE': 0.008} -- {'NoBondCE': 0.312, 'SingleCE': 0.293, 'DoubleCE': 0.057, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 89
+Train epoch 89 ends
+Epoch 89 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 539.5s 
+Epoch 89: {'CarbonCE': 0.355, 'NitroCE': 0.212, 'OxyCE': 0.257, 'FluorCE': 0.009} -- {'NoBondCE': 0.314, 'SingleCE': 0.294, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 90
+Train epoch 90 ends
+Epoch 90 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 539.2s 
+Epoch 90: {'CarbonCE': 0.353, 'NitroCE': 0.211, 'OxyCE': 0.255, 'FluorCE': 0.008} -- {'NoBondCE': 0.312, 'SingleCE': 0.293, 'DoubleCE': 0.057, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 91
+Train epoch 91 ends
+Epoch 91 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 540.5s 
+Epoch 91: {'CarbonCE': 0.353, 'NitroCE': 0.21, 'OxyCE': 0.255, 'FluorCE': 0.009} -- {'NoBondCE': 0.312, 'SingleCE': 0.292, 'DoubleCE': 0.057, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 92
+Train epoch 92 ends
+Epoch 92 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 540.0s 
+Epoch 92: {'CarbonCE': 0.354, 'NitroCE': 0.211, 'OxyCE': 0.256, 'FluorCE': 0.008} -- {'NoBondCE': 0.313, 'SingleCE': 0.293, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 93
+Train epoch 93 ends
+Epoch 93 finished: X: 0.46 -- charges: 0.08 -- E: 0.36 -- y: -1.00 -- 543.7s 
+Epoch 93: {'CarbonCE': 0.352, 'NitroCE': 0.209, 'OxyCE': 0.255, 'FluorCE': 0.008} -- {'NoBondCE': 0.311, 'SingleCE': 0.292, 'DoubleCE': 0.057, 'TripleCE': 0.02, 'AromaticCE': 0.0}
+Starting epoch 94
+Train epoch 94 ends
+Epoch 94 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 543.5s 
+Epoch 94: {'CarbonCE': 0.354, 'NitroCE': 0.211, 'OxyCE': 0.257, 'FluorCE': 0.009} -- {'NoBondCE': 0.312, 'SingleCE': 0.292, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 95
+Train epoch 95 ends
+Epoch 95 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 536.9s 
+Epoch 95: {'CarbonCE': 0.354, 'NitroCE': 0.21, 'OxyCE': 0.256, 'FluorCE': 0.008} -- {'NoBondCE': 0.312, 'SingleCE': 0.293, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 96
+Train epoch 96 ends
+Epoch 96 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 537.4s 
+Epoch 96: {'CarbonCE': 0.354, 'NitroCE': 0.211, 'OxyCE': 0.256, 'FluorCE': 0.009} -- {'NoBondCE': 0.312, 'SingleCE': 0.292, 'DoubleCE': 0.057, 'TripleCE': 0.02, 'AromaticCE': 0.0}
+Starting epoch 97
+Train epoch 97 ends
+Epoch 97 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 537.3s 
+Epoch 97: {'CarbonCE': 0.354, 'NitroCE': 0.21, 'OxyCE': 0.256, 'FluorCE': 0.009} -- {'NoBondCE': 0.312, 'SingleCE': 0.292, 'DoubleCE': 0.057, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 98
+Train epoch 98 ends
+Epoch 98 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 541.1s 
+Epoch 98: {'CarbonCE': 0.353, 'NitroCE': 0.21, 'OxyCE': 0.256, 'FluorCE': 0.008} -- {'NoBondCE': 0.312, 'SingleCE': 0.293, 'DoubleCE': 0.057, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 99
+Epoch 99: val/epoch_NLL: 69.03 -- val/X_kl: 3.08 -- val/E_kl: 64.79 -- val/charges_kl: 0.60 
+Val loss: 69.0276 	 Best val loss:  68.8826
+
+Val epoch 99 ends
+Train epoch 99 ends
+Epoch 99 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 585.4s 
+Epoch 99: {'CarbonCE': 0.354, 'NitroCE': 0.21, 'OxyCE': 0.256, 'FluorCE': 0.008} -- {'NoBondCE': 0.313, 'SingleCE': 0.293, 'DoubleCE': 0.057, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 100
+Train epoch 100 ends
+Epoch 100 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 539.3s 
+Epoch 100: {'CarbonCE': 0.353, 'NitroCE': 0.21, 'OxyCE': 0.256, 'FluorCE': 0.008} -- {'NoBondCE': 0.312, 'SingleCE': 0.292, 'DoubleCE': 0.057, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 101
+Train epoch 101 ends
+Epoch 101 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 540.2s 
+Epoch 101: {'CarbonCE': 0.353, 'NitroCE': 0.211, 'OxyCE': 0.256, 'FluorCE': 0.009} -- {'NoBondCE': 0.312, 'SingleCE': 0.293, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 102
+Train epoch 102 ends
+Epoch 102 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 540.4s 
+Epoch 102: {'CarbonCE': 0.354, 'NitroCE': 0.211, 'OxyCE': 0.256, 'FluorCE': 0.008} -- {'NoBondCE': 0.313, 'SingleCE': 0.293, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 103
+Train epoch 103 ends
+Epoch 103 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 544.5s 
+Epoch 103: {'CarbonCE': 0.354, 'NitroCE': 0.211, 'OxyCE': 0.256, 'FluorCE': 0.008} -- {'NoBondCE': 0.312, 'SingleCE': 0.292, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 104
+Train epoch 104 ends
+Epoch 104 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 540.2s 
+Epoch 104: {'CarbonCE': 0.354, 'NitroCE': 0.211, 'OxyCE': 0.257, 'FluorCE': 0.009} -- {'NoBondCE': 0.312, 'SingleCE': 0.293, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 105
+Train epoch 105 ends
+Epoch 105 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 539.9s 
+Epoch 105: {'CarbonCE': 0.354, 'NitroCE': 0.211, 'OxyCE': 0.256, 'FluorCE': 0.008} -- {'NoBondCE': 0.312, 'SingleCE': 0.292, 'DoubleCE': 0.057, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 106
+Train epoch 106 ends
+Epoch 106 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 538.1s 
+Epoch 106: {'CarbonCE': 0.354, 'NitroCE': 0.211, 'OxyCE': 0.256, 'FluorCE': 0.009} -- {'NoBondCE': 0.312, 'SingleCE': 0.292, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 107
+slurmstepd-vgpu5-0: error: *** JOB 974774 ON vgpu5-0 CANCELLED AT 2025-08-04T13:03:43 ***
+[rank: 0] Received SIGTERM: 15
+Bypassing SIGTERM: 15
+wandb: While tearing down the service manager. The following error has occurred: [Errno 32] Broken pipe

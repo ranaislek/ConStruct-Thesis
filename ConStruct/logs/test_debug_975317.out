@@ -1,0 +1,9 @@
+=== Test Debug Job Started ===
+Job ID: 975317
+Node: debug00
+Time: Thu 07 Aug 2025 11:24:43 PM UTC
+Current directory: /home/rislek/ConStruct-Thesis/ConStruct/slurm_jobs/debug
+Loading environment...
+Changed to directory: /home/rislek/ConStruct-Thesis
+Sourced conda
+slurmstepd-debug00: error: *** JOB 975317 ON debug00 CANCELLED AT 2025-08-07T23:25:29 ***

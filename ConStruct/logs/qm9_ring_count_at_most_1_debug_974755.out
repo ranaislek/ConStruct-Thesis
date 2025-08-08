@@ -1,0 +1,487 @@
+torch version: 2.0.1+cu118
+CUDA available: True
+CUDA device: NVIDIA RTX 2000 Ada Generation
+=== Running Experiment: ring_count_at_most_1_debug ===
+Config: debug/edge_deletion/ring_count_at_most/qm9_debug_ring_count_at_most_1
+Job ID: 974755
+Node: debug00
+Time: Sat 02 Aug 2025 06:40:51 AM UTC
+<frozen importlib._bootstrap>:228: RuntimeWarning: to-Python converter for std::pair<double, double> already registered; second conversion method ignored.
+[rank: 0] Global seed set to 0
+Loading reference metrics.
+Edge-deletion transition model (for 'at most' constraints)
+GPU available: True (cuda), used: True
+TPU available: False, using: 0 TPU cores
+IPU available: False, using: 0 IPUs
+HPU available: False, using: 0 HPUs
+[rank: 0] Global seed set to 0
+Initializing distributed: GLOBAL_RANK: 0, MEMBER: 1/1
+[2025-08-02 06:41:00,466][torch.distributed.distributed_c10d][INFO] - Added key: store_based_barrier_key:1 to store for rank: 0
+[2025-08-02 06:41:00,466][torch.distributed.distributed_c10d][INFO] - Rank 0: Completed store-based barrier for key:store_based_barrier_key:1 with 1 nodes.
+----------------------------------------------------------------------------------------------------
+distributed_backend=nccl
+All distributed processes registered. Starting with 1 processes
+----------------------------------------------------------------------------------------------------
+
+You are using a CUDA device ('NVIDIA RTX 2000 Ada Generation') that has Tensor Cores. To properly utilize them, you should set `torch.set_float32_matmul_precision('medium' | 'high')` which will trade-off precision for performance. For more details, read https://pytorch.org/docs/stable/generated/torch.set_float32_matmul_precision.html#torch.set_float32_matmul_precision
+LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0]
+
+  | Name                  | Type                  | Params
+----------------------------------------------------------------
+0 | train_loss            | TrainLoss             | 0     
+1 | train_metrics         | TrainMolecularMetrics | 0     
+2 | val_metrics           | MetricCollection      | 0     
+3 | val_nll               | NLL                   | 0     
+4 | val_sampling_metrics  | SamplingMetrics       | 0     
+5 | test_metrics          | MetricCollection      | 0     
+6 | test_nll              | NLL                   | 0     
+7 | test_sampling_metrics | SamplingMetrics       | 0     
+8 | model                 | GraphTransformer      | 1.9 M 
+----------------------------------------------------------------
+1.9 M     Trainable params
+0         Non-trainable params
+1.9 M     Total params
+7.446     Total estimated model params size (MB)
+SLURM auto-requeueing enabled. Setting signal handlers.
+Epoch 0: val/epoch_NLL: 127.32 -- val/X_kl: 7.40 -- val/E_kl: 108.43 -- val/charges_kl: 5.01 
+Val loss: 127.3223 	 Best val loss:  127.3223
+
+Val epoch 0 ends
+Starting epoch 0
+[2025-08-02 06:41:02,644][torch.nn.parallel.distributed][INFO] - Reducer buckets have been rebuilt in this iteration.
+Train epoch 0 ends
+Epoch 0 finished: X: 0.52 -- charges: 0.09 -- E: 0.41 -- y: -1.00 -- 148.6s 
+Epoch 0: {'CarbonCE': 0.398, 'NitroCE': 0.237, 'OxyCE': 0.287, 'FluorCE': 0.015} -- {'NoBondCE': 0.343, 'SingleCE': 0.321, 'DoubleCE': 0.068, 'TripleCE': 0.027, 'AromaticCE': 0.005}
+Starting epoch 1
+Train epoch 1 ends
+Epoch 1 finished: X: 0.48 -- charges: 0.09 -- E: 0.39 -- y: -1.00 -- 141.2s 
+Epoch 1: {'CarbonCE': 0.373, 'NitroCE': 0.223, 'OxyCE': 0.268, 'FluorCE': 0.01} -- {'NoBondCE': 0.33, 'SingleCE': 0.309, 'DoubleCE': 0.062, 'TripleCE': 0.022, 'AromaticCE': 0.0}
+Starting epoch 2
+Epoch 2: val/epoch_NLL: 73.93 -- val/X_kl: 3.24 -- val/E_kl: 69.50 -- val/charges_kl: 0.65 
+Val loss: 73.9322 	 Best val loss:  73.9322
+
+Sampling start
+Sampling a batch with 20 graphs on local rank 0. Saving 20 visualization and 5 full chains.
+[2025-08-02 06:48:32,563][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0008s, mode=INCREMENTAL
+[2025-08-02 06:48:34,431][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0008s, mode=INCREMENTAL
+[2025-08-02 06:48:36,303][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0014s, mode=INCREMENTAL
+Batch sampled. Visualizing chains starts!
+1/5 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch2/batch20_GR0/molecule_20_0.gif to wandb
+2/5 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch2/batch20_GR0/molecule_21_0.gif to wandb
+3/5 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch2/batch20_GR0/molecule_22_0.gif to wandb
+4/5 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch2/batch20_GR0/molecule_23_0.gif to wandb
+5/5 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch2/batch20_GR0/molecule_24_0.gif to wandb
+Visualizing 20 graphs out of 20
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/qm9_debug_ring_count_at_most_1/epoch2_b20/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/qm9_debug_ring_count_at_most_1/epoch2_b20/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/qm9_debug_ring_count_at_most_1/epoch2_b20/graph_2.png to wandb
+Done.
+Sampling a batch with 30 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-02 06:48:58,478][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0013s, mode=INCREMENTAL
+[2025-08-02 06:49:00,419][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0013s, mode=INCREMENTAL
+[2025-08-02 06:49:02,360][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0016s, mode=INCREMENTAL
+Done.
+Sampled 2 batches on local rank 0. Sampling took 31.70 seconds
+
+Computing sampling metrics on 0...
+Error messages: AtomValence 4, Kekulize 0, other 0,  -- No error 46
+Some generated smiles: CC([NH-])C1OCOC1[NH-] COCC[NH+]1CC1OC C#CC1C(O)CC1(C)[NH-] CC1=CCCC(O)=CN1 CC(O)=NC1=C(N)C=C1 CC1(C)CCC(O)OC1 CCC1CC(C)C[NH+]1C C#CC1OC(C)CC1O error CC1N=CCOC1=CO
+[Constraint Check] 46/46 molecules satisfy ring_count_at_most ≤ 1 (100.0%)
+[Distribution] Ring counts: 0 rings: 2 molecules, 1 rings: 44 molecules
+
+================================================================================
+🎯 TABLE-BASED CONSTRAINT ANALYSIS
+================================================================================
+🎯 COMPREHENSIVE CONSTRAINT SATISFACTION ANALYSIS
+================================================================================
+
++---------------------------+------------------------+
+| Metric                    | Value                  |
++===========================+========================+
+| Total Molecules Generated | 50                     |
++---------------------------+------------------------+
+| Valid Molecules (RDKit)   | 46 (92.0%)             |
++---------------------------+------------------------+
+| Invalid Molecules         | 4 (8.0%)               |
++---------------------------+------------------------+
+| Disconnected Molecules    | 0.0%                   |
++---------------------------+------------------------+
+| Constraint Type           | ring_count_at_most ≤ 1 |
++---------------------------+------------------------+
+
+🏗️ STRUCTURAL CONSTRAINT ENFORCEMENT (ALL Molecules - ConStruct Philosophy):
++--------------+-------------+--------+------------+
+| Constraint   | Satisfied   | Rate   | Status     |
++==============+=============+========+============+
+| ≤0           | 2/50        | 4.0%   |            |
++--------------+-------------+--------+------------+
+| ≤1           | 46/50       | 92.0%  | ⭐ ENFORCED |
++--------------+-------------+--------+------------+
+| ≤2           | 46/50       | 92.0%  |            |
++--------------+-------------+--------+------------+
+| ≤3           | 46/50       | 92.0%  |            |
++--------------+-------------+--------+------------+
+| ≤4           | 46/50       | 92.0%  |            |
++--------------+-------------+--------+------------+
+| ≤5           | 46/50       | 92.0%  |            |
++--------------+-------------+--------+------------+
+| ≤6           | 46/50       | 92.0%  |            |
++--------------+-------------+--------+------------+
+
+🧪 CHEMICAL CONSTRAINT ENFORCEMENT (Valid Molecules Only):
++--------------+-------------+--------+------------+
+| Constraint   | Satisfied   | Rate   | Status     |
++==============+=============+========+============+
+| ≤0           | 2/46        | 4.3%   |            |
++--------------+-------------+--------+------------+
+| ≤1           | 46/46       | 100.0% | ⭐ ENFORCED |
++--------------+-------------+--------+------------+
+| ≤2           | 46/46       | 100.0% |            |
++--------------+-------------+--------+------------+
+| ≤3           | 46/46       | 100.0% |            |
++--------------+-------------+--------+------------+
+| ≤4           | 46/46       | 100.0% |            |
++--------------+-------------+--------+------------+
+| ≤5           | 46/46       | 100.0% |            |
++--------------+-------------+--------+------------+
+| ≤6           | 46/46       | 100.0% |            |
++--------------+-------------+--------+------------+
+
+📊 STRUCTURAL RING COUNT DISTRIBUTION (ALL Molecules):
++---------+---------+--------------+
+| Rings   | Count   | Percentage   |
++=========+=========+==============+
+| 0       | 2       | 4.0%         |
++---------+---------+--------------+
+| 1       | 44      | 88.0%        |
++---------+---------+--------------+
+
+📊 CHEMICAL RING COUNT DISTRIBUTION (Valid Molecules Only):
++---------+---------+--------------+
+| Rings   | Count   | Percentage   |
++=========+=========+==============+
+| 0       | 2       | 4.3%         |
++---------+---------+--------------+
+| 1       | 44      | 95.7%        |
++---------+---------+--------------+
+
+📊 MOLECULAR QUALITY METRICS (ALL Molecules):
++---------------------------+------------+
+| Metric                    | Value      |
++===========================+============+
+| Total Molecules Generated | 50         |
++---------------------------+------------+
+| Valid Molecules (RDKit)   | 46 (92.0%) |
++---------------------------+------------+
+| Invalid Molecules         | 4 (8.0%)   |
++---------------------------+------------+
+| Disconnected Molecules    | 0.0%       |
++---------------------------+------------+
+| Unique Molecules          | 46         |
++---------------------------+------------+
+| Uniqueness Rate           | 100.0%     |
++---------------------------+------------+
+| Novel Molecules           | 46         |
++---------------------------+------------+
+| Novelty Rate              | 100.0%     |
++---------------------------+------------+
+| Average Molecular Weight  | 126.6      |
++---------------------------+------------+
+| Average Number of Atoms   | 8.9        |
++---------------------------+------------+
+| Average Number of Bonds   | 8.9        |
++---------------------------+------------+
+| Average Ring Count        | 1.0        |
++---------------------------+------------+
+
+🎯 MOLECULAR QUALITY METRICS (Valid Molecules Only):
++--------------------------+---------+
+| Metric                   | Value   |
++==========================+=========+
+| Valid Molecules Count    | 46      |
++--------------------------+---------+
+| Validity Rate            | 92.0%   |
++--------------------------+---------+
+| Disconnected Molecules   | 0.0%    |
++--------------------------+---------+
+| Unique Molecules         | 46      |
++--------------------------+---------+
+| Uniqueness Rate          | 100.0%  |
++--------------------------+---------+
+| Novel Molecules          | 46      |
++--------------------------+---------+
+| Novelty Rate             | 100.0%  |
++--------------------------+---------+
+| FCD Score                | 7.699   |
++--------------------------+---------+
+| Average Molecular Weight | 126.6   |
++--------------------------+---------+
+| Average Number of Atoms  | 8.9     |
++--------------------------+---------+
+| Average Number of Bonds  | 8.9     |
++--------------------------+---------+
+| Average Ring Count       | 1.0     |
++--------------------------+---------+
+| Average Ring Length      | 4.5     |
++--------------------------+---------+
+| Average Valency          | 3.5     |
++--------------------------+---------+
+
+🔍 GAP ANALYSIS (ConStruct Philosophy):
++-------------------------------+-----------------------------------------------------------------------+
+| Metric                        | Value                                                                 |
++===============================+=======================================================================+
+| Structural Satisfaction (ALL) | 92.0%                                                                 |
++-------------------------------+-----------------------------------------------------------------------+
+| Chemical Satisfaction (Valid) | 100.0%                                                                |
++-------------------------------+-----------------------------------------------------------------------+
+| Gap (Structural - Chemical)   | -8.0%                                                                 |
++-------------------------------+-----------------------------------------------------------------------+
+| Gap Explanation               | Shows difference between structural enforcement and chemical validity |
++-------------------------------+-----------------------------------------------------------------------+
+
+⏱️ TIMING METRICS:
++------------------------+---------------+
+| Metric                 | Value         |
++========================+===============+
+| Total Sampling Time    | 31.70 seconds |
++------------------------+---------------+
+| Average Time per Batch | 15.85 seconds |
++------------------------+---------------+
+| Number of Batches      | 2             |
++------------------------+---------------+
+
+================================================================================
+
+================================================================================
+FCD score: 7.6991271665788865
+Chemical validation metrics: {'val_sampling/post_gen/structurally_valid': 0.92, 'val_sampling/post_gen/chemically_valid': 0.68, 'val_sampling/post_gen/rdkit_valid': 0.92, 'val_sampling/post_gen/valency_violations': 0.24, 'val_sampling/post_gen/connectivity_issues': 0.0}
+Molecular metrics computed.
+📊 Sampling metrics: 92.0% valid, 100.0% unique, 100.0% novel, FCD: 7.699, Disconnected: 0.0%
+Val epoch 2 ends
+Train epoch 2 ends
+Epoch 2 finished: X: 0.48 -- charges: 0.08 -- E: 0.38 -- y: -1.00 -- 194.1s 
+Epoch 2: {'CarbonCE': 0.369, 'NitroCE': 0.22, 'OxyCE': 0.266, 'FluorCE': 0.01} -- {'NoBondCE': 0.328, 'SingleCE': 0.308, 'DoubleCE': 0.06, 'TripleCE': 0.022, 'AromaticCE': 0.0}
+Starting epoch 3
+Train epoch 3 ends
+Epoch 3 finished: X: 0.48 -- charges: 0.08 -- E: 0.38 -- y: -1.00 -- 142.9s 
+Epoch 3: {'CarbonCE': 0.366, 'NitroCE': 0.218, 'OxyCE': 0.264, 'FluorCE': 0.01} -- {'NoBondCE': 0.327, 'SingleCE': 0.306, 'DoubleCE': 0.06, 'TripleCE': 0.022, 'AromaticCE': 0.0}
+Starting epoch 4
+Train epoch 4 ends
+Epoch 4 finished: X: 0.47 -- charges: 0.08 -- E: 0.38 -- y: -1.00 -- 143.0s 
+Epoch 4: {'CarbonCE': 0.366, 'NitroCE': 0.218, 'OxyCE': 0.264, 'FluorCE': 0.01} -- {'NoBondCE': 0.326, 'SingleCE': 0.305, 'DoubleCE': 0.06, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 5
+Epoch 5: val/epoch_NLL: 74.29 -- val/X_kl: 3.17 -- val/E_kl: 69.98 -- val/charges_kl: 0.58 
+Val loss: 74.2910 	 Best val loss:  73.9322
+
+Sampling start
+Sampling a batch with 20 graphs on local rank 0. Saving 20 visualization and 5 full chains.
+[2025-08-02 06:56:32,570][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0010s, mode=INCREMENTAL
+[2025-08-02 06:56:34,414][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0008s, mode=INCREMENTAL
+[2025-08-02 06:56:36,258][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0010s, mode=INCREMENTAL
+Batch sampled. Visualizing chains starts!
+1/5 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch5/batch20_GR0/molecule_20_0.gif to wandb
+2/5 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch5/batch20_GR0/molecule_21_0.gif to wandb
+3/5 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch5/batch20_GR0/molecule_22_0.gif to wandb
+4/5 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch5/batch20_GR0/molecule_23_0.gif to wandb
+5/5 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch5/batch20_GR0/molecule_24_0.gif to wandb
+Visualizing 20 graphs out of 20
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/qm9_debug_ring_count_at_most_1/epoch5_b20/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/qm9_debug_ring_count_at_most_1/epoch5_b20/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/qm9_debug_ring_count_at_most_1/epoch5_b20/graph_2.png to wandb
+Done.
+Sampling a batch with 30 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-02 06:56:57,959][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0013s, mode=INCREMENTAL
+[2025-08-02 06:56:59,867][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0013s, mode=INCREMENTAL
+[2025-08-02 06:57:01,780][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0020s, mode=INCREMENTAL
+Done.
+Sampled 2 batches on local rank 0. Sampling took 31.07 seconds
+
+Computing sampling metrics on 0...
+Error messages: AtomValence 1, Kekulize 0, other 0,  -- No error 49
+Some generated smiles: CC1CCCCCOC1 CCC1C(C)=COC1O CC1C=CC(=O)COC1 NC1=CC(=O)CCO1 C[NH2+]C1(C)C#CCOC1 CC1CCOC(C)CO1 N#CC=CN CC1C(C)C1C(=O)CO CC1=NC(CCO)=NC1 CCOc1ncoc1O
+[Constraint Check] 49/49 molecules satisfy ring_count_at_most ≤ 1 (100.0%)
+[Distribution] Ring counts: 0 rings: 6 molecules, 1 rings: 43 molecules
+
+================================================================================
+🎯 TABLE-BASED CONSTRAINT ANALYSIS
+================================================================================
+🎯 COMPREHENSIVE CONSTRAINT SATISFACTION ANALYSIS
+================================================================================
+
++---------------------------+------------------------+
+| Metric                    | Value                  |
++===========================+========================+
+| Total Molecules Generated | 50                     |
++---------------------------+------------------------+
+| Valid Molecules (RDKit)   | 49 (98.0%)             |
++---------------------------+------------------------+
+| Invalid Molecules         | 1 (2.0%)               |
++---------------------------+------------------------+
+| Disconnected Molecules    | 0.0%                   |
++---------------------------+------------------------+
+| Constraint Type           | ring_count_at_most ≤ 1 |
++---------------------------+------------------------+
+
+🏗️ STRUCTURAL CONSTRAINT ENFORCEMENT (ALL Molecules - ConStruct Philosophy):
++--------------+-------------+--------+------------+
+| Constraint   | Satisfied   | Rate   | Status     |
++==============+=============+========+============+
+| ≤0           | 6/50        | 12.0%  |            |
++--------------+-------------+--------+------------+
+| ≤1           | 49/50       | 98.0%  | ⭐ ENFORCED |
++--------------+-------------+--------+------------+
+| ≤2           | 49/50       | 98.0%  |            |
++--------------+-------------+--------+------------+
+| ≤3           | 49/50       | 98.0%  |            |
++--------------+-------------+--------+------------+
+| ≤4           | 49/50       | 98.0%  |            |
++--------------+-------------+--------+------------+
+| ≤5           | 49/50       | 98.0%  |            |
++--------------+-------------+--------+------------+
+| ≤6           | 49/50       | 98.0%  |            |
++--------------+-------------+--------+------------+
+
+🧪 CHEMICAL CONSTRAINT ENFORCEMENT (Valid Molecules Only):
++--------------+-------------+--------+------------+
+| Constraint   | Satisfied   | Rate   | Status     |
++==============+=============+========+============+
+| ≤0           | 6/49        | 12.2%  |            |
++--------------+-------------+--------+------------+
+| ≤1           | 49/49       | 100.0% | ⭐ ENFORCED |
++--------------+-------------+--------+------------+
+| ≤2           | 49/49       | 100.0% |            |
++--------------+-------------+--------+------------+
+| ≤3           | 49/49       | 100.0% |            |
++--------------+-------------+--------+------------+
+| ≤4           | 49/49       | 100.0% |            |
++--------------+-------------+--------+------------+
+| ≤5           | 49/49       | 100.0% |            |
++--------------+-------------+--------+------------+
+| ≤6           | 49/49       | 100.0% |            |
++--------------+-------------+--------+------------+
+
+📊 STRUCTURAL RING COUNT DISTRIBUTION (ALL Molecules):
++---------+---------+--------------+
+| Rings   | Count   | Percentage   |
++=========+=========+==============+
+| 0       | 6       | 12.0%        |
++---------+---------+--------------+
+| 1       | 43      | 86.0%        |
++---------+---------+--------------+
+
+📊 CHEMICAL RING COUNT DISTRIBUTION (Valid Molecules Only):
++---------+---------+--------------+
+| Rings   | Count   | Percentage   |
++=========+=========+==============+
+| 0       | 6       | 12.2%        |
++---------+---------+--------------+
+| 1       | 43      | 87.8%        |
++---------+---------+--------------+
+
+📊 MOLECULAR QUALITY METRICS (ALL Molecules):
++---------------------------+------------+
+| Metric                    | Value      |
++===========================+============+
+| Total Molecules Generated | 50         |
++---------------------------+------------+
+| Valid Molecules (RDKit)   | 49 (98.0%) |
++---------------------------+------------+
+| Invalid Molecules         | 1 (2.0%)   |
++---------------------------+------------+
+| Disconnected Molecules    | 0.0%       |
++---------------------------+------------+
+| Unique Molecules          | 49         |
++---------------------------+------------+
+| Uniqueness Rate           | 100.0%     |
++---------------------------+------------+
+| Novel Molecules           | 49         |
++---------------------------+------------+
+| Novelty Rate              | 100.0%     |
++---------------------------+------------+
+| Average Molecular Weight  | 124.1      |
++---------------------------+------------+
+| Average Number of Atoms   | 8.8        |
++---------------------------+------------+
+| Average Number of Bonds   | 8.7        |
++---------------------------+------------+
+| Average Ring Count        | 0.9        |
++---------------------------+------------+
+
+🎯 MOLECULAR QUALITY METRICS (Valid Molecules Only):
++--------------------------+---------+
+| Metric                   | Value   |
++==========================+=========+
+| Valid Molecules Count    | 49      |
++--------------------------+---------+
+| Validity Rate            | 98.0%   |
++--------------------------+---------+
+| Disconnected Molecules   | 0.0%    |
++--------------------------+---------+
+| Unique Molecules         | 49      |
++--------------------------+---------+
+| Uniqueness Rate          | 100.0%  |
++--------------------------+---------+
+| Novel Molecules          | 49      |
++--------------------------+---------+
+| Novelty Rate             | 100.0%  |
++--------------------------+---------+
+| FCD Score                | 6.616   |
++--------------------------+---------+
+| Average Molecular Weight | 124.1   |
++--------------------------+---------+
+| Average Number of Atoms  | 8.8     |
++--------------------------+---------+
+| Average Number of Bonds  | 8.7     |
++--------------------------+---------+
+| Average Ring Count       | 0.9     |
++--------------------------+---------+
+| Average Ring Length      | 4.6     |
++--------------------------+---------+
+| Average Valency          | 3.6     |
++--------------------------+---------+
+
+🔍 GAP ANALYSIS (ConStruct Philosophy):
++-------------------------------+-----------------------------------------------------------------------+
+| Metric                        | Value                                                                 |
++===============================+=======================================================================+
+| Structural Satisfaction (ALL) | 98.0%                                                                 |
++-------------------------------+-----------------------------------------------------------------------+
+| Chemical Satisfaction (Valid) | 100.0%                                                                |
++-------------------------------+-----------------------------------------------------------------------+
+| Gap (Structural - Chemical)   | -2.0%                                                                 |
++-------------------------------+-----------------------------------------------------------------------+
+| Gap Explanation               | Shows difference between structural enforcement and chemical validity |
++-------------------------------+-----------------------------------------------------------------------+
+
+⏱️ TIMING METRICS:
++------------------------+---------------+
+| Metric                 | Value         |
++========================+===============+
+| Total Sampling Time    | 62.76 seconds |
++------------------------+---------------+
+| Average Time per Batch | 15.69 seconds |
++------------------------+---------------+
+| Number of Batches      | 4             |
++------------------------+---------------+
+
+================================================================================
+
+================================================================================
+[rank: 0] Received SIGTERM: 15
+Bypassing SIGTERM: 15
+[rank: 0] Received SIGTERM: 15
+Bypassing SIGTERM: 15
+[rank: 0] Received SIGTERM: 15
+Bypassing SIGTERM: 15
+slurmstepd-debug00: error: *** JOB 974755 ON debug00 CANCELLED AT 2025-08-02T22:16:37 DUE TO TIME LIMIT ***
+[rank: 0] Received SIGTERM: 15
+[rank: 0] Received SIGTERM: 15
+[rank: 0] Received SIGTERM: 15
+Bypassing SIGTERM: 15
+Bypassing SIGTERM: 15
+Bypassing SIGTERM: 15
+[rank: 0] Received SIGTERM: 15
+[rank: 0] Received SIGTERM: 15
+Bypassing SIGTERM: 15
+Bypassing SIGTERM: 15
