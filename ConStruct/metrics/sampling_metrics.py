@@ -34,7 +34,7 @@ class SamplingMetrics(nn.Module):
             else self.dataset_infos.statistics["val"]
         )
 
-        self.disconnected = MeanMetric()
+
         self.mean_components = MeanMetric()
         self.max_components = MaxMetric()
         self.num_nodes_w1 = MeanMetric()
@@ -122,7 +122,6 @@ class SamplingMetrics(nn.Module):
         for metric in [
             self.mean_components,
             self.max_components,
-            self.disconnected,
             self.num_nodes_w1,
             self.node_types_tv,
             self.edge_types_tv,
@@ -160,9 +159,8 @@ class SamplingMetrics(nn.Module):
         self.edge_types_tv(edge_types_tv)
 
         # Components
-        device = self.disconnected.device
+        device = self.mean_components.device
         connected_comp = connected_components(generated_graphs).to(device)
-        self.disconnected(connected_comp > 1)
         self.mean_components(connected_comp)
         self.max_components(connected_comp)
 
@@ -209,7 +207,6 @@ class SamplingMetrics(nn.Module):
             f"{key}/NumNodesW1": self.num_nodes_w1.compute().item(),
             f"{key}/NodeTypesTV": self.node_types_tv.compute().item(),
             f"{key}/EdgeTypesTV": self.edge_types_tv.compute().item(),
-            f"{key}/Disconnected": self.disconnected.compute().item() * 100,
             f"{key}/MeanComponents": self.mean_components.compute().item(),
             f"{key}/MaxComponents": self.max_components.compute().item(),
             f"{key}/planarity": self.mean_planarity.compute().item(),
@@ -255,7 +252,6 @@ class SamplingMetrics(nn.Module):
                 'uniqueness': to_log.get(f"{key}/Uniqueness", 0),
                 'novelty': to_log.get(f"{key}/Novelty", 0),
                 'fcd_score': to_log.get(f"{key}/fcd score", 0),
-                'disconnected': to_log.get(f"{key}/Disconnected", 0),
             }
             
             

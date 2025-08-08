@@ -659,71 +659,9 @@ class SamplingMolecularMetrics(nn.Module):
         # CREATE COMPREHENSIVE TABLES
         # ============================================================================
         
-        # Calculate disconnected rate using graph properties (matching final metric calculation)
-        # Get from computed_metrics if available, otherwise calculate
+        # Get connectivity issues rate from chemical validation
         key = "test_sampling" if self.test else "val_sampling"
-        if computed_metrics is not None:
-            disconnected_rate = computed_metrics.get(f"{key}/Disconnected", 0.0)
-        else:
-            # Calculate disconnected rate if not provided
-            disconnected_rate = 0.0
-            if all_generated_smiles:
-                try:
-                    import networkx as nx
-                    from rdkit import Chem
-                    
-                    disconnected_count = 0
-                    total_count = 0
-                    
-                    for smiles in all_generated_smiles:
-                        if smiles and smiles != "error":
-                            total_count += 1
-                            try:
-                                mol = Chem.MolFromSmiles(smiles)
-                                if mol is not None:
-                                    # Convert to graph and check connectedness (same logic as connected_components function)
-                                    adj_matrix = Chem.GetAdjacencyMatrix(mol)
-                                    G = nx.from_numpy_array(adj_matrix)
-                                    if not nx.is_connected(G):
-                                        disconnected_count += 1
-                            except:
-                                # If molecule is invalid, count as disconnected (same as final metric)
-                                disconnected_count += 1
-                    
-                    disconnected_rate = (disconnected_count / total_count * 100) if total_count > 0 else 0.0
-                except Exception as e:
-                    print(f"Warning: Could not calculate disconnected rate: {e}")
-                    disconnected_rate = 0.0
-        
-        # Calculate disconnected rate for valid molecules only
-        valid_disconnected_rate = 0.0
-        if valid_smiles:
-            try:
-                import networkx as nx
-                from rdkit import Chem
-                
-                disconnected_count = 0
-                total_count = 0
-                
-                for smiles in valid_smiles:
-                    if smiles and smiles != "error":
-                        total_count += 1
-                        try:
-                            mol = Chem.MolFromSmiles(smiles)
-                            if mol is not None:
-                                # Convert to graph and check connectedness (same logic as connected_components function)
-                                adj_matrix = Chem.GetAdjacencyMatrix(mol)
-                                G = nx.from_numpy_array(adj_matrix)
-                                if not nx.is_connected(G):
-                                    disconnected_count += 1
-                        except:
-                            # If molecule is invalid, count as disconnected (same as final metric)
-                            disconnected_count += 1
-                
-                valid_disconnected_rate = (disconnected_count / total_count * 100) if total_count > 0 else 0.0
-            except Exception as e:
-                print(f"Warning: Could not calculate valid disconnected rate: {e}")
-                valid_disconnected_rate = 0.0
+        connectivity_issues_rate = computed_metrics.get(f"{key}/post_gen/connectivity_issues", 0.0) * 100 if computed_metrics is not None else 0.0
         
         # Create main metrics table with both structural and chemical analysis
         constraint_label = "planar" if constraint_type == "planar" else f"{constraint_type} ≤ {constraint_value}"
@@ -731,7 +669,7 @@ class SamplingMolecularMetrics(nn.Module):
             ["Total Molecules Generated", f"{total_molecules:,}"],
             ["Valid Molecules (RDKit)", f"{valid_molecules:,} ({validity_rate:.1f}%)"],
             ["Invalid Molecules", f"{total_molecules - valid_molecules:,} ({(total_molecules - valid_molecules) / total_molecules * 100:.1f}%)"],
-            ["Disconnected Molecules", f"{disconnected_rate:.1f}%"],
+            ["Connectivity Issues", f"{connectivity_issues_rate:.1f}%"],
             ["Constraint Type", constraint_label],
         ]
         
@@ -903,29 +841,12 @@ class SamplingMolecularMetrics(nn.Module):
                 chemical_ring_length_table = ""
         
         # Create comprehensive quality metrics table (ALL molecules)
-        # Use computed metrics for ALL molecules to avoid duplication
-        if computed_metrics is not None:
-            key = "test_sampling" if self.test else "val_sampling"
-            all_unique_molecules = int((computed_metrics.get(f"{key}/Uniqueness", 0.0) / 100) * total_molecules) if total_molecules > 0 else 0
-            all_novel_molecules = int((computed_metrics.get(f"{key}/Novelty", 0.0) / 100) * all_unique_molecules) if all_unique_molecules > 0 else 0
-            all_uniqueness_rate = computed_metrics.get(f"{key}/Uniqueness", 0.0)
-            all_novelty_rate = computed_metrics.get(f"{key}/Novelty", 0.0)
-        else:
-            # Fallback to original calculations
-            all_unique_molecules = self._calculate_unique_molecules(all_generated_smiles)
-            all_novel_molecules = self._calculate_novel_molecules(all_generated_smiles)
-            all_uniqueness_rate = self._calculate_uniqueness_rate(all_generated_smiles)
-            all_novelty_rate = self._calculate_novelty_rate(all_generated_smiles)
-        
+        # Note: Novelty and uniqueness are only calculated for valid molecules
         all_molecules_quality_data = [
             ["Total Molecules Generated", f"{total_molecules:,}"],
             ["Valid Molecules (RDKit)", f"{valid_molecules:,} ({validity_rate:.1f}%)"],
             ["Invalid Molecules", f"{total_molecules - valid_molecules:,} ({(total_molecules - valid_molecules) / total_molecules * 100:.1f}%)"],
-            ["Disconnected Molecules", f"{disconnected_rate:.1f}%"],
-            ["Unique Molecules", f"{all_unique_molecules:,}"],
-            ["Uniqueness Rate", f"{all_uniqueness_rate:.1f}%"],
-            ["Novel Molecules", f"{all_novel_molecules:,}"],
-            ["Novelty Rate", f"{all_novelty_rate:.1f}%"],
+            ["Connectivity Issues", f"{connectivity_issues_rate:.1f}%"],
             ["Average Molecular Weight", f"{self._calculate_avg_molecular_weight(all_generated_smiles):.1f}"],
             ["Average Number of Atoms", f"{self._calculate_avg_atom_count(all_generated_smiles):.1f}"],
             ["Average Number of Bonds", f"{self._calculate_avg_bond_count(all_generated_smiles):.1f}"],
@@ -938,13 +859,9 @@ class SamplingMolecularMetrics(nn.Module):
         
         # Create detailed quality metrics table (VALID molecules only)
         valid_molecules_quality_data = [
-            ["Valid Molecules Count", f"{valid_molecules:,}"],
-            ["Validity Rate", f"{validity_rate:.1f}%"],
-            ["Disconnected Molecules", f"{valid_disconnected_rate:.1f}%"],
-            ["Unique Molecules", f"{unique_molecules:,}"],
-            ["Uniqueness Rate", f"{uniqueness_rate:.1f}%"],
-            ["Novel Molecules", f"{novel_molecules:,}"],
-            ["Novelty Rate", f"{novelty_rate:.1f}%"],
+            ["Valid Molecules (RDKit)", f"{valid_molecules:,} ({validity_rate:.1f}%)"],
+            ["Unique Molecules", f"{unique_molecules:,} ({uniqueness_rate:.1f}%)"],
+            ["Novel Molecules", f"{novel_molecules:,} ({novelty_rate:.1f}%)"],
             ["FCD Score", f"{fcd_score:.3f}"],
             ["Average Molecular Weight", f"{self._calculate_avg_molecular_weight(valid_smiles):.1f}"],
             ["Average Number of Atoms", f"{self._calculate_avg_atom_count(valid_smiles):.1f}"],
@@ -1095,34 +1012,17 @@ class SamplingMolecularMetrics(nn.Module):
         # CREATE COMPREHENSIVE REPORT
         # ============================================================================
         
-        # Get disconnected rate from computed_metrics (no duplication)
+        # Get connectivity issues rate from chemical validation
         key = "test_sampling" if self.test else "val_sampling"
-        disconnected_rate = computed_metrics.get(f"{key}/Disconnected", 0.0) if computed_metrics is not None else 0.0
+        connectivity_issues_rate = computed_metrics.get(f"{key}/post_gen/connectivity_issues", 0.0) * 100 if computed_metrics is not None else 0.0
         
         # Create comprehensive quality metrics table (ALL molecules)
-        # Use computed metrics for ALL molecules to avoid duplication
-        if computed_metrics is not None:
-            key = "test_sampling" if self.test else "val_sampling"
-            all_unique_molecules = int((computed_metrics.get(f"{key}/Uniqueness", 0.0) / 100) * total_molecules) if total_molecules > 0 else 0
-            all_novel_molecules = int((computed_metrics.get(f"{key}/Novelty", 0.0) / 100) * all_unique_molecules) if all_unique_molecules > 0 else 0
-            all_uniqueness_rate = computed_metrics.get(f"{key}/Uniqueness", 0.0)
-            all_novelty_rate = computed_metrics.get(f"{key}/Novelty", 0.0)
-        else:
-            # Fallback to original calculations
-            all_unique_molecules = self._calculate_unique_molecules(all_generated_smiles)
-            all_novel_molecules = self._calculate_novel_molecules(all_generated_smiles)
-            all_uniqueness_rate = self._calculate_uniqueness_rate(all_generated_smiles)
-            all_novelty_rate = self._calculate_novelty_rate(all_generated_smiles)
-        
+        # Note: Novelty and uniqueness are only calculated for valid molecules
         all_molecules_quality_data = [
             ["Total Molecules Generated", f"{total_molecules:,}"],
             ["Valid Molecules (RDKit)", f"{valid_molecules:,} ({validity_rate:.1f}%)"],
             ["Invalid Molecules", f"{total_molecules - valid_molecules:,} ({(total_molecules - valid_molecules) / total_molecules * 100:.1f}%)"],
-            ["Disconnected Molecules", f"{disconnected_rate:.1f}%"],
-            ["Unique Molecules", f"{all_unique_molecules:,}"],
-            ["Uniqueness Rate", f"{all_uniqueness_rate:.1f}%"],
-            ["Novel Molecules", f"{all_novel_molecules:,}"],
-            ["Novelty Rate", f"{all_novelty_rate:.1f}%"],
+            ["Connectivity Issues", f"{connectivity_issues_rate:.1f}%"],
             ["Average Molecular Weight", f"{self._calculate_avg_molecular_weight(all_generated_smiles):.1f}"],
             ["Average Number of Atoms", f"{self._calculate_avg_atom_count(all_generated_smiles):.1f}"],
             ["Average Number of Bonds", f"{self._calculate_avg_bond_count(all_generated_smiles):.1f}"],
@@ -1131,13 +1031,9 @@ class SamplingMolecularMetrics(nn.Module):
         
         # Generate detailed quality metrics table (VALID molecules only)
         valid_molecules_quality_data = [
-            ["Valid Molecules Count", f"{valid_molecules:,}"],
-            ["Validity Rate", f"{validity_rate:.1f}%"],
-            ["Disconnected Molecules", f"{disconnected_rate:.1f}%"],
-            ["Unique Molecules", f"{unique_molecules:,}"],
-            ["Uniqueness Rate", f"{uniqueness_rate:.1f}%"],
-            ["Novel Molecules", f"{novel_molecules:,}"],
-            ["Novelty Rate", f"{novelty_rate:.1f}%"],
+            ["Valid Molecules (RDKit)", f"{valid_molecules:,} ({validity_rate:.1f}%)"],
+            ["Unique Molecules", f"{unique_molecules:,} ({uniqueness_rate:.1f}%)"],
+            ["Novel Molecules", f"{novel_molecules:,} ({novelty_rate:.1f}%)"],
             ["FCD Score", f"{fcd_score:.3f}"],
             ["Average Molecular Weight", f"{self._calculate_avg_molecular_weight(valid_smiles):.1f}"],
             ["Average Number of Atoms", f"{self._calculate_avg_atom_count(valid_smiles):.1f}"],
@@ -1447,56 +1343,8 @@ class SamplingMolecularMetrics(nn.Module):
         
         return total_valency / total_atoms if total_atoms > 0 else 0.0
     
-    def _calculate_unique_molecules(self, smiles_list: List[str]) -> int:
-        """Calculate number of unique molecules in a list (including invalid ones)."""
-        if not smiles_list:
-            return 0
-        
-        # Filter out empty and error strings, but keep invalid SMILES
-        filtered_smiles = [s for s in smiles_list if s and s != "error"]
-        unique_smiles = set(filtered_smiles)
-        return len(unique_smiles)
-    
-    def _calculate_uniqueness_rate(self, smiles_list: List[str]) -> float:
-        """Calculate uniqueness rate for a list of SMILES (including invalid ones)."""
-        if not smiles_list:
-            return 0.0
-        
-        filtered_smiles = [s for s in smiles_list if s and s != "error"]
-        if not filtered_smiles:
-            return 0.0
-        
-        unique_smiles = set(filtered_smiles)
-        return (len(unique_smiles) / len(filtered_smiles) * 100)
-    
-    def _calculate_novel_molecules(self, smiles_list: List[str]) -> int:
-        """Calculate number of novel molecules in a list (including invalid ones)."""
-        if not smiles_list or self.train_smiles is None:
-            return 0
-        
-        filtered_smiles = [s for s in smiles_list if s and s != "error"]
-        if not filtered_smiles:
-            return 0
-        
-        unique_smiles = set(filtered_smiles)
-        novel_smiles = [s for s in unique_smiles if s not in self.train_smiles]
-        return len(novel_smiles)
-    
-    def _calculate_novelty_rate(self, smiles_list: List[str]) -> float:
-        """Calculate novelty rate for a list of SMILES (including invalid ones)."""
-        if not smiles_list or self.train_smiles is None:
-            return 0.0
-        
-        filtered_smiles = [s for s in smiles_list if s and s != "error"]
-        if not filtered_smiles:
-            return 0.0
-        
-        unique_smiles = set(filtered_smiles)
-        if not unique_smiles:
-            return 0.0
-        
-        novel_smiles = [s for s in unique_smiles if s not in self.train_smiles]
-        return (len(novel_smiles) / len(unique_smiles) * 100)
+    # Note: Novelty and uniqueness calculations are only done on valid molecules in the evaluate() method
+    # These helper methods were incorrectly calculating on all molecules and have been removed
 
 
 def charge_distance(molecules, target, atom_types_probabilities, dataset_infos):
