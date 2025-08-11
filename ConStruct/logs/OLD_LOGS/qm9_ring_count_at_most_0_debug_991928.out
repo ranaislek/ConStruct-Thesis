@@ -1,0 +1,57 @@
+torch version: 2.0.1+cu118
+CUDA available: True
+CUDA device: NVIDIA RTX 2000 Ada Generation
+=== Running Experiment: ring_count_at_most_0_debug ===
+Config: debug/edge_deletion/ring_count_at_most/qm9_debug_ring_count_at_most_0
+Job ID: 991928
+Node: debug00
+Time: Sun 10 Aug 2025 08:37:20 PM UTC
+<frozen importlib._bootstrap>:228: RuntimeWarning: to-Python converter for std::pair<double, double> already registered; second conversion method ignored.
+[rank: 0] Global seed set to 0
+Loading reference metrics.
+Edge-deletion transition model (for 'at most' constraints)
+[INFO] Early stopping enabled: monitoring 'val/epoch_NLL' with patience 30
+GPU available: True (cuda), used: True
+TPU available: False, using: 0 TPU cores
+IPU available: False, using: 0 IPUs
+HPU available: False, using: 0 HPUs
+[rank: 0] Global seed set to 0
+Initializing distributed: GLOBAL_RANK: 0, MEMBER: 1/1
+[2025-08-10 20:37:32,576][torch.distributed.distributed_c10d][INFO] - Added key: store_based_barrier_key:1 to store for rank: 0
+[2025-08-10 20:37:32,577][torch.distributed.distributed_c10d][INFO] - Rank 0: Completed store-based barrier for key:store_based_barrier_key:1 with 1 nodes.
+----------------------------------------------------------------------------------------------------
+distributed_backend=nccl
+All distributed processes registered. Starting with 1 processes
+----------------------------------------------------------------------------------------------------
+
+You are using a CUDA device ('NVIDIA RTX 2000 Ada Generation') that has Tensor Cores. To properly utilize them, you should set `torch.set_float32_matmul_precision('medium' | 'high')` which will trade-off precision for performance. For more details, read https://pytorch.org/docs/stable/generated/torch.set_float32_matmul_precision.html#torch.set_float32_matmul_precision
+/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/pytorch_lightning/callbacks/model_checkpoint.py:615: UserWarning: Checkpoint directory checkpoints/qm9_debug_ring_count_at_most_0 exists and is not empty.
+  rank_zero_warn(f"Checkpoint directory {dirpath} exists and is not empty.")
+LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0]
+
+  | Name                  | Type                  | Params
+----------------------------------------------------------------
+0 | train_loss            | TrainLoss             | 0     
+1 | train_metrics         | TrainMolecularMetrics | 0     
+2 | val_metrics           | MetricCollection      | 0     
+3 | val_nll               | NLL                   | 0     
+4 | val_sampling_metrics  | SamplingMetrics       | 0     
+5 | test_metrics          | MetricCollection      | 0     
+6 | test_nll              | NLL                   | 0     
+7 | test_sampling_metrics | SamplingMetrics       | 0     
+8 | model                 | GraphTransformer      | 1.9 M 
+----------------------------------------------------------------
+1.9 M     Trainable params
+0         Non-trainable params
+1.9 M     Total params
+7.446     Total estimated model params size (MB)
+SLURM auto-requeueing enabled. Setting signal handlers.
+Epoch 0: val/epoch_NLL: 127.32 -- val/X_kl: 7.40 -- val/E_kl: 108.43 -- val/charges_kl: 5.01 
+Val loss: 127.3223 	 Best val loss:  127.3223
+
+Val epoch 0 ends
+Starting epoch 0
+[2025-08-10 20:37:35,718][torch.nn.parallel.distributed][INFO] - Reducer buckets have been rebuilt in this iteration.
+slurmstepd-debug00: error: *** JOB 991928 ON debug00 CANCELLED AT 2025-08-10T20:45:54 ***
+[rank: 0] Received SIGTERM: 15
+Bypassing SIGTERM: 15

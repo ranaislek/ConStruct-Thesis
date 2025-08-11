@@ -1,0 +1,47 @@
+# @package _global_
+general:
+  name: 'qm9_debug_ring_length_at_most_3_simple'
+  wandb: 'disabled'
+  resume: null
+  test_only: null
+  check_val_every_n_epochs: 3
+  sample_every_val: 1
+  samples_to_generate: 10      # Reduced for faster testing
+  samples_to_save: 5           # Reduced for faster testing
+  chains_to_save: 2            # Reduced for faster testing
+  final_model_samples_to_generate: 50
+  final_model_samples_to_save: 20
+  final_model_chains_to_save: 5
+  number_chain_steps: 50       # Reduced for faster testing
+train:
+  n_epochs: 5                  # Reduced for faster testing
+  batch_size: 32
+  lr: 0.00005
+  save_model: true
+model:
+  diffusion_steps: 100         # Reduced for faster testing
+  n_layers: 4
+  hidden_mlp_dims:
+    X: 128
+    E: 64
+    y: 64
+  hidden_dims:
+    dx: 128
+    de: 64
+    dy: 64
+    n_head: 4
+    dim_ffX: 256
+    dim_ffE: 128
+    dim_ffy: 128
+  # Edge-deletion constraint settings:
+  max_ring_length: 3
+  rev_proj: ring_length_at_most
+  transition: absorbing_edges
+dataset:
+  name: qm9
+  remove_h: true
+  datadir: data/qm9
+  batch_size: 32
+  num_workers: 4
+  adaptive_loader: false
+  fraction: 0.8 

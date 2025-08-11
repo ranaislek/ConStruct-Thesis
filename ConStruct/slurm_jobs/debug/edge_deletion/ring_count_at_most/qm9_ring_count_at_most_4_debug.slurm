@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=qm9_ring_count_at_most_4_debug
-#SBATCH --output=/home/rislek/ConStruct-Thesis/ConStruct/logs/qm9_ring_count_at_most_4_debug_%j.out
+#SBATCH --output=/home/rislek/ConStruct-Thesis/ConStruct/logs/debug/qm9_ring_count_at_most_4_debug_%j.out
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=16G  

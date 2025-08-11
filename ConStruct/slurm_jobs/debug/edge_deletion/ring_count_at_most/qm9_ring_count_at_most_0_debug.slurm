@@ -1,13 +1,11 @@
 #!/bin/bash
 #SBATCH --job-name=qm9_ring_count_at_most_0_debug
-#SBATCH --output=/home/rislek/ConStruct-Thesis/ConStruct/logs/qm9_ring_count_at_most_0_debug_%j.out
+#SBATCH --output=/home/rislek/ConStruct-Thesis/ConStruct/logs/debug/qm9_ring_count_at_most_0_debug_%j.out
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=16G  
-#SBATCH --gres=gpu:1
-#SBATCH --exclude=vgpu5-0
 #SBATCH --time=16:00:00
-#SBATCH --partition=debug
+#SBATCH --partition=allgroups,testing
 
 # Load environment
 cd /home/rislek/ConStruct-Thesis

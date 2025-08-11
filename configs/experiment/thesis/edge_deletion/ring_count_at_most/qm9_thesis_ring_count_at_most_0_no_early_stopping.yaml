@@ -1,0 +1,36 @@
+# @package _global_
+defaults:
+  - override /dataset: qm9     # Use QM9 dataset instead of default planar
+
+# Ring count 0 experiment WITHOUT early stopping (for comparison)
+general:
+  name: 'qm9_thesis_ring_count_at_most_0_no_early_stopping'  # Override name for this specific experiment
+
+# Training config inherits from train_default, with early stopping explicitly disabled
+train:
+  early_stopping:
+    enable: false         # DISABLE early stopping for comparison (all other settings inherited from train_default)
+
+model:
+  diffusion_steps: 500    # Stable trade-off between speed and quality; increase if resources allow
+  n_layers: 4             # Increased layers for better molecular representation
+  hidden_mlp_dims:
+    X: 128
+    E: 128
+    y: 128
+  hidden_dims:
+    dx: 128
+    de: 128
+    dy: 128
+    n_head: 4
+    dim_ffX: 256
+    dim_ffE: 256
+    dim_ffy: 256
+
+  # Edge-deletion constraint settings aligned to QM9 dataset statistics:
+  max_rings: 0            # No rings allowed (acyclic molecules only)
+  max_ring_length: 6      # Maximum ring length (not enforced with max_rings=0)
+  rev_proj: ring_count_at_most  # Edge-deletion projector for "at most" constraints
+  transition: absorbing_edges       # Edge-deletion transition
+
+# Dataset config inherited from qm9.yaml (includes all QM9-specific settings)

@@ -40,11 +40,6 @@ model:
   transition: edge_insertion      # Edge-insertion transition (flipped edge-deletion)
   
   # ConStruct philosophy: Post-generation validation
-  post_gen_validation: True  # Enable post-generation chemical validation
-  post_gen_validation_config:
-    enable_rdkit: True
-    enable_valency_check: True
-    enable_connectivity_check: True
 dataset:
   name: qm9
   remove_h: true

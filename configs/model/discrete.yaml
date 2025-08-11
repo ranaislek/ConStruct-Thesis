@@ -16,12 +16,6 @@ use_incremental_length: True  # For ring_length_at_most: use efficient increment
 # min_rings: 2     # For ring_count_at_least: minimum number of rings required
 # min_ring_length: 4  # For ring_length_at_least: minimum ring size required
 
-# Post-generation validation (ConStruct philosophy)
-post_gen_validation: True  # Enable post-generation chemical validation
-post_gen_validation_config:
-  enable_rdkit: True
-  enable_valency_check: True
-  enable_connectivity_check: True
 
 # Extra features
 extra_features: True

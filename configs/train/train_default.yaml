@@ -1,11 +1,25 @@
 # Training settings
 n_epochs: 1000
-batch_size: 512
-lr: 0.0002
-clip_grad: null          # float, null to disable
+batch_size: 128                 # Optimized for thesis experiments (was 512)
+lr: 1e-4                       # Optimized for diffusion models (was 0.0002)
+reference_batch_size: 1         # Reference batch size for adaptive loading
+ema_decay: 0.999               # Exponential moving average decay for stable training
+clip_grad: null                # float, null to disable
 save_model: True
 num_workers: 0
 progress_bar: false
 weight_decay: 1e-12
-optimizer: adamw # adamw,nadamw,nadam => nadamw for large batches, see http://arxiv.org/abs/2102.06356 for the use of nesterov momentum with large batches
+optimizer: adamw               # adamw,nadamw,nadam => nadamw for large batches, see http://arxiv.org/abs/2102.06356 for the use of nesterov momentum with large batches
 seed: 0
+
+# Early stopping settings (thesis-optimized)
+early_stopping:
+  enable: true                    # Enable early stopping for efficient training
+  monitor: "val/epoch_NLL"        # Monitor validation negative log-likelihood (validation loss)
+  patience: 30                    # More conservative for complex QM9 models
+  min_delta: 0.001               # Minimum change to qualify as an improvement
+  mode: "min"                    # Lower NLL is better
+  check_finite: true             # Stop training if metric becomes NaN or infinite
+  stopping_threshold: null       # No specific threshold
+  divergence_threshold: 100.0    # Stop if NLL exceeds 100.0 (appropriate for QM9 dataset)
+  check_on_train_epoch_end: false # Check early stopping criteria at end of validation epoch

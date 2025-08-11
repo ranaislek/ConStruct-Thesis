@@ -1,26 +1,12 @@
 # @package _global_
+defaults:
+  - override /dataset: qm9     # Use QM9 dataset instead of default planar
 
 general:
-  name: 'qm9_thesis_ring_count_at_most_1'
-  wandb: 'online'
-  resume: null  # Path to checkpoint if resuming (set null otherwise)
-  test_only: null
-  check_val_every_n_epochs: 20
-  sample_every_val: 5
-  samples_to_generate: 1000
-  samples_to_save: 200
-  chains_to_save: 10
-  final_model_samples_to_generate: 2000
-  final_model_samples_to_save: 500
-  final_model_chains_to_save: 100
-  number_chain_steps: 200  # Longer chains improve visual interpretability but increase computation
+  name: 'qm9_thesis_ring_count_at_most_1'  # Override name for this specific experiment
 
-train:
-  n_epochs: 1000
-  batch_size: 128         # Adjusted from 256 for consistency and typical GPU capacity
-  learning_rate: 1e-4     # Standard for diffusion models
-  ema_decay: 0.999        # Recommended exponential moving average decay
-  save_model: True
+# Training config is inherited from thesis_train (includes early stopping)
+# No need to override here since thesis_train has all the right settings
 
 model:
   diffusion_steps: 500    # Stable trade-off between speed and quality; increase if resources allow
@@ -40,15 +26,7 @@ model:
 
   # Edge-deletion constraint settings aligned to QM9 dataset statistics:
   max_rings: 1            # At most 1 ring allowed
-  max_ring_length: 6      # Maximum ring length
   rev_proj: ring_count_at_most  # Edge-deletion projector for "at most" constraints
   transition: absorbing_edges       # Edge-deletion transition
 
-dataset:
-  name: qm9
-  remove_h: true
-  datadir: 'data/qm9'
-  batch_size: 128         # Consistent with training batch size
-  num_workers: 4          # Improved data loading performance
-  adaptive_loader: false
-  fraction: 1.0           # Use entire dataset for robust model training
+# Dataset config inherited from qm9.yaml (includes all QM9-specific settings)
