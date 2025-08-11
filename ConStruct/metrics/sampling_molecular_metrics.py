@@ -521,8 +521,8 @@ class SamplingMolecularMetrics(nn.Module):
             
             # Debug: Print the computed_metrics to see what's available
             print(f"DEBUG: Available computed_metrics keys: {list(computed_metrics.keys())}")
-            print(f"DEBUG: Looking for FCD key: {key}/fcd score")
-            print(f"DEBUG: FCD score found: {fcd_score}")
+            # print(f"DEBUG: Looking for FCD key: {key}/fcd score")
+            # print(f"DEBUG: FCD score found: {fcd_score}")
             
             # Calculate unique and novel molecules for display (based on valid molecules only)
             if len(valid_smiles) > 0:
