@@ -129,7 +129,7 @@ def compute_reference_metrics(dataset_infos, datamodule):
             val_loader=datamodule.val_dataloader(),
         )
         val_reference_metrics = val_sampling_metrics.domain_metrics.forward(
-            training_graphs, current_epoch=None, local_rank=0
+            training_graphs, current_epoch=None, local_rank=0, computed_metrics=None
         )
         print("Computing test reference metrics.")
         test_sampling_metrics = metrics.sampling_metrics.SamplingMetrics(
@@ -139,7 +139,7 @@ def compute_reference_metrics(dataset_infos, datamodule):
             val_loader=datamodule.test_dataloader(),  # datamodule.test_dataloader(),
         )
         test_reference_metrics = test_sampling_metrics.domain_metrics.forward(
-            training_graphs, current_epoch=None, local_rank=0
+            training_graphs, current_epoch=None, local_rank=0, computed_metrics=None
         )
         print("Saving reference metrics.")
         # print(f"deg: {test_reference_metrics['degree']} | clus: {test_reference_metrics['clustering']} | orbit: {test_reference_metrics['orbit']}")

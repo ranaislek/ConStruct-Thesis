@@ -35,6 +35,8 @@ class SamplingMetrics(nn.Module):
         )
 
 
+        # Add back the disconnected metric (from original implementation)
+        self.disconnected = MeanMetric()
         self.mean_components = MeanMetric()
         self.max_components = MaxMetric()
         self.num_nodes_w1 = MeanMetric()
@@ -120,6 +122,7 @@ class SamplingMetrics(nn.Module):
 
     def reset(self):
         for metric in [
+            self.disconnected,  # Add back disconnected metric
             self.mean_components,
             self.max_components,
             self.num_nodes_w1,
@@ -159,8 +162,9 @@ class SamplingMetrics(nn.Module):
         self.edge_types_tv(edge_types_tv)
 
         # Components
-        device = self.mean_components.device
+        device = self.mean_components.device  # Use mean_components.device as it's safer
         connected_comp = connected_components(generated_graphs).to(device)
+        self.disconnected(connected_comp > 1)  # Add back disconnected calculation
         self.mean_components(connected_comp)
         self.max_components(connected_comp)
 
@@ -207,6 +211,7 @@ class SamplingMetrics(nn.Module):
             f"{key}/NumNodesW1": self.num_nodes_w1.compute().item(),
             f"{key}/NodeTypesTV": self.node_types_tv.compute().item(),
             f"{key}/EdgeTypesTV": self.edge_types_tv.compute().item(),
+            f"{key}/Disconnected": self.disconnected.compute().item() * 100,  # Add back Disconnected metric
             f"{key}/MeanComponents": self.mean_components.compute().item(),
             f"{key}/MaxComponents": self.max_components.compute().item(),
             f"{key}/planarity": self.mean_planarity.compute().item(),
@@ -230,7 +235,7 @@ class SamplingMetrics(nn.Module):
         if self.domain_metrics is not None:
             # Compute domain metrics normally
             log_domain_metrics = self.domain_metrics.forward(
-                generated_graphs, current_epoch, local_rank
+                generated_graphs, current_epoch, local_rank, computed_metrics=to_log
             )
             to_log.update(log_domain_metrics)
             ratios = self.compute_ratios_to_ref(

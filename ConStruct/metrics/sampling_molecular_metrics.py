@@ -203,8 +203,10 @@ class SamplingMolecularMetrics(nn.Module):
                     mol_frags = Chem.rdmolops.GetMolFrags(
                         rdmol, asMols=True, sanitizeFrags=True
                     )
+                    
+                    # below code handles disconnected molecules by selecting the largest valid molecular fragment.
                     if len(mol_frags) > 1:
-                        error_message[4] += 1
+                        error_message[4] += 1  # count the number of disconnected molecules
                     largest_mol = max(
                         mol_frags, default=mol, key=lambda m: m.GetNumAtoms()
                     )
@@ -266,7 +268,7 @@ class SamplingMolecularMetrics(nn.Module):
 
         return all_smiles, dic
 
-    def forward(self, generated_graphs: list[PlaceHolder], current_epoch, local_rank):
+    def forward(self, generated_graphs: list[PlaceHolder], current_epoch, local_rank, computed_metrics=None):
         molecules = []
 
         for batch in generated_graphs:
@@ -294,14 +296,7 @@ class SamplingMolecularMetrics(nn.Module):
         # Validity, uniqueness, novelty
         all_generated_smiles, metrics = self.evaluate(molecules)
         
-        # Add chemical validation metrics BEFORE table generation
-        if len(all_generated_smiles) > 0 and local_rank == 0:
-            chemical_validation_metrics = self.compute_chemical_validation_metrics(all_generated_smiles)
-            if wandb.run:
-                wandb.log(chemical_validation_metrics, commit=False)
-            # Add chemical validation metrics to the metrics dictionary for table use
-            metrics.update(chemical_validation_metrics)
-            # print("Chemical validation metrics:", chemical_validation_metrics)
+        # No chemical validation metrics in initial commit - removed to match exactly
 
         # Calculate FCD BEFORE table generation
         to_log_fcd = self.compute_fcd(generated_smiles=all_generated_smiles)
@@ -335,7 +330,13 @@ class SamplingMolecularMetrics(nn.Module):
                 print("\n" + "="*80)
                 print("🎯 TABLE-BASED CONSTRAINT ANALYSIS")
                 print("="*80)
-                table_report = self.generate_table_report(constraint_type, constraint_value, all_generated_smiles, metrics)
+                # Use computed_metrics if available, otherwise fall back to local metrics
+                if computed_metrics is not None:
+                    # Merge so locally computed keys (like FCD) override or complement global ones (like Disconnected)
+                    metrics_to_pass = {**computed_metrics, **metrics}
+                else:
+                    metrics_to_pass = metrics
+                table_report = self.generate_table_report(constraint_type, constraint_value, all_generated_smiles, metrics_to_pass)
                 print(table_report)
                 print("="*80)
             else:
@@ -345,7 +346,12 @@ class SamplingMolecularMetrics(nn.Module):
                 print("\n" + "="*80)
                 print("🎯 COMPREHENSIVE CONSTRAINT ANALYSIS (NO ENFORCED CONSTRAINT)")
                 print("="*80)
-                comprehensive_report = self.generate_comprehensive_report(all_generated_smiles, metrics)
+                # Use computed_metrics if available, otherwise fall back to local metrics
+                if computed_metrics is not None:
+                    metrics_to_pass = {**computed_metrics, **metrics}
+                else:
+                    metrics_to_pass = metrics
+                comprehensive_report = self.generate_comprehensive_report(all_generated_smiles, metrics_to_pass)
                 print(comprehensive_report)
                 print("="*80)
 
@@ -445,111 +451,7 @@ class SamplingMolecularMetrics(nn.Module):
         key = "val_sampling" if not self.test else "test_sampling"
         return {f"{key}/fcd score": fcd_score}
 
-    def compute_chemical_validation_metrics(self, all_generated_smiles: List[str]) -> Dict[str, float]:
-        """
-        Compute chemical validation metrics (replacing PostGenerationValidator functionality).
-        
-        Args:
-            all_generated_smiles: List of all generated SMILES strings
-            
-        Returns:
-            Dictionary with chemical validation metrics for wandb logging
-        """
-        total_molecules = len(all_generated_smiles)
-        valid_smiles = [s for s in all_generated_smiles if s and s != "error"]
-        valid_molecules = len(valid_smiles)
-        
-        # Initialize counters
-        structurally_valid = 0
-        chemically_valid = 0
-        rdkit_valid = 0
-        valency_violations = 0
-        connectivity_issues = 0
-        atom_type_issues = 0
-        
-        for smiles in all_generated_smiles:
-            if smiles and smiles != "error":
-                try:
-                    mol = Chem.MolFromSmiles(smiles)
-                    if mol is not None:
-                        # RDKit valid
-                        rdkit_valid += 1
-                        
-                        # Check structural validity (basic graph structure)
-                        try:
-                            # Basic structural checks
-                            num_atoms = mol.GetNumAtoms()
-                            num_bonds = mol.GetNumBonds()
-                            if num_atoms > 0 and num_bonds >= 0:
-                                structurally_valid += 1
-                        except:
-                            pass
-                        
-                        # Check chemical validity (valency, connectivity, atom types)
-                        try:
-                            # Check valency violations
-                            valency_ok = True
-                            for atom in mol.GetAtoms():
-                                valence = atom.GetTotalValence()
-                                atomic_num = atom.GetAtomicNum()
-                                if atomic_num in ATOM_VALENCY:
-                                    expected_valence = ATOM_VALENCY[atomic_num]
-                                    if valence != expected_valence:
-                                        valency_ok = False
-                                        break
-                            
-                            # Check connectivity (single component)
-                            connectivity_ok = True
-                            try:
-                                components = list(Chem.GetMolFrags(mol))
-                                if len(components) > 1:
-                                    connectivity_ok = False
-                            except:
-                                connectivity_ok = False
-                            
-                            # Check atom type validity
-                            atom_type_ok = True
-                            for atom in mol.GetAtoms():
-                                atomic_num = atom.GetAtomicNum()
-                                if atomic_num not in [1, 6, 7, 8, 9, 15, 16, 17, 35, 53]:  # Common atoms
-                                    atom_type_ok = False
-                                    break
-                            
-                            # Overall chemical validity
-                            if valency_ok and connectivity_ok and atom_type_ok:
-                                chemically_valid += 1
-                            else:
-                                if not valency_ok:
-                                    valency_violations += 1
-                                if not connectivity_ok:
-                                    connectivity_issues += 1
-                                if not atom_type_ok:
-                                    atom_type_issues += 1
-                                    
-                        except Exception as e:
-                            # If chemical validation fails, count as invalid
-                            valency_violations += 1
-                            
-                except Exception as e:
-                    # If RDKit parsing fails, count as invalid
-                    pass
-        
-        # Calculate rates
-        structurally_valid_rate = (structurally_valid / total_molecules) if total_molecules > 0 else 0.0
-        chemically_valid_rate = (chemically_valid / total_molecules) if total_molecules > 0 else 0.0
-        rdkit_valid_rate = (rdkit_valid / total_molecules) if total_molecules > 0 else 0.0
-        valency_violations_rate = (valency_violations / total_molecules) if total_molecules > 0 else 0.0
-        connectivity_issues_rate = (connectivity_issues / total_molecules) if total_molecules > 0 else 0.0
-        
-        # Return metrics in the same format as PostGenerationValidator
-        key = "val_sampling" if not self.test else "test_sampling"
-        return {
-            f"{key}/post_gen/structurally_valid": structurally_valid_rate,
-            f"{key}/post_gen/chemically_valid": chemically_valid_rate,
-            f"{key}/post_gen/rdkit_valid": rdkit_valid_rate,
-            f"{key}/post_gen/valency_violations": valency_violations_rate,
-            f"{key}/post_gen/connectivity_issues": connectivity_issues_rate,
-        }
+    # No chemical validation metrics method in initial commit - removed to match exactly
 
     def generate_table_report(self, constraint_type: str, constraint_value: int, all_generated_smiles: List[str], computed_metrics: Dict = None) -> str:
         """
@@ -616,6 +518,12 @@ class SamplingMolecularMetrics(nn.Module):
             uniqueness_rate = computed_metrics.get(f"{key}/Uniqueness", 0.0)
             novelty_rate = computed_metrics.get(f"{key}/Novelty", 0.0)
             fcd_score = computed_metrics.get(f"{key}/fcd score", 0.0)
+            
+            # Debug: Print the computed_metrics to see what's available
+            print(f"DEBUG: Available computed_metrics keys: {list(computed_metrics.keys())}")
+            print(f"DEBUG: Looking for FCD key: {key}/fcd score")
+            print(f"DEBUG: FCD score found: {fcd_score}")
+            
             # Calculate unique and novel molecules for display (based on valid molecules only)
             if len(valid_smiles) > 0:
                 unique_smiles = set(valid_smiles)
@@ -659,17 +567,23 @@ class SamplingMolecularMetrics(nn.Module):
         # CREATE COMPREHENSIVE TABLES
         # ============================================================================
         
-        # Get connectivity issues rate from chemical validation
+        # Get disconnected molecules rate from the original Disconnected metric (same as initial commit)
         key = "test_sampling" if self.test else "val_sampling"
-        connectivity_issues_rate = computed_metrics.get(f"{key}/post_gen/connectivity_issues", 0.0) * 100 if computed_metrics is not None else 0.0
+        if computed_metrics is not None:
+            # Use the original Disconnected metric from sampling_metrics.py
+            disconnected_rate = computed_metrics.get(f"{key}/Disconnected", 0.0)
+        else:
+            # Fallback to 0.0 if computed_metrics not available
+            disconnected_rate = 0.0
         
         # Create main metrics table with both structural and chemical analysis
         constraint_label = "planar" if constraint_type == "planar" else f"{constraint_type} ≤ {constraint_value}"
+        
         metrics_data = [
             ["Total Molecules Generated", f"{total_molecules:,}"],
-            ["Valid Molecules (RDKit)", f"{valid_molecules:,} ({validity_rate:.1f}%)"],
-            ["Invalid Molecules", f"{total_molecules - valid_molecules:,} ({(total_molecules - valid_molecules) / total_molecules * 100:.1f}%)"],
-            ["Connectivity Issues", f"{connectivity_issues_rate:.1f}%"],
+            ["Valid Molecules (RDKit)", f"{valid_molecules:,} ({validity_rate:.2f}%)"],
+            ["Invalid Molecules", f"{total_molecules - valid_molecules:,} ({(total_molecules - valid_molecules) / total_molecules * 100:.2f}%)"],
+            ["Disconnected Molecules", f"{disconnected_rate:.2f}%"],
             ["Constraint Type", constraint_label],
         ]
         
@@ -846,7 +760,7 @@ class SamplingMolecularMetrics(nn.Module):
             ["Total Molecules Generated", f"{total_molecules:,}"],
             ["Valid Molecules (RDKit)", f"{valid_molecules:,} ({validity_rate:.1f}%)"],
             ["Invalid Molecules", f"{total_molecules - valid_molecules:,} ({(total_molecules - valid_molecules) / total_molecules * 100:.1f}%)"],
-            ["Connectivity Issues", f"{connectivity_issues_rate:.1f}%"],
+            ["Disconnected Molecules", f"{disconnected_rate:.1f}%"],
             ["Average Molecular Weight", f"{self._calculate_avg_molecular_weight(all_generated_smiles):.1f}"],
             ["Average Number of Atoms", f"{self._calculate_avg_atom_count(all_generated_smiles):.1f}"],
             ["Average Number of Bonds", f"{self._calculate_avg_bond_count(all_generated_smiles):.1f}"],
@@ -859,9 +773,9 @@ class SamplingMolecularMetrics(nn.Module):
         
         # Create detailed quality metrics table (VALID molecules only)
         valid_molecules_quality_data = [
-            ["Valid Molecules (RDKit)", f"{valid_molecules:,} ({validity_rate:.1f}%)"],
-            ["Unique Molecules", f"{unique_molecules:,} ({uniqueness_rate:.1f}%)"],
-            ["Novel Molecules", f"{novel_molecules:,} ({novelty_rate:.1f}%)"],
+            ["Valid Molecules (RDKit)", f"{valid_molecules:,} ({validity_rate:.2f}%)"],
+            ["Unique Molecules", f"{unique_molecules:,} ({uniqueness_rate:.2f}%)"],
+            ["Novel Molecules", f"{novel_molecules:,} ({novelty_rate:.2f}%)"],
             ["FCD Score", f"{fcd_score:.3f}"],
             ["Average Molecular Weight", f"{self._calculate_avg_molecular_weight(valid_smiles):.1f}"],
             ["Average Number of Atoms", f"{self._calculate_avg_atom_count(valid_smiles):.1f}"],
@@ -898,43 +812,13 @@ class SamplingMolecularMetrics(nn.Module):
         gap_table += tabulate(gap_data, headers=["Metric", "Value"], 
                              tablefmt="grid", numalign="left")
         
-        # Create chemical validation metrics table
-        # Get chemical validation metrics from computed_metrics if available
-        chemical_validation_data = []
-        if computed_metrics is not None:
-            key = "test_sampling" if self.test else "val_sampling"
-            structurally_valid_rate = computed_metrics.get(f"{key}/post_gen/structurally_valid", 0.0) * 100
-            chemically_valid_rate = computed_metrics.get(f"{key}/post_gen/chemically_valid", 0.0) * 100
-            rdkit_valid_rate = computed_metrics.get(f"{key}/post_gen/rdkit_valid", 0.0) * 100
-            valency_violations_rate = computed_metrics.get(f"{key}/post_gen/valency_violations", 0.0) * 100
-            connectivity_issues_rate = computed_metrics.get(f"{key}/post_gen/connectivity_issues", 0.0) * 100
-        else:
-            # Calculate chemical validation metrics if not provided
-            chemical_metrics = self.compute_chemical_validation_metrics(all_generated_smiles)
-            key = "test_sampling" if self.test else "val_sampling"
-            structurally_valid_rate = chemical_metrics.get(f"{key}/post_gen/structurally_valid", 0.0) * 100
-            chemically_valid_rate = chemical_metrics.get(f"{key}/post_gen/chemically_valid", 0.0) * 100
-            rdkit_valid_rate = chemical_metrics.get(f"{key}/post_gen/rdkit_valid", 0.0) * 100
-            valency_violations_rate = chemical_metrics.get(f"{key}/post_gen/valency_violations", 0.0) * 100
-            connectivity_issues_rate = chemical_metrics.get(f"{key}/post_gen/connectivity_issues", 0.0) * 100
-        
-        chemical_validation_data = [
-            ["Structurally Valid", f"{structurally_valid_rate:.1f}%", "Basic graph structure (atoms > 0, bonds ≥ 0)"],
-            ["Chemically Valid", f"{chemically_valid_rate:.1f}%", "Passes valency, connectivity, and atom type checks"],
-            ["RDKit Valid", f"{rdkit_valid_rate:.1f}%", "Can be parsed by RDKit library"],
-            ["Valency Violations", f"{valency_violations_rate:.1f}%", "Atoms with incorrect valence"],
-            ["Connectivity Issues", f"{connectivity_issues_rate:.1f}%", "Molecules with multiple disconnected components"],
-        ]
-        
-        chemical_validation_table = "\n\n🧪 CHEMICAL VALIDATION METRICS (ALL Generated Molecules):\n"
-        chemical_validation_table += tabulate(chemical_validation_data, headers=["Metric", "Rate", "Description"], 
-                                           tablefmt="grid", numalign="left")
+        # No chemical validation table in initial commit - removed to match exactly
         
         # Combine all tables
         full_report = f"""🎯 COMPREHENSIVE CONSTRAINT SATISFACTION ANALYSIS
 {'='*80}
 
-{metrics_table}{structural_verification_table}{chemical_verification_table}{structural_distribution_table}{chemical_distribution_table}{structural_ring_length_table}{chemical_ring_length_table}{all_molecules_quality_table}{valid_molecules_quality_table}{chemical_validation_table}{gap_table}{timing_table}
+{metrics_table}{structural_verification_table}{chemical_verification_table}{structural_distribution_table}{chemical_distribution_table}{structural_ring_length_table}{chemical_ring_length_table}{all_molecules_quality_table}{valid_molecules_quality_table}{gap_table}{timing_table}
 
 {'='*80}
 """
@@ -959,7 +843,7 @@ class SamplingMolecularMetrics(nn.Module):
         total_molecules = len(all_generated_smiles)
         valid_molecules = len(valid_smiles)
         
-        # Calculate validity rate (based on total generated)
+        # Calculate validity rate (based on total generated) - will be overridden by wandb value if available
         validity_rate = (valid_molecules / total_molecules * 100) if total_molecules > 0 else 0.0
         
         # Use computed metrics from the original wandb-submitting calculations
@@ -969,22 +853,24 @@ class SamplingMolecularMetrics(nn.Module):
             uniqueness_rate = computed_metrics.get(f"{key}/Uniqueness", 0.0)
             novelty_rate = computed_metrics.get(f"{key}/Novelty", 0.0)
             fcd_score = computed_metrics.get(f"{key}/fcd score", 0.0)
-            # Calculate unique and novel molecules for display (based on valid molecules only)
+            validity_rate = computed_metrics.get(f"{key}/Validity", 0.0)
+            
+            # Calculate molecule counts for display (based on valid molecules only)
             if len(valid_smiles) > 0:
                 unique_smiles = set(valid_smiles)
                 unique_molecules = len(unique_smiles)
-                uniqueness_rate = (unique_molecules / len(valid_smiles) * 100)  # Based on valid molecules
+                # Use exact uniqueness rate from wandb, calculate molecule count
+                unique_molecules = int((uniqueness_rate / 100) * len(valid_smiles))
             else:
-                uniqueness_rate = 0.0
                 unique_molecules = 0
             
-            # Calculate novelty (based on valid molecules only, same as evaluate method)
+            # Calculate novel molecules count (based on valid molecules only, same as evaluate method)
             if self.train_smiles is not None and len(unique_smiles) > 0:
                 novel_smiles = [s for s in unique_smiles if s not in self.train_smiles]
                 novel_molecules = len(novel_smiles)
-                novelty_rate = (len(novel_smiles) / len(unique_smiles) * 100)  # Based on unique valid molecules
+                # Use exact novelty rate from wandb, calculate molecule count
+                novel_molecules = int((novelty_rate / 100) * unique_molecules)
             else:
-                novelty_rate = 0.0
                 novel_molecules = 0
         else:
             # Fallback to original calculation if computed_metrics not provided
@@ -1012,17 +898,22 @@ class SamplingMolecularMetrics(nn.Module):
         # CREATE COMPREHENSIVE REPORT
         # ============================================================================
         
-        # Get connectivity issues rate from chemical validation
+        # Get disconnected molecules rate from the original Disconnected metric (same as initial commit)
         key = "test_sampling" if self.test else "val_sampling"
-        connectivity_issues_rate = computed_metrics.get(f"{key}/post_gen/connectivity_issues", 0.0) * 100 if computed_metrics is not None else 0.0
+        if computed_metrics is not None:
+            # Use the original Disconnected metric from sampling_metrics.py
+            disconnected_rate = computed_metrics.get(f"{key}/Disconnected", 0.0)
+        else:
+            # Fallback to 0.0 if computed_metrics not available
+            disconnected_rate = 0.0
         
         # Create comprehensive quality metrics table (ALL molecules)
         # Note: Novelty and uniqueness are only calculated for valid molecules
         all_molecules_quality_data = [
             ["Total Molecules Generated", f"{total_molecules:,}"],
-            ["Valid Molecules (RDKit)", f"{valid_molecules:,} ({validity_rate:.1f}%)"],
-            ["Invalid Molecules", f"{total_molecules - valid_molecules:,} ({(total_molecules - valid_molecules) / total_molecules * 100:.1f}%)"],
-            ["Connectivity Issues", f"{connectivity_issues_rate:.1f}%"],
+            ["Valid Molecules (RDKit)", f"{valid_molecules:,} ({validity_rate:.2f}%)"],
+            ["Invalid Molecules", f"{total_molecules - valid_molecules:,} ({(total_molecules - valid_molecules) / total_molecules * 100:.2f}%)"],
+            ["Disconnected Molecules", f"{disconnected_rate:.2f}%"],
             ["Average Molecular Weight", f"{self._calculate_avg_molecular_weight(all_generated_smiles):.1f}"],
             ["Average Number of Atoms", f"{self._calculate_avg_atom_count(all_generated_smiles):.1f}"],
             ["Average Number of Bonds", f"{self._calculate_avg_bond_count(all_generated_smiles):.1f}"],
@@ -1031,9 +922,10 @@ class SamplingMolecularMetrics(nn.Module):
         
         # Generate detailed quality metrics table (VALID molecules only)
         valid_molecules_quality_data = [
-            ["Valid Molecules (RDKit)", f"{valid_molecules:,} ({validity_rate:.1f}%)"],
-            ["Unique Molecules", f"{unique_molecules:,} ({uniqueness_rate:.1f}%)"],
-            ["Novel Molecules", f"{novel_molecules:,} ({novelty_rate:.1f}%)"],
+            ["Valid Molecules (RDKit)", f"{valid_molecules:,} ({validity_rate:.2f}%)"],
+            ["Disconnected Molecules", f"{disconnected_rate:.2f}%"],
+            ["Unique Molecules", f"{unique_molecules:,} ({uniqueness_rate:.2f}%)"],
+            ["Novel Molecules", f"{novel_molecules:,} ({novelty_rate:.2f}%)"],
             ["FCD Score", f"{fcd_score:.3f}"],
             ["Average Molecular Weight", f"{self._calculate_avg_molecular_weight(valid_smiles):.1f}"],
             ["Average Number of Atoms", f"{self._calculate_avg_atom_count(valid_smiles):.1f}"],
@@ -1149,37 +1041,7 @@ class SamplingMolecularMetrics(nn.Module):
         full_report += tabulate(chemical_constraint_data, headers="keys", tablefmt="grid", numalign="left")
         full_report += "\n\n"
         
-        # Chemical validation metrics table
-        # Get chemical validation metrics from computed_metrics if available
-        chemical_validation_data = []
-        if computed_metrics is not None:
-            key = "test_sampling" if self.test else "val_sampling"
-            structurally_valid_rate = computed_metrics.get(f"{key}/post_gen/structurally_valid", 0.0) * 100
-            chemically_valid_rate = computed_metrics.get(f"{key}/post_gen/chemically_valid", 0.0) * 100
-            rdkit_valid_rate = computed_metrics.get(f"{key}/post_gen/rdkit_valid", 0.0) * 100
-            valency_violations_rate = computed_metrics.get(f"{key}/post_gen/valency_violations", 0.0) * 100
-            connectivity_issues_rate = computed_metrics.get(f"{key}/post_gen/connectivity_issues", 0.0) * 100
-        else:
-            # Calculate chemical validation metrics if not provided
-            chemical_metrics = self.compute_chemical_validation_metrics(all_generated_smiles)
-            key = "test_sampling" if self.test else "val_sampling"
-            structurally_valid_rate = chemical_metrics.get(f"{key}/post_gen/structurally_valid", 0.0) * 100
-            chemically_valid_rate = chemical_metrics.get(f"{key}/post_gen/chemically_valid", 0.0) * 100
-            rdkit_valid_rate = chemical_metrics.get(f"{key}/post_gen/rdkit_valid", 0.0) * 100
-            valency_violations_rate = chemical_metrics.get(f"{key}/post_gen/valency_violations", 0.0) * 100
-            connectivity_issues_rate = chemical_metrics.get(f"{key}/post_gen/connectivity_issues", 0.0) * 100
-        
-        chemical_validation_data = [
-            ["Structurally Valid", f"{structurally_valid_rate:.1f}%", "Basic graph structure (atoms > 0, bonds ≥ 0)"],
-            ["Chemically Valid", f"{chemically_valid_rate:.1f}%", "Passes valency, connectivity, and atom type checks"],
-            ["RDKit Valid", f"{rdkit_valid_rate:.1f}%", "Can be parsed by RDKit library"],
-            ["Valency Violations", f"{valency_violations_rate:.1f}%", "Atoms with incorrect valence"],
-            ["Connectivity Issues", f"{connectivity_issues_rate:.1f}%", "Molecules with multiple disconnected components"],
-        ]
-        
-        full_report += "🧪 CHEMICAL VALIDATION METRICS (ALL Generated Molecules)\n"
-        full_report += tabulate(chemical_validation_data, headers=["Metric", "Rate", "Description"], tablefmt="grid", numalign="left")
-        full_report += "\n\n"
+        # No chemical validation metrics in initial commit - removed to match exactly
         
         # Gap analysis table
         full_report += "🔍 GAP ANALYSIS (Structural vs Chemical Satisfaction)\n"
@@ -1801,7 +1663,7 @@ def analyze_all_molecules_constraints(all_generated_smiles: List[str], constrain
                     # Planarity analysis
                     try:
                         # Generate 3D conformer for planarity check
-                        AllChem.EmbedMolecule(mol, randomSeed=42)
+                        AllChem.EmbedMolecule(mol)
                         AllChem.MMFFOptimizeMolecule(mol)
                         conf = mol.GetConformer()
                         coords = conf.GetPositions()

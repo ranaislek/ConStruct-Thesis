@@ -12,7 +12,7 @@ import torch
 
 from omegaconf import DictConfig
 from pytorch_lightning import Trainer
-from pytorch_lightning.callbacks import ModelCheckpoint
+from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
 from lightning_fabric.utilities.warnings import PossibleUserWarning
 
 from ConStruct import utils
@@ -126,6 +126,22 @@ def main(cfg: DictConfig):
             )
             callbacks.append(last_ckpt_save)
             callbacks.append(checkpoint_callback)
+
+        # Add early stopping callback if enabled
+        if cfg.train.early_stopping.enable and not cfg.general.name == "debug":
+            early_stopping_callback = EarlyStopping(
+                monitor=cfg.train.early_stopping.monitor,
+                patience=cfg.train.early_stopping.patience,
+                min_delta=cfg.train.early_stopping.min_delta,
+                mode=cfg.train.early_stopping.mode,
+                check_finite=cfg.train.early_stopping.check_finite,
+                stopping_threshold=cfg.train.early_stopping.stopping_threshold,
+                divergence_threshold=cfg.train.early_stopping.divergence_threshold,
+                check_on_train_epoch_end=cfg.train.early_stopping.check_on_train_epoch_end,
+                verbose=True  # Print early stopping messages
+            )
+            callbacks.append(early_stopping_callback)
+            print(f"[INFO] Early stopping enabled: monitoring '{cfg.train.early_stopping.monitor}' with patience {cfg.train.early_stopping.patience}")
 
         is_debug_run = cfg.general.name == "debug"
         if is_debug_run:
