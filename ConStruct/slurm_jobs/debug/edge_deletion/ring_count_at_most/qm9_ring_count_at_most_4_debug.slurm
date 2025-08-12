@@ -7,7 +7,7 @@
 #SBATCH --gres=gpu:1
 #SBATCH --exclude=vgpu5-0
 #SBATCH --time=16:00:00
-#SBATCH --partition=debug
+#SBATCH --partition=allgroups,testing
 
 # Load environment
 cd /home/rislek/ConStruct-Thesis
