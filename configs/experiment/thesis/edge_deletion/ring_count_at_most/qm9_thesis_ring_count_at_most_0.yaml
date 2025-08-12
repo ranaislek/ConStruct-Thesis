@@ -1,20 +1,16 @@
-# @package _global_
 defaults:
-  - override /dataset: qm9     # Use QM9 dataset instead of default planar
+  - override /dataset: qm9
 
 general:
-  name: 'qm9_thesis_ring_count_at_most_0'  # Override name for this specific experiment
-
-# Training config is inherited from train_default (includes early stopping with 15 epochs patience)
-# General config is inherited from general_default (thesis-optimized settings)
+  name: 'qm9_thesis_ring_count_at_most_0'
 
 model:
-  diffusion_steps: 500    # Stable trade-off between speed and quality; increase if resources allow
-  n_layers: 4             # Increased layers for better molecular representation
-  hidden_mlp_dims:
-    X: 128
-    E: 128
-    y: 128
+  transition: absorbing_edges
+  rev_proj: ring_count_at_most
+  max_rings: 0
+  diffusion_steps: 500
+  n_layers: 4
+  hidden_mlp_dims: { X: 128, E: 128, y: 128 }
   hidden_dims:
     dx: 128
     de: 128
@@ -23,10 +19,5 @@ model:
     dim_ffX: 256
     dim_ffE: 256
     dim_ffy: 256
-
-  # Edge-deletion constraint settings aligned to QM9 dataset statistics:
-  max_rings: 0            # No rings allowed (acyclic molecules only)
-  rev_proj: ring_count_at_most  # Edge-deletion projector for "at most" constraints
-  transition: absorbing_edges       # Edge-deletion transition
-
-# Dataset config inherited from qm9.yaml (includes all QM9-specific settings)
+  # If the code supports incremental projectors; otherwise omit without error:
+  use_incremental: true

@@ -1,20 +1,15 @@
-# @package _global_
 defaults:
-  - override /dataset: qm9     # Use QM9 dataset instead of default planar
+  - override /dataset: qm9
 
 general:
-  name: qm9_thesis_no_constraint  # Override name for this specific experiment
-
-# Training config is inherited from thesis_train (includes early stopping)
-# No need to override here since thesis_train has all the right settings
+  name: 'qm9_thesis_no_constraint'
 
 model:
+  transition: absorbing_edges
+  rev_proj: null     # explicit null; if schema uses "", use null instead
   diffusion_steps: 500
-  n_layers: 4             # Increased layers for better molecular representation
-  hidden_mlp_dims:
-    X: 128
-    E: 128
-    y: 128
+  n_layers: 4
+  hidden_mlp_dims: { X: 128, E: 128, y: 128 }
   hidden_dims:
     dx: 128
     de: 128
@@ -23,7 +18,3 @@ model:
     dim_ffX: 256
     dim_ffE: 256
     dim_ffy: 256
-  # No constraint settings - explicitly set to null for no constraint
-  rev_proj: null          # No constraint projector (null, not False)
-  transition: absorbing_edges
-  # ConStruct philosophy: Post-generation validation

@@ -16,8 +16,8 @@ seed: 0
 early_stopping:
   enable: true                    # Enable early stopping for efficient training
   monitor: "val/epoch_NLL"        # Monitor validation negative log-likelihood (validation loss)
-  patience: 30                    # More conservative for complex QM9 models
-  min_delta: 0.001               # Minimum change to qualify as an improvement
+  patience: 10                    # ~50 epochs with val every 5
+  min_delta: 0.003               # Minimum change to qualify as an improvement
   mode: "min"                    # Lower NLL is better
   check_finite: true             # Stop training if metric becomes NaN or infinite
   stopping_threshold: null       # No specific threshold

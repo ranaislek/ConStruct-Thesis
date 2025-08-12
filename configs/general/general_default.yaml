@@ -6,20 +6,32 @@ wandb: 'online'             # online | offline | disabled
 resume: null            # If resume, path to ckpt file from outputs directory in main directory
 test_only: null         # Use absolute path
 
-check_val_every_n_epochs: 20      # More frequent validation for better monitoring
-sample_every_val: 5                # More frequent sampling for evaluation
+check_val_every_n_epochs: 5        # was 20
+sample_every_val: 3                # sampling every 15 epochs (5*3)
 val_check_interval: null
-samples_to_generate: 1000          # More samples for better evaluation (thesis setting)
-samples_to_save: 200               # Save more samples for analysis (thesis setting)
+samples_to_generate: 200           # was 1000
+samples_to_save: 50                # was 200
 chains_to_save: 10                 # Save more chains for analysis (thesis setting)
 log_every_steps: 50
-number_chain_steps: 200            # Longer chains for better visualization (thesis setting)
+number_chain_steps: 100            # was 200
 
 final_model_samples_to_generate: 2000  # Comprehensive final evaluation (thesis setting)
 final_model_samples_to_save: 500       # Save more final samples (thesis setting)
 final_model_chains_to_save: 100        # More final chains (thesis setting)
 
-evaluate_all_checkpoints: False
+evaluate_all_checkpoints: false
+
+# Training system knobs
+n_epochs: 1200                  # budget cap, ES will stop earlier
+batch_size: 128
+lr: 1e-4
+ema_decay: 0.999
+clip_grad: 1.0
+num_workers: 4                  # matches SLURM cpus-per-task
+optimizer: adamw
+weight_decay: 1e-12
+seed: 0
+progress_bar: false
 
 memory_summary: False
 faster_sampling: 1                              # At each sampling step, set s=t-faster sampling (1 for normal sampling) # TODO: not implemented yet
