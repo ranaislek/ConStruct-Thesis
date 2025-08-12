@@ -1136,6 +1136,11 @@ class SpectreSamplingMetrics(nn.Module):
     def reset(self):
         pass
 
+    def record_projection_time(self, projection_time: float):
+        """Record projection time for timing metrics."""
+        # This is a no-op for non-molecular metrics
+        pass
+
 
 class Comm20SamplingMetrics(SpectreSamplingMetrics):
     def __init__(self, train_dataloader, val_dataloader):

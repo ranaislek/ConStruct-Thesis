@@ -672,9 +672,26 @@ class RingCountAtMostProjector(AbstractProjector):
                             # Allow the edge
                             nx_graph.add_edge(u, v)
                             self.current_ring_counts[graph_idx] += 1
+                            # Validate that the graph still satisfies constraint
+                            if not self.valid_graph_fn(nx_graph):
+                                # Remove the edge if it violates constraint
+                                nx_graph.remove_edge(u, v)
+                                self.current_ring_counts[graph_idx] -= 1
+                                z_s.E[graph_idx, u, v] = F.one_hot(torch.tensor(0), num_classes=z_s.E.shape[-1])
+                                z_s.E[graph_idx, v, u] = F.one_hot(torch.tensor(0), num_classes=z_s.E.shape[-1])
+                                edges_blocked += 1
+                                self.total_blocked += 1
                     else:
                         # No path exists, so no new ring created
                         nx_graph.add_edge(u, v)
+                        # Validate that the graph still satisfies constraint
+                        if not self.valid_graph_fn(nx_graph):
+                            # Remove the edge if it violates constraint
+                            nx_graph.remove_edge(u, v)
+                            z_s.E[graph_idx, u, v] = F.one_hot(torch.tensor(0), num_classes=z_s.E.shape[-1])
+                            z_s.E[graph_idx, v, u] = F.one_hot(torch.tensor(0), num_classes=z_s.E.shape[-1])
+                            edges_blocked += 1
+                            self.total_blocked += 1
                 else:
                     # Baseline mode: add edge and check if valid
                     nx_graph.add_edge(u, v)
@@ -818,7 +835,14 @@ class RingLengthAtMostProjector(AbstractProjector):
                     else:
                         # Allow the edge
                         nx_graph.add_edge(u, v)
-                        # Edge allowed
+                        # Validate that the graph still satisfies constraint
+                        if not self.valid_graph_fn(nx_graph):
+                            # Remove the edge if it violates constraint
+                            nx_graph.remove_edge(u, v)
+                            z_s.E[graph_idx, u, v] = F.one_hot(torch.tensor(0), num_classes=z_s.E.shape[-1])
+                            z_s.E[graph_idx, v, u] = F.one_hot(torch.tensor(0), num_classes=z_s.E.shape[-1])
+                            edges_blocked += 1
+                        # Edge allowed (if validation passed)
                 else:
                     # Baseline mode: add edge and check if valid
                     nx_graph.add_edge(u, v)

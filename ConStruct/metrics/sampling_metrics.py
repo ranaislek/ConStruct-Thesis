@@ -49,6 +49,7 @@ class SamplingMetrics(nn.Module):
         # Add ring constraint metrics (structural)
         self.mean_cycle_rank_satisfaction = MeanMetric()
         self.mean_max_basis_cycle_length_satisfaction = MeanMetric()
+        self.mean_ring_length_satisfaction = MeanMetric()
         
         self.deg_histogram = DegreeHistogramMetric(self.stat)
 
@@ -133,6 +134,7 @@ class SamplingMetrics(nn.Module):
             self.mean_lobster_components,
             self.mean_cycle_rank_satisfaction,
             self.mean_max_basis_cycle_length_satisfaction,
+            self.mean_ring_length_satisfaction,
             self.deg_histogram,
         ]:
             metric.reset()
@@ -142,6 +144,11 @@ class SamplingMetrics(nn.Module):
         """Record sampling time for timing metrics."""
         if hasattr(self.domain_metrics, 'record_sampling_time'):
             self.domain_metrics.record_sampling_time(sampling_time)
+
+    def record_projection_time(self, projection_time: float):
+        """Record projection time for timing metrics."""
+        if hasattr(self.domain_metrics, 'record_projection_time'):
+            self.domain_metrics.record_projection_time(projection_time)
 
     def compute_all_metrics(self, generated_graphs: list, current_epoch, local_rank):
         """Compare statistics of the generated data with statistics of the val/test set"""
@@ -195,6 +202,7 @@ class SamplingMetrics(nn.Module):
                 max_basis_cycle_length = getattr(self.cfg.model, 'max_ring_length', 6)
                 max_basis_cycle_length_ratios = max_basis_cycle_length_satisfaction_ratio(generated_graphs, max_basis_cycle_length).to(device)
                 self.mean_max_basis_cycle_length_satisfaction(max_basis_cycle_length_ratios)
+                self.mean_ring_length_satisfaction(max_basis_cycle_length_ratios)  # Also track as ring_length_satisfaction
                 ring_constraint_info = ('ring_length_at_most', max_basis_cycle_length)
 
         # Degree distributions
@@ -229,12 +237,16 @@ class SamplingMetrics(nn.Module):
             constraint_type, constraint_value = ring_constraint_info
             if constraint_type == 'ring_count_at_most':
                 # Log both old and new keys for backward compatibility
-                to_log[f"{key}/ring_count_satisfaction"] = self.mean_cycle_rank_satisfaction.compute().item()
-                to_log[f"{key}/cycle_rank_satisfaction"] = self.mean_cycle_rank_satisfaction.compute().item()
+                satisfaction_rate = self.mean_cycle_rank_satisfaction.compute().item()
+                to_log[f"{key}/ring_count_satisfaction"] = satisfaction_rate
+                to_log[f"{key}/cycle_rank_satisfaction"] = satisfaction_rate
+                to_log[f"{key}/ring_count_violation"] = 1 - satisfaction_rate
             elif constraint_type == 'ring_length_at_most':
                 # Log both old and new keys for backward compatibility
-                to_log[f"{key}/ring_length_satisfaction"] = self.mean_max_basis_cycle_length_satisfaction.compute().item()
-                to_log[f"{key}/max_basis_cycle_length_satisfaction"] = self.mean_max_basis_cycle_length_satisfaction.compute().item()
+                satisfaction_rate = self.mean_max_basis_cycle_length_satisfaction.compute().item()
+                to_log[f"{key}/ring_length_satisfaction"] = satisfaction_rate
+                to_log[f"{key}/max_basis_cycle_length_satisfaction"] = satisfaction_rate
+                to_log[f"{key}/ring_length_violation"] = 1 - satisfaction_rate
 
         if self.domain_metrics is not None:
             # Compute domain metrics normally
@@ -471,8 +483,8 @@ def cycle_rank_satisfaction_ratio(generated_graphs: List[PlaceHolder], max_cycle
                 cycle_rank = len(cycles)
                 satisfies_constraint = int(cycle_rank <= max_cycle_rank)
             except Exception:
-                # Fallback if cycle basis calculation fails
-                satisfies_constraint = 1
+                # Conservative fallback: treat failure as not satisfied
+                satisfies_constraint = 0
             satisfaction_ratios.append(satisfies_constraint)
     
     satisfaction_ratios = torch.tensor(
@@ -510,8 +522,8 @@ def max_basis_cycle_length_satisfaction_ratio(generated_graphs: List[PlaceHolder
                     max_cycle_length = 0
                 satisfies_constraint = int(max_cycle_length <= max_basis_cycle_length)
             except Exception:
-                # Fallback if cycle basis calculation fails
-                satisfies_constraint = 1
+                # Conservative fallback: treat failure as not satisfied
+                satisfies_constraint = 0
             satisfaction_ratios.append(satisfies_constraint)
     
     satisfaction_ratios = torch.tensor(

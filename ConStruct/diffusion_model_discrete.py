@@ -681,6 +681,9 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
     ):
         # Start timing for this batch
         batch_start_time = time.time()
+        
+        # Reset projection timing for this batch
+        self.total_projection_time = 0.0
         """
         :param batch_id: int
         :param n_nodes: list of int containing the number of nodes to sample for each graph
@@ -803,6 +806,12 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
                 projection_time = time.time() - projection_start_time
                 total_projection_time += projection_time
                 
+                # Record projection timing in metrics if available
+                if test and hasattr(self, 'test_sampling_metrics'):
+                    self.test_sampling_metrics.record_projection_time(projection_time)
+                elif not test and hasattr(self, 'val_sampling_metrics'):
+                    self.val_sampling_metrics.record_projection_time(projection_time)
+                
                 # Count rings after projection and check validity
                 if hasattr(rev_projector, 'max_rings'):
                     total_rings_after = 0
@@ -822,6 +831,25 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
                         if not graph_valid:
                             logger.error(f"❌ CONSTRAINT VIOLATION at t=0: {total_rings_after} rings > {rev_projector.max_rings}")
                             raise AssertionError(f"Ring constraint violated at t=0: {total_rings_after} rings > {rev_projector.max_rings}")
+                
+                # Check ring length constraint after projection and check validity
+                elif hasattr(rev_projector, 'max_ring_length'):
+                    max_ring_length_after = 0
+                    graph_valid = True
+                    for graph_idx, nx_graph in enumerate(rev_projector.nx_graphs_list):
+                        cycles = nx.cycle_basis(nx_graph)
+                        if cycles:
+                            max_cycle_length = max(len(cycle) for cycle in cycles)
+                            max_ring_length_after = max(max_ring_length_after, max_cycle_length)
+                            if max_cycle_length > rev_projector.max_ring_length:
+                                graph_valid = False
+                                logger.warning(f"⚠️ Graph {graph_idx} has max cycle length {max_cycle_length} > {rev_projector.max_ring_length} at timestep {s_int}")
+                    
+                    # Assert constraint at t == 0
+                    if s_int == 0:
+                        if not graph_valid:
+                            logger.error(f"❌ RING LENGTH CONSTRAINT VIOLATION at t=0: max cycle length {max_ring_length_after} > {rev_projector.max_ring_length}")
+                            raise AssertionError(f"Ring length constraint violated at t=0: max cycle length {max_ring_length_after} > {rev_projector.max_ring_length}")
                 
                 # Planarity-specific validation
                 elif self.cfg.model.rev_proj == "planar":
@@ -1040,8 +1068,10 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
         # Record timing in sampling metrics if available
         if test and hasattr(self, 'test_sampling_metrics'):
             self.test_sampling_metrics.record_sampling_time(batch_time)
+            # Projection timing is now recorded during each projection step
         elif not test and hasattr(self, 'val_sampling_metrics'):
             self.val_sampling_metrics.record_sampling_time(batch_time)
+            # Projection timing is now recorded during each projection step
 
         return final_batch
 

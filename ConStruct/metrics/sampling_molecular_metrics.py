@@ -1,6 +1,6 @@
 import os
 from collections import Counter
-from typing import List, Dict
+from typing import List, Dict, Tuple
 from concurrent.futures import ThreadPoolExecutor, TimeoutError
 
 from rdkit import Chem, RDLogger
@@ -174,6 +174,15 @@ class SamplingMolecularMetrics(nn.Module):
         self.total_sampling_time = 0.0
         self.avg_sampling_time = 0.0
         self.num_batches = 0
+        
+        # Projection timing tracking
+        self.total_projection_time = 0.0
+        self.projection_times = []  # List to store individual projection times
+        self.projection_calls = 0
+        
+        # Wall clock timing
+        import time
+        self.start_time = time.time()
 
         self.atom_stable = MeanMetric()
         self.mol_stable = MeanMetric()
@@ -341,38 +350,162 @@ class SamplingMolecularMetrics(nn.Module):
             # List of constraint types that are enforced
             enforced_types = ["ring_count_at_most", "ring_count_at_least", "ring_length_at_most", "ring_length_at_least", "planar", "tree", "lobster"]
             boolean_constraints = ["planar", "tree", "lobster"]
-            if constraint_type in enforced_types and (constraint_value is not None or constraint_type in boolean_constraints):
-                # Constraint is enforced, only print enforcement check
-                check_ring_constraints(all_generated_smiles, constraint_type, constraint_value, logger=lambda x: None)
-                
-                # Generate and print table report
-                print("\n" + "="*80)
-                print("🎯 TABLE-BASED CONSTRAINT ANALYSIS")
-                print("="*80)
-                # Use computed_metrics if available, otherwise fall back to local metrics
-                if computed_metrics is not None:
-                    # Merge so locally computed keys (like FCD) override or complement global ones (like Disconnected)
-                    metrics_to_pass = {**computed_metrics, **metrics}
-                else:
-                    metrics_to_pass = metrics
-                table_report = self.generate_table_report(constraint_type, constraint_value, all_generated_smiles, generated_graphs, metrics_to_pass)
-                print(table_report)
-                print("="*80)
+            # Use computed_metrics if available, otherwise fall back to local metrics
+            if computed_metrics is not None:
+                # Merge so locally computed keys (like FCD) override or complement global ones (like Disconnected)
+                metrics_to_pass = {**computed_metrics, **metrics}
             else:
-                # No constraint enforced, show comprehensive analysis for all constraint types
+                metrics_to_pass = metrics
+            
+            # Generate new structured tables for both val and test splits
+            from ConStruct.reporting.report_builder import (
+                detect_constraint_kind, constraint_caption,
+                collect_core, collect_structural,
+                chemistry_from_smiles, collect_chemistry, collect_timing,
+                render_table_md, render_table_console, core_definitions_md
+            )
+            
+            split = "test" if self.test else "val"
+            N_total = len(all_generated_smiles)
+            
+            # meta for titles
+            experiment_name = getattr(self.cfg.general, 'name', 'experiment')
+            dataset_name = "QM9"  # hardcoded for now, could be made configurable
+            diffusion_steps = getattr(self.cfg.model, 'diffusion_steps', None)
+            eval_meta = {"sampler": "reverse"}  # or infer if you have faster sampling flag
+            
+            # constraint caption
+            kind = detect_constraint_kind(metrics_to_pass, split)
+            constraint_meta = {
+                "max_rings": getattr(self.cfg.model, 'max_rings', None),
+                "max_ring_length": getattr(self.cfg.model, 'max_ring_length', None)
+            }
+            constraint_str = constraint_caption(kind, constraint_meta)
+            
+            # Collect ring count and ring length distributions for detailed structural analysis
+            ring_counts_all, ring_lengths_all = self.collect_ring_distributions(generated_graphs)
+            
+            # core/structural metrics (removed alignment)
+            core_rows = collect_core(split, metrics_to_pass, N_total)
+            struct_rows = collect_structural(split, metrics_to_pass, N_total, ring_counts_all, ring_lengths_all,
+                                           max_rings=getattr(self.cfg.model, 'max_rings', None),
+                                           max_ring_length=getattr(self.cfg.model, 'max_ring_length', None))
+            
+            # Collect actual timing data with proper defaults
+            timing_dict = {
+                "sampling_sec": self.total_sampling_time if self.total_sampling_time > 0 else None,  # total wall seconds spent in sampling for this split
+                "sampling_batches": self.num_batches if self.num_batches > 0 else None,  # number of sampling batches used
+                "proj_ms_mean": None,  # mean ms per projector call
+                "proj_share_pct": None,  # % of sampling time spent in projector
+                "epochs_to_best": None,  # int if available
+                "early_stop_epoch": None,  # int if available
+                "wall_clock_hhmm": None,  # overall run wall clock as "HH:MM" if available
+            }
+            
+            # Get actual projection timing statistics
+            proj_mean_ms, proj_share_pct = self.get_projection_stats()
+            if proj_mean_ms is not None and proj_mean_ms > 0:
+                timing_dict["proj_ms_mean"] = proj_mean_ms
+            if proj_share_pct is not None and proj_share_pct > 0:
+                timing_dict["proj_share_pct"] = proj_share_pct
+            
+            # Try to get epoch information from the model if available
+            if hasattr(self, 'cfg') and self.cfg and hasattr(self.cfg.model, 'max_epochs'):
+                timing_dict["epochs_to_best"] = self.cfg.model.max_epochs
+            
+            # Try to get early stopping information from the model if available
+            if hasattr(self, 'model') and hasattr(self.model, 'best_val_nll'):
+                # This indicates the model has early stopping tracking
+                timing_dict["early_stop_epoch"] = "ES enabled"
+            
+            # Try to get wall clock time if available
+            import time
+            if hasattr(self, 'start_time'):
+                elapsed_time = time.time() - self.start_time
+                hours = int(elapsed_time // 3600)
+                minutes = int((elapsed_time % 3600) // 60)
+                timing_dict["wall_clock_hhmm"] = f"{hours:02d}:{minutes:02d}"
+            
+            # Check if this is a no-constraint experiment and set appropriate defaults
+            if hasattr(self, 'cfg') and self.cfg and (getattr(self.cfg.model, 'rev_proj', None) is None or getattr(self.cfg.model, 'rev_proj', '') == ''):
+                # No constraint experiment - set projection metrics to indicate no projection
+                timing_dict["proj_ms_mean"] = 0.0  # No projection time
+                timing_dict["proj_share_pct"] = 0.0  # No projection share
+            
+            # Collect device information
+            import torch
+            device_meta = {
+                "gpu": torch.cuda.get_device_name(0) if torch.cuda.is_available() else "CPU",
+                "torch": torch.__version__,
+                "cuda": torch.version.cuda if hasattr(torch.version, 'cuda') else "NA"
+            }
+            
+            # Timing rows (appendix)
+            timing_rows = collect_timing(timing_dict, N_total, device_meta)
+            
+            # ALSO PRINT TABLES TO CONSOLE FOR IMMEDIATE VISIBILITY
+            
+            print("\n" + "="*80)
+            print("📊 CONSTRAINT SATISFACTION RESULTS")
+            print("="*80)
+            
+            # Add definitions with bullet points
+            print("\n📋 **Definitions**:")
+            print("• **FCD** — Fréchet ChemNet Distance computed on valid canonical SMILES; lower is better")
+            print("• **Unique/Novel/Valid** — proportions computed over all generated molecules (not only valid)")
+            print("• **Disconnected** — share of graphs with >1 connected component")
+            print("• **Property satisfied** — share of generated graphs meeting the enforced structural constraint")
+            print("• **V.U.N.** — product of Valid × Unique × Novel (in [0,100]%)")
+            print()
+            
+            # Add WandB logging information
+            print("🔍 **LOGGING TO WANDB**:")
+            print("=" * 60)
+            for key, value in metrics_to_pass.items():
+                if key.startswith(f"{split}_sampling/"):
+                    print(f"  {key}: {value}")
+            print("=" * 60)
+            print()
+            
+            # Core metrics table
+            print("\n🎯 CORE METRICS:")
+            print("=" * 80)
+            core_table = render_table_console(f"{experiment_name} — {split.upper()} — {dataset_name}", 
+                                            f"Constraint: {constraint_str} · N={N_total:,} · diffusion_steps={diffusion_steps if diffusion_steps is not None else 'NA'} · sampler={eval_meta.get('sampler','reverse')}", 
+                                            core_rows)
+            print(core_table)
+            
+            # Structural metrics table
+            print("\n🏗️ STRUCTURAL CONSTRAINT SATISFACTION:")
+            print("=" * 80)
+            struct_table = render_table_console(f"{experiment_name} — {split.upper()} — {dataset_name} — Structural", 
+                                              f"Constraint: {constraint_str} · N={N_total:,} · diffusion_steps={diffusion_steps if diffusion_steps is not None else 'NA'} · sampler={eval_meta.get('sampler','reverse')}", 
+                                              struct_rows)
+            print(struct_table)
+            
+
+            
+            # Timing metrics table (always show, even with NA values)
+            print("\n⏱️ TIMING METRICS:")
+            print("=" * 80)
+            timing_table = render_table_console(f"{experiment_name} — {split.upper()} — {dataset_name} — Timing", 
+                                              f"Constraint: {constraint_str} · N={N_total:,} · diffusion_steps={diffusion_steps if diffusion_steps is not None else 'NA'} · sampler={eval_meta.get('sampler','reverse')}", 
+                                              timing_rows)
+            print(timing_table)
+            
+            # Optional Chemistry appendix (kept as separate file if you want it)
+            chem_stats = chemistry_from_smiles(all_generated_smiles or [])
+            chem_rows = collect_chemistry(chem_stats)
+            if chem_rows:
+                # Print chemistry table to console
+                print("\n🧪 CHEMISTRY METRICS:")
+                print("=" * 80)
+                chem_table = render_table_console(f"{experiment_name} — {split.upper()} — {dataset_name} — Chemistry", 
+                                                f"Constraint: {constraint_str} · N={N_total:,} · diffusion_steps={diffusion_steps if diffusion_steps is not None else 'NA'} · sampler={eval_meta.get('sampler','reverse')}", 
+                                                chem_rows)
+                print(chem_table)
                 
-                # Generate and print comprehensive table report
-                print("\n" + "="*80)
-                print("🎯 COMPREHENSIVE CONSTRAINT ANALYSIS (NO ENFORCED CONSTRAINT)")
-                print("="*80)
-                # Use computed_metrics if available, otherwise fall back to local metrics
-                if computed_metrics is not None:
-                    metrics_to_pass = {**computed_metrics, **metrics}
-                else:
-                    metrics_to_pass = metrics
-                comprehensive_report = self.generate_comprehensive_report(all_generated_smiles, generated_graphs, metrics_to_pass)
-                print(comprehensive_report)
-                print("="*80)
+                # Chemistry metrics displayed in console only
 
         # Save in any case in the graphs folder
         os.makedirs("graphs", exist_ok=True)
@@ -472,646 +605,85 @@ class SamplingMolecularMetrics(nn.Module):
 
     # No chemical validation metrics method in initial commit - removed to match exactly
 
-    def generate_table_report(self, constraint_type: str, constraint_value: int, all_generated_smiles: List[str], generated_graphs: List[PlaceHolder] = None, computed_metrics: Dict = None) -> str:
-        """
-        Generate a comprehensive table report for constraint satisfaction metrics.
-        Includes both ALL molecules (structural analysis) and VALID molecules (chemical analysis).
-        
-        Args:
-            constraint_type: Type of constraint (e.g., 'ring_count_at_most', 'planar')
-            constraint_value: Value of the constraint (e.g., 1)
-            all_generated_smiles: List of all generated SMILES strings
-            generated_graphs: List of generated graph batches (for graph-based calculations)
-            
-        Returns:
-            Formatted table string with both structural and chemical analysis
-        """
-        
-        # Initialize table variables to prevent UnboundLocalError
-        structural_ring_length_table = ""
-        chemical_ring_length_table = ""
-        
-        # Extract valid molecules first (same as in evaluate method)
-        valid_smiles = [s for s in all_generated_smiles if s and s != "error"]
-        total_molecules = len(all_generated_smiles)
-        valid_molecules = len(valid_smiles)
-        
-        # Calculate validity rate (based on total generated)
-        validity_rate = (valid_molecules / total_molecules * 100) if total_molecules > 0 else 0.0
-        
-        # ============================================================================
-        # STRUCTURAL ANALYSIS (ALL MOLECULES) - ConStruct Philosophy
-        # ============================================================================
-        
-        # Get structural constraint satisfaction results (using ALL molecules)
-        if constraint_type == "planar":
-            # For planar constraints, use the graph-based function for ALL molecules (same as WandB)
-            if generated_graphs is not None:
-                structural_results = check_planarity_constraint_all_molecules(generated_graphs, logger=lambda x: None)
-            else:
-                # Fallback to SMILES-based if graphs not available
-                structural_results = check_planarity_constraint_all_molecules(all_generated_smiles, logger=lambda x: None)
-            structural_satisfaction_rate = structural_results['satisfaction_rate'] * 100
-        else:
-            # For ring-based constraints, use the graph-based function for ALL molecules (same as projectors)
-            if generated_graphs is not None:
-                structural_results = check_ring_constraints_all_molecules_from_graphs(generated_graphs, constraint_type, constraint_value, logger=lambda x: None)
-            else:
-                # Fallback to SMILES-based if graphs not available
-                structural_results = check_ring_constraints_all_molecules(all_generated_smiles, constraint_type, constraint_value, logger=lambda x: None)
-            structural_satisfaction_rate = structural_results['satisfaction_rate'] * 100
-        
-        # ============================================================================
-        # CHEMICAL ANALYSIS (VALID MOLECULES ONLY) - Traditional Analysis
-        # ============================================================================
-        
-        # Get chemical constraint satisfaction results (using valid molecules only)
-        if constraint_type == "planar":
-            # For planar constraints, use the graph-based function for valid molecules (same as WandB)
-            if generated_graphs is not None:
-                chemical_results = check_planarity_constraint(generated_graphs, logger=lambda x: None)
-            else:
-                # Fallback to SMILES-based if graphs not available
-                chemical_results = check_planarity_constraint(valid_smiles, logger=lambda x: None)
-            chemical_satisfaction_rate = chemical_results['satisfaction_rate'] * 100
-        else:
-            # For ring-based constraints, use the existing function for valid molecules
-            chemical_results = check_ring_constraints(valid_smiles, constraint_type, constraint_value, logger=lambda x: None)
-            chemical_satisfaction_rate = chemical_results['satisfaction_rate'] * 100
-        
-        # ============================================================================
-        # QUALITY METRICS (VALID MOLECULES ONLY)
-        # ============================================================================
-        
-        # Use computed metrics from the original wandb-submitting calculations
-        if computed_metrics is not None:
-            # Extract metrics from the computed_metrics dictionary
-            key = "test_sampling" if self.test else "val_sampling"
-            uniqueness_rate = computed_metrics.get(f"{key}/Uniqueness", 0.0)
-            novelty_rate = computed_metrics.get(f"{key}/Novelty", 0.0)
-            fcd_score = computed_metrics.get(f"{key}/fcd score", 0.0)
-            
-            # Debug: Print the computed_metrics to see what's available
-            print(f"DEBUG: Available computed_metrics keys: {list(computed_metrics.keys())}")
-            # print(f"DEBUG: Looking for FCD key: {key}/fcd score")
-            # print(f"DEBUG: FCD score found: {fcd_score}")
-            
-            # Calculate unique and novel molecules for display (based on valid molecules only)
-            if len(valid_smiles) > 0:
-                unique_smiles = set(valid_smiles)
-                unique_molecules = len(unique_smiles)
-                uniqueness_rate = (unique_molecules / len(valid_smiles) * 100)  # Based on valid molecules
-            else:
-                uniqueness_rate = 0.0
-                unique_molecules = 0
-            
-            # Calculate novelty (based on valid molecules only, same as evaluate method)
-            if self.train_smiles is not None and len(unique_smiles) > 0:
-                novel_smiles = [s for s in unique_smiles if s not in self.train_smiles]
-                novel_molecules = len(novel_smiles)
-                novelty_rate = (len(novel_smiles) / len(unique_smiles) * 100)  # Based on unique valid molecules
-            else:
-                novelty_rate = 0.0
-                novel_molecules = 0
-        else:
-            # Fallback to original calculation if computed_metrics not provided
-            if len(valid_smiles) > 0:
-                unique_smiles = set(valid_smiles)
-                unique_molecules = len(unique_smiles)
-                uniqueness_rate = (unique_molecules / len(valid_smiles) * 100)  # Based on valid molecules
-            else:
-                uniqueness_rate = 0.0
-                unique_molecules = 0
-            
-            # Calculate novelty (based on valid molecules only, same as evaluate method)
-            if self.train_smiles is not None and len(unique_smiles) > 0:
-                novel_smiles = [s for s in unique_smiles if s not in self.train_smiles]
-                novel_molecules = len(novel_smiles)
-                novelty_rate = (len(novel_smiles) / len(unique_smiles) * 100)  # Based on unique valid molecules
-            else:
-                novelty_rate = 0.0
-                novel_molecules = 0
-            
-            # Fallback FCD calculation
-            fcd_score = 0.0
-        
-        # ============================================================================
-        # CREATE COMPREHENSIVE TABLES
-        # ============================================================================
-        
-        # Get disconnected molecules rate from the original Disconnected metric (same as initial commit)
-        key = "test_sampling" if self.test else "val_sampling"
-        if computed_metrics is not None:
-            # Use the original Disconnected metric from sampling_metrics.py
-            disconnected_rate = computed_metrics.get(f"{key}/Disconnected", 0.0)
-        else:
-            # Fallback to 0.0 if computed_metrics not available
-            disconnected_rate = 0.0
-        
-        # Create main metrics table with both structural and chemical analysis
-        constraint_label = "planar" if constraint_type == "planar" else f"{constraint_type} ≤ {constraint_value}"
-        
-        metrics_data = [
-            ["Total Molecules Generated", f"{total_molecules:,}"],
-            ["Valid Molecules (RDKit)", f"{valid_molecules:,} ({validity_rate:.2f}%)"],
-            ["Invalid Molecules", f"{total_molecules - valid_molecules:,} ({(total_molecules - valid_molecules) / total_molecules * 100:.2f}%)"],
-            ["Disconnected Molecules", f"{disconnected_rate:.2f}%"],
-            ["Constraint Type", constraint_label],
-        ]
-        
-        metrics_table = tabulate(metrics_data, headers=["Metric", "Value"], 
-                               tablefmt="grid", numalign="left")
-        
-        # Create structural constraint verification table (ALL molecules)
-        structural_verification_data = []
-        if constraint_type == "ring_count_at_most":
-            # Check cycle_rank_at_most for values 0-6 using ALL molecules
-            for test_value in range(7):  # 0 to 6
-                if generated_graphs is not None:
-                    test_results = check_ring_constraints_all_molecules_from_graphs(generated_graphs, "ring_count_at_most", test_value, logger=lambda x: None)
-                else:
-                    test_results = check_ring_constraints_all_molecules(all_generated_smiles, "ring_count_at_most", test_value, logger=lambda x: None)
-                satisfied = test_results['satisfied_molecules']
-                total = test_results['total_molecules']
-                rate = test_results['satisfaction_rate'] * 100
-                
-                # Highlight the enforced constraint
-                if test_value == constraint_value:
-                    structural_verification_data.append([f"Cycle Rank ≤{test_value}", f"{satisfied}/{total}", f"{rate:.1f}%", "⭐ ENFORCED"])
-                else:
-                    structural_verification_data.append([f"Cycle Rank ≤{test_value}", f"{satisfied}/{total}", f"{rate:.1f}%", ""])
-                    
-        elif constraint_type == "ring_length_at_most":
-            # Check max_basis_cycle_length_at_most for values 3-8 using ALL molecules
-            for test_value in range(3, 9):  # 3 to 8
-                if generated_graphs is not None:
-                    test_results = check_ring_constraints_all_molecules_from_graphs(generated_graphs, "ring_length_at_most", test_value, logger=lambda x: None)
-                else:
-                    test_results = check_ring_constraints_all_molecules(all_generated_smiles, "ring_length_at_most", test_value, logger=lambda x: None)
-                satisfied = test_results['satisfied_molecules']
-                total = test_results['total_molecules']
-                rate = test_results['satisfaction_rate'] * 100
-                
-                # Highlight the enforced constraint
-                if test_value == constraint_value:
-                    structural_verification_data.append([f"Max Basis-Cycle Length ≤{test_value}", f"{satisfied}/{total}", f"{rate:.1f}%", "⭐ ENFORCED"])
-                else:
-                    structural_verification_data.append([f"Max Basis-Cycle Length ≤{test_value}", f"{satisfied}/{total}", f"{rate:.1f}%", ""])
-        
-        elif constraint_type == "planar":
-            # For planar, just show the single result
-            structural_verification_data.append([f"planar", f"{structural_results['satisfied_molecules']}/{structural_results['total_molecules']}", f"{structural_satisfaction_rate:.1f}%", "⭐ ENFORCED"])
-        
-        structural_verification_table = ""
-        if structural_verification_data:
-            structural_verification_table = "\n\n🏗️ STRUCTURAL CONSTRAINT ENFORCEMENT (ALL Molecules - ConStruct Philosophy):\n"
-            structural_verification_table += tabulate(structural_verification_data, 
-                                                    headers=["Constraint", "Satisfied", "Rate", "Status"], 
-                                                    tablefmt="grid", numalign="left")
-        
-        # Create chemical constraint verification table (VALID molecules only)
-        chemical_verification_data = []
-        if constraint_type == "ring_count_at_most":
-            # Check cycle_rank_at_most for values 0-6 using valid molecules only
-            for test_value in range(7):  # 0 to 6
-                test_results = check_ring_constraints(valid_smiles, "ring_count_at_most", test_value, logger=lambda x: None)
-                satisfied = test_results['satisfied_molecules']
-                total = test_results['total_molecules']
-                rate = test_results['satisfaction_rate'] * 100
-                
-                # Highlight the enforced constraint
-                if test_value == constraint_value:
-                    chemical_verification_data.append([f"Cycle Rank ≤{test_value}", f"{satisfied}/{total}", f"{rate:.1f}%", "⭐ ENFORCED"])
-                else:
-                    chemical_verification_data.append([f"Cycle Rank ≤{test_value}", f"{satisfied}/{total}", f"{rate:.1f}%", ""])
-                    
-        elif constraint_type == "ring_length_at_most":
-            # Check max_basis_cycle_length_at_most for values 3-8 using valid molecules only
-            for test_value in range(3, 9):  # 3 to 8
-                test_results = check_ring_constraints(valid_smiles, "ring_length_at_most", test_value, logger=lambda x: None)
-                satisfied = test_results['satisfied_molecules']
-                total = test_results['total_molecules']
-                rate = test_results['satisfaction_rate'] * 100
-                
-                # Highlight the enforced constraint
-                if test_value == constraint_value:
-                    chemical_verification_data.append([f"Max Basis-Cycle Length ≤{test_value}", f"{satisfied}/{total}", f"{rate:.1f}%", "⭐ ENFORCED"])
-                else:
-                    chemical_verification_data.append([f"Max Basis-Cycle Length ≤{test_value}", f"{satisfied}/{total}", f"{rate:.1f}%", ""])
-        
-        elif constraint_type == "planar":
-            # For planar, just show the single result
-            chemical_verification_data.append([f"planar", f"{chemical_results['satisfied_molecules']}/{chemical_results['total_molecules']}", f"{chemical_satisfaction_rate:.1f}%", "⭐ ENFORCED"])
-        
-        chemical_verification_table = ""
-        if chemical_verification_data:
-            chemical_verification_table = "\n\n🧪 CHEMICAL CONSTRAINT ENFORCEMENT (Valid Molecules Only - Same Structural Metrics):\n"
-            chemical_verification_table += tabulate(chemical_verification_data, 
-                                                  headers=["Constraint", "Satisfied", "Rate", "Status"], 
-                                                  tablefmt="grid", numalign="left")
-        
-        # Create ring count distribution tables (both ALL and VALID molecules)
-        structural_distribution_table = ""
-        chemical_distribution_table = ""
-        if constraint_type in ["ring_count_at_most", "ring_length_at_most"]:
-            # Structural distribution (ALL molecules)
-            if generated_graphs is not None:
-                structural_results = check_ring_constraints_all_molecules_from_graphs(generated_graphs, constraint_type, constraint_value, logger=lambda x: None)
-                structural_cycle_ranks = structural_results.get('cycle_ranks', [])
-            else:
-                structural_results = check_ring_constraints_all_molecules(all_generated_smiles, constraint_type, constraint_value, logger=lambda x: None)
-                structural_cycle_ranks = structural_results.get('ring_counts', [])
-            
-            if structural_cycle_ranks:
-                from collections import Counter
-                structural_cycle_rank_dist = Counter(structural_cycle_ranks)
-                
-                structural_cycle_rank_data = []
-                for cycle_rank in sorted(structural_cycle_rank_dist.keys()):
-                    count = structural_cycle_rank_dist[cycle_rank]
-                    percentage = (count / total_molecules * 100) if total_molecules > 0 else 0.0
-                    structural_cycle_rank_data.append([cycle_rank, count, f"{percentage:.1f}%"])
-                
-                structural_distribution_table = "\n\n📊 STRUCTURAL CYCLE RANK DISTRIBUTION (ALL Molecules):\n"
-                structural_distribution_table += tabulate(structural_cycle_rank_data, 
-                                                       headers=["Cycle Rank", "Count", "Percentage"], 
-                                                       tablefmt="grid", numalign="left")
-            
-            # Chemical distribution (VALID molecules only)
-            chemical_ring_counts = chemical_results.get('ring_counts', [])
-            if chemical_ring_counts:
-                from collections import Counter
-                chemical_ring_count_dist = Counter(chemical_ring_counts)
-                
-                chemical_ring_data = []
-                for ring_count in sorted(chemical_ring_count_dist.keys()):
-                    count = chemical_ring_count_dist[ring_count]
-                    percentage = (count / valid_molecules * 100) if valid_molecules > 0 else 0.0
-                    chemical_ring_data.append([ring_count, count, f"{percentage:.1f}%"])
-                
-                chemical_distribution_table = "\n\n📊 CHEMICAL CYCLE RANK DISTRIBUTION (Valid Molecules Only):\n"
-                chemical_distribution_table += tabulate(chemical_ring_data, 
-                                                      headers=["Cycle Rank", "Count", "Percentage"], 
-                                                      tablefmt="grid", numalign="left")
-            
-            # Add ring length distribution tables for ring_length_at_most constraint
-            if constraint_type == "ring_length_at_most":
-                # Structural max basis-cycle length distribution (ALL molecules)
-                if generated_graphs is not None:
-                    structural_max_basis_cycle_lengths = structural_results.get('max_basis_cycle_lengths', [])
-                else:
-                    structural_max_basis_cycle_lengths = structural_results.get('ring_lengths', [])
-                
-                if structural_max_basis_cycle_lengths:
-                    from collections import Counter
-                    structural_max_basis_cycle_length_dist = Counter(structural_max_basis_cycle_lengths)
-                    
-                    structural_max_basis_cycle_length_data = []
-                    for max_basis_cycle_length in sorted(structural_max_basis_cycle_length_dist.keys()):
-                        count = structural_max_basis_cycle_length_dist[max_basis_cycle_length]
-                        percentage = (count / total_molecules * 100) if total_molecules > 0 else 0.0
-                        structural_max_basis_cycle_length_data.append([max_basis_cycle_length, count, f"{percentage:.1f}%"])
-                    
-                    structural_ring_length_table = "\n\n📊 STRUCTURAL MAX BASIS-CYCLE LENGTH DISTRIBUTION (ALL Molecules):\n"
-                    structural_ring_length_table += tabulate(structural_max_basis_cycle_length_data, 
-                                                           headers=["Max Basis-Cycle Length", "Count", "Percentage"], 
-                                                           tablefmt="grid", numalign="left")
-                else:
-                    structural_ring_length_table = ""
-                
-                # Chemical max basis-cycle length distribution (VALID molecules only)
-                chemical_ring_lengths = chemical_results.get('ring_lengths', [])
-                if chemical_ring_lengths:
-                    from collections import Counter
-                    chemical_ring_length_dist = Counter(chemical_ring_lengths)
-                    
-                    chemical_ring_length_data = []
-                    for ring_length in sorted(chemical_ring_length_dist.keys()):
-                        count = chemical_ring_length_dist[ring_length]
-                        percentage = (count / valid_molecules * 100) if valid_molecules > 0 else 0.0
-                        chemical_ring_length_data.append([ring_length, count, f"{percentage:.1f}%"])
-                    
-                    chemical_ring_length_table = "\n\n📊 CHEMICAL MAX BASIS-CYCLE LENGTH DISTRIBUTION (Valid Molecules Only):\n"
-                    chemical_ring_length_table += tabulate(chemical_ring_length_data, 
-                                                          headers=["Max Basis-Cycle Length", "Count", "Percentage"], 
-                                                          tablefmt="grid", numalign="left")
-                else:
-                    chemical_ring_length_table = ""
-            else:
-                structural_ring_length_table = ""
-                chemical_ring_length_table = ""
-        
-        # Create comprehensive quality metrics table (ALL molecules)
-        # Note: Novelty and uniqueness are only calculated for valid molecules
-        all_molecules_quality_data = [
-            ["Total Molecules Generated", f"{total_molecules:,}"],
-            ["Valid Molecules (RDKit)", f"{valid_molecules:,} ({validity_rate:.1f}%)"],
-            ["Invalid Molecules", f"{total_molecules - valid_molecules:,} ({(total_molecules - valid_molecules) / total_molecules * 100:.1f}%)"],
-            ["Disconnected Molecules", f"{disconnected_rate:.1f}%"],
-            ["Average Molecular Weight", f"{self._calculate_avg_molecular_weight(all_generated_smiles):.1f}"],
-            ["Average Number of Atoms", f"{self._calculate_avg_atom_count(all_generated_smiles):.1f}"],
-            ["Average Number of Bonds", f"{self._calculate_avg_bond_count(all_generated_smiles):.1f}"],
-            ["Average Ring Count", f"{self._calculate_avg_ring_count(all_generated_smiles):.1f}"],
-        ]
-        
-        all_molecules_quality_table = "\n\n📊 MOLECULAR QUALITY METRICS (ALL Molecules):\n"
-        all_molecules_quality_table += tabulate(all_molecules_quality_data, headers=["Metric", "Value"], 
-                                              tablefmt="grid", numalign="left")
-        
-        # Create detailed quality metrics table (VALID molecules only)
-        valid_molecules_quality_data = [
-            ["Valid Molecules (RDKit)", f"{valid_molecules:,} ({validity_rate:.2f}%)"],
-            ["Unique Molecules", f"{unique_molecules:,} ({uniqueness_rate:.2f}%)"],
-            ["Novel Molecules", f"{novel_molecules:,} ({novelty_rate:.2f}%)"],
-            ["FCD Score", f"{fcd_score:.3f}"],
-            ["Average Molecular Weight", f"{self._calculate_avg_molecular_weight(valid_smiles):.1f}"],
-            ["Average Number of Atoms", f"{self._calculate_avg_atom_count(valid_smiles):.1f}"],
-            ["Average Number of Bonds", f"{self._calculate_avg_bond_count(valid_smiles):.1f}"],
-            ["Average Ring Count", f"{self._calculate_avg_ring_count(valid_smiles):.1f}"],
-            ["Average Ring Length", f"{self._calculate_avg_ring_length(valid_smiles):.1f}"],
-            ["Average Valency", f"{self._calculate_avg_valency(valid_smiles):.1f}"],
-        ]
-        
-        valid_molecules_quality_table = "\n\n🎯 MOLECULAR QUALITY METRICS (Valid Molecules Only):\n"
-        valid_molecules_quality_table += tabulate(valid_molecules_quality_data, headers=["Metric", "Value"], 
-                                                tablefmt="grid", numalign="left")
-        
-        # Create timing table with actual values
-        timing_data = [
-            ["Total Sampling Time", f"{getattr(self, 'total_sampling_time', 0):.2f} seconds"],
-            ["Average Time per Batch", f"{getattr(self, 'avg_sampling_time', 0):.2f} seconds"],
-            ["Number of Batches", f"{getattr(self, 'num_batches', 0)}"],
-        ]
-        
-        timing_table = "\n\n⏱️ TIMING METRICS:\n"
-        timing_table += tabulate(timing_data, headers=["Metric", "Value"], 
-                               tablefmt="grid", numalign="left")
-        
-        # Create gap analysis table
-        gap_data = [
-            ["Structural Satisfaction (ALL)", f"{structural_satisfaction_rate:.1f}%"],
-            ["Chemical Satisfaction (Valid)", f"{chemical_satisfaction_rate:.1f}%"],
-            ["Gap (Structural - Chemical)", f"{structural_satisfaction_rate - chemical_satisfaction_rate:.1f}%"],
-            ["Gap Explanation", "Shows difference between structural enforcement and chemical validity"],
-        ]
-        
-        gap_table = "\n\n🔍 GAP ANALYSIS (ConStruct Philosophy):\n"
-        gap_table += tabulate(gap_data, headers=["Metric", "Value"], 
-                             tablefmt="grid", numalign="left")
-        
-        # No chemical validation table in initial commit - removed to match exactly
-        
-        # Combine all tables
-        full_report = f"""🎯 COMPREHENSIVE CONSTRAINT SATISFACTION ANALYSIS
-{'='*80}
 
-{metrics_table}{structural_verification_table}{chemical_verification_table}{structural_distribution_table}{chemical_distribution_table}{structural_ring_length_table}{chemical_ring_length_table}{all_molecules_quality_table}{valid_molecules_quality_table}{gap_table}{timing_table}
-
-{'='*80}
-"""
-        
-        return full_report
-
-    def generate_comprehensive_report(self, all_generated_smiles: List[str], generated_graphs: List[PlaceHolder] = None, computed_metrics: Dict = None) -> str:
-        """
-        Generates a comprehensive report for all constraint types, showing satisfaction rates.
-        Uses computed metrics from the original wandb-submitting calculations to avoid duplication.
-        
-        Args:
-            all_generated_smiles: List of all generated SMILES strings
-            computed_metrics: Dictionary of already-computed metrics from the original calculations
-            
-        Returns:
-            Formatted comprehensive report string
-        """
-        
-        # Extract valid molecules first (same as in evaluate method)
-        valid_smiles = [s for s in all_generated_smiles if s and s != "error"]
-        total_molecules = len(all_generated_smiles)
-        valid_molecules = len(valid_smiles)
-        
-        # Calculate validity rate (based on total generated) - will be overridden by wandb value if available
-        validity_rate = (valid_molecules / total_molecules * 100) if total_molecules > 0 else 0.0
-        
-        # Use computed metrics from the original wandb-submitting calculations
-        if computed_metrics is not None:
-            # Extract metrics from the computed_metrics dictionary
-            key = "test_sampling" if self.test else "val_sampling"
-            uniqueness_rate = computed_metrics.get(f"{key}/Uniqueness", 0.0)
-            novelty_rate = computed_metrics.get(f"{key}/Novelty", 0.0)
-            fcd_score = computed_metrics.get(f"{key}/fcd score", 0.0)
-            validity_rate = computed_metrics.get(f"{key}/Validity", 0.0)
-            
-            # Calculate molecule counts for display (based on valid molecules only)
-            if len(valid_smiles) > 0:
-                unique_smiles = set(valid_smiles)
-                unique_molecules = len(unique_smiles)
-                # Use exact uniqueness rate from wandb, calculate molecule count
-                unique_molecules = int((uniqueness_rate / 100) * len(valid_smiles))
-            else:
-                unique_molecules = 0
-            
-            # Calculate novel molecules count (based on valid molecules only, same as evaluate method)
-            if self.train_smiles is not None and len(unique_smiles) > 0:
-                novel_smiles = [s for s in unique_smiles if s not in self.train_smiles]
-                novel_molecules = len(novel_smiles)
-                # Use exact novelty rate from wandb, calculate molecule count
-                novel_molecules = int((novelty_rate / 100) * unique_molecules)
-            else:
-                novel_molecules = 0
-        else:
-            # Fallback to original calculation if computed_metrics not provided
-            if len(valid_smiles) > 0:
-                unique_smiles = set(valid_smiles)
-                unique_molecules = len(unique_smiles)
-                uniqueness_rate = (unique_molecules / len(valid_smiles) * 100)  # Based on valid molecules
-            else:
-                uniqueness_rate = 0.0
-                unique_molecules = 0
-            
-            # Calculate novelty (based on valid molecules only, same as evaluate method)
-            if self.train_smiles is not None and len(unique_smiles) > 0:
-                novel_smiles = [s for s in unique_smiles if s not in self.train_smiles]
-                novel_molecules = len(novel_smiles)
-                novelty_rate = (len(novel_smiles) / len(unique_smiles) * 100)  # Based on unique valid molecules
-            else:
-                novelty_rate = 0.0
-                novel_molecules = 0
-            
-            # Fallback FCD calculation
-            fcd_score = 0.0
-        
-        # ============================================================================
-        # CREATE COMPREHENSIVE REPORT
-        # ============================================================================
-        
-        # Get disconnected molecules rate from the original Disconnected metric (same as initial commit)
-        key = "test_sampling" if self.test else "val_sampling"
-        if computed_metrics is not None:
-            # Use the original Disconnected metric from sampling_metrics.py
-            disconnected_rate = computed_metrics.get(f"{key}/Disconnected", 0.0)
-        else:
-            # Fallback to 0.0 if computed_metrics not available
-            disconnected_rate = 0.0
-        
-        # Create comprehensive quality metrics table (ALL molecules)
-        # Note: Novelty and uniqueness are only calculated for valid molecules
-        all_molecules_quality_data = [
-            ["Total Molecules Generated", f"{total_molecules:,}"],
-            ["Valid Molecules (RDKit)", f"{valid_molecules:,} ({validity_rate:.2f}%)"],
-            ["Invalid Molecules", f"{total_molecules - valid_molecules:,} ({(total_molecules - valid_molecules) / total_molecules * 100:.2f}%)"],
-            ["Disconnected Molecules", f"{disconnected_rate:.2f}%"],
-            ["Average Molecular Weight", f"{self._calculate_avg_molecular_weight(all_generated_smiles):.1f}"],
-            ["Average Number of Atoms", f"{self._calculate_avg_atom_count(all_generated_smiles):.1f}"],
-            ["Average Number of Bonds", f"{self._calculate_avg_bond_count(all_generated_smiles):.1f}"],
-            ["Average Ring Count", f"{self._calculate_avg_ring_count(all_generated_smiles):.1f}"],
-        ]
-        
-        # Generate detailed quality metrics table (VALID molecules only)
-        valid_molecules_quality_data = [
-            ["Valid Molecules (RDKit)", f"{valid_molecules:,} ({validity_rate:.2f}%)"],
-            ["Disconnected Molecules", f"{disconnected_rate:.2f}%"],
-            ["Unique Molecules", f"{unique_molecules:,} ({uniqueness_rate:.2f}%)"],
-            ["Novel Molecules", f"{novel_molecules:,} ({novelty_rate:.2f}%)"],
-            ["FCD Score", f"{fcd_score:.3f}"],
-            ["Average Molecular Weight", f"{self._calculate_avg_molecular_weight(valid_smiles):.1f}"],
-            ["Average Number of Atoms", f"{self._calculate_avg_atom_count(valid_smiles):.1f}"],
-            ["Average Number of Bonds", f"{self._calculate_avg_bond_count(valid_smiles):.1f}"],
-            ["Average Ring Count", f"{self._calculate_avg_ring_count(valid_smiles):.1f}"],
-            ["Average Ring Length", f"{self._calculate_avg_ring_length(valid_smiles):.1f}"],
-            ["Average Valency", f"{self._calculate_avg_valency(valid_smiles):.1f}"],
-        ]
-        
-        # Generate timing metrics table
-        timing_data = [
-            ["Total Sampling Time", f"{getattr(self, 'total_sampling_time', 0):.2f} seconds"],
-            ["Average Time per Batch", f"{getattr(self, 'avg_sampling_time', 0):.2f} seconds"],
-            ["Number of Batches", f"{getattr(self, 'num_batches', 0)}"],
-        ]
-        
-        # For no-constraint baseline, analyze ALL constraint types to show baseline performance
-        # Structural constraint analysis (ALL molecules)
-        structural_constraint_data = []
-        constraint_types = [
-            ("ring_count_at_most", 0), ("ring_count_at_most", 1), ("ring_count_at_most", 2),
-            ("ring_count_at_most", 3), ("ring_count_at_most", 4), ("ring_count_at_most", 5),
-            ("ring_length_at_most", 3), ("ring_length_at_most", 4), ("ring_length_at_most", 5),
-            ("ring_length_at_most", 6), ("ring_length_at_most", 7), ("ring_length_at_most", 8),
-            ("planar", None)
-        ]
-        
-        for constraint_type, constraint_value in constraint_types:
-            if constraint_type == "planar":
-                # For planar constraints, analyze ALL molecules for structural planarity (same as WandB)
-                if generated_graphs is not None:
-                    structural_results = check_planarity_constraint_all_molecules(generated_graphs, logger=lambda x: None)
-                else:
-                    # Fallback to SMILES-based if graphs not available
-                    structural_results = check_planarity_constraint_all_molecules(all_generated_smiles, logger=lambda x: None)
-                structural_constraint_data.append({
-                    "Constraint Type": constraint_type,
-                    "Constraint Value": "Planar",
-                    "Total Molecules": structural_results['total_molecules'],
-                    "Satisfied Molecules": structural_results['satisfied_molecules'],
-                    "Satisfaction Rate": f"{structural_results['satisfaction_rate'] * 100:.1f}%"
-                })
-            else:
-                # For ring-based constraints, use the graph-based function for ALL molecules (same as projectors)
-                if generated_graphs is not None:
-                    structural_results = check_ring_constraints_all_molecules_from_graphs(generated_graphs, constraint_type, constraint_value, logger=lambda x: None)
-                else:
-                    structural_results = check_ring_constraints_all_molecules(all_generated_smiles, constraint_type, constraint_value, logger=lambda x: None)
-                structural_constraint_data.append({
-                    "Constraint Type": constraint_type,
-                    "Constraint Value": f"≤{constraint_value}",
-                    "Total Molecules": structural_results['total_molecules'],
-                    "Satisfied Molecules": structural_results['satisfied_molecules'],
-                    "Satisfaction Rate": f"{structural_results['satisfaction_rate'] * 100:.1f}%"
-                })
-        
-        # Chemical constraint analysis (VALID molecules only)
-        chemical_constraint_data = []
-        
-        for constraint_type, constraint_value in constraint_types:
-            if constraint_type == "planar":
-                # For planar constraints, check planarity using the same method as constraint enforcement (same as WandB)
-                if generated_graphs is not None:
-                    chemical_results = check_planarity_constraint(generated_graphs, logger=lambda x: None)
-                else:
-                    # Fallback to SMILES-based if graphs not available
-                    chemical_results = check_planarity_constraint(valid_smiles, logger=lambda x: None)
-                chemical_constraint_data.append({
-                    "Constraint Type": constraint_type,
-                    "Constraint Value": "Planar",
-                    "Total Molecules": chemical_results['total_molecules'],
-                    "Satisfied Molecules": chemical_results['satisfied_molecules'],
-                    "Satisfaction Rate": f"{chemical_results['satisfaction_rate'] * 100:.1f}%"
-                })
-            else:
-                # For ring-based constraints, use the existing function for valid molecules
-                chemical_results = check_ring_constraints(valid_smiles, constraint_type, constraint_value, logger=lambda x: None)
-                chemical_constraint_data.append({
-                    "Constraint Type": constraint_type,
-                    "Constraint Value": f"≤{constraint_value}",
-                    "Total Molecules": chemical_results['total_molecules'],
-                    "Satisfied Molecules": chemical_results['satisfied_molecules'],
-                    "Satisfaction Rate": f"{chemical_results['satisfaction_rate'] * 100:.1f}%"
-                })
-        
-        # Create gap analysis table
-        gap_data = []
-        for i in range(len(structural_constraint_data)):
-            structural_rate = float(structural_constraint_data[i]["Satisfaction Rate"].replace('%', ''))
-            chemical_rate = float(chemical_constraint_data[i]["Satisfaction Rate"].replace('%', ''))
-            gap = structural_rate - chemical_rate
-            gap_data.append({
-                "Constraint": f"{structural_constraint_data[i]['Constraint Type']} {structural_constraint_data[i]['Constraint Value']}",
-                "Structural (ALL)": f"{structural_rate:.1f}%",
-                "Chemical (Valid)": f"{chemical_rate:.1f}%",
-                "Gap": f"{gap:.1f}%"
-            })
-        
-        # Combine all tables
-        full_report = ""
-        
-        # ALL Molecules quality metrics table
-        full_report += "📊 MOLECULAR QUALITY METRICS (ALL Molecules)\n"
-        full_report += tabulate(all_molecules_quality_data, headers=["Metric", "Value"], tablefmt="grid", numalign="left")
-        full_report += "\n\n"
-        
-        # Valid Molecules quality metrics table
-        full_report += "🎯 MOLECULAR QUALITY METRICS (Valid Molecules Only)\n"
-        full_report += tabulate(valid_molecules_quality_data, headers=["Metric", "Value"], tablefmt="grid", numalign="left")
-        full_report += "\n\n"
-        
-        # Timing table
-        full_report += "⏱️ TIMING METRICS\n"
-        full_report += tabulate(timing_data, headers=["Metric", "Value"], tablefmt="grid", numalign="left")
-        full_report += "\n\n"
-        
-        # Structural constraint satisfaction table
-        full_report += "🏗️ STRUCTURAL CONSTRAINT SATISFACTION (ALL Molecules - ConStruct Philosophy)\n"
-        full_report += tabulate(structural_constraint_data, headers="keys", tablefmt="grid", numalign="left")
-        full_report += "\n\n"
-        
-        # Chemical constraint satisfaction table
-        full_report += "🧪 CHEMICAL CONSTRAINT SATISFACTION (Valid Molecules Only)\n"
-        full_report += tabulate(chemical_constraint_data, headers="keys", tablefmt="grid", numalign="left")
-        full_report += "\n\n"
-        
-        # No chemical validation metrics in initial commit - removed to match exactly
-        
-        # Gap analysis table
-        full_report += "🔍 GAP ANALYSIS (Structural vs Chemical Satisfaction)\n"
-        full_report += tabulate(gap_data, headers="keys", tablefmt="grid", numalign="left")
-        
-        return full_report
 
     def record_sampling_time(self, sampling_time: float):
         """Record sampling time for timing metrics."""
         self.total_sampling_time += sampling_time
         self.num_batches += 1
         self.avg_sampling_time = self.total_sampling_time / self.num_batches
+    
+    def record_projection_time(self, projection_time: float):
+        """Record projection time for timing metrics."""
+        self.total_projection_time += projection_time
+        self.projection_times.append(projection_time)
+        self.projection_calls += 1
+    
+    def get_projection_stats(self):
+        """Get projection timing statistics."""
+        if self.projection_calls == 0:
+            return None, None
+        
+        mean_projection_time = self.total_projection_time / self.projection_calls
+        projection_share = (self.total_projection_time / self.total_sampling_time * 100) if self.total_sampling_time > 0 else 0
+        
+        return mean_projection_time * 1000, projection_share  # Convert to ms
+    
+    def collect_ring_distributions(self, generated_graphs: list[PlaceHolder]) -> Tuple[List[int], List[int]]:
+        """
+        Collect ring count and ring length distributions from generated graphs using structural methods.
+        
+        Args:
+            generated_graphs: List of PlaceHolder objects containing generated graphs
+            
+        Returns:
+            Tuple of (ring_counts_all, ring_lengths_all) where each is a list of counts
+        """
+        import networkx as nx
+        from ConStruct.projector.projector_utils import build_simple_graph_from_edge_tensor
+        
+        # Initialize distribution counters
+        ring_counts = [0] * 10  # 0, 1, 2, 3, 4, 5, 6, 7, 8, 9+ rings
+        ring_lengths = [0] * 10  # 0, 3, 4, 5, 6, 7, 8, 9, 10, 11+ atoms per ring (0 for acyclic)
+        
+        for batch in generated_graphs:
+            for edge_mat, mask in zip(batch.E, batch.node_mask):
+                try:
+                    # Use unified graph construction helper
+                    nx_graph = build_simple_graph_from_edge_tensor(edge_mat, mask)
+                    
+                    # Get cycle basis (structural analysis)
+                    cycles = nx.cycle_basis(nx_graph)
+                    
+                    # Count rings (cycle rank)
+                    num_rings = len(cycles)
+                    if num_rings < len(ring_counts):
+                        ring_counts[num_rings] += 1
+                    else:
+                        ring_counts[-1] += 1  # 9+ rings
+                    
+                    # Analyze ring lengths
+                    if cycles:
+                        # Graph has cycles - analyze each cycle length
+                        for cycle in cycles:
+                            ring_length = len(cycle)
+                            if ring_length >= 3:  # Valid ring length
+                                idx = ring_length - 2  # Convert to 0-based index (3->1, 4->2, etc.)
+                                if idx < len(ring_lengths):
+                                    ring_lengths[idx] += 1
+                                else:
+                                    ring_lengths[-1] += 1  # 11+ atoms
+                    else:
+                        # Graph is acyclic - count as length 0
+                        ring_lengths[0] += 1
+                            
+                except Exception:
+                    # Conservative: treat failure as acyclic (no rings)
+                    ring_counts[0] += 1
+                    ring_lengths[0] += 1
+                    continue
+        
+        return ring_counts, ring_lengths
     
     def _calculate_avg_molecular_weight(self, smiles_list: List[str]) -> float:
         """Calculate average molecular weight for a list of SMILES."""

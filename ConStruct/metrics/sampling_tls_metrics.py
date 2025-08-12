@@ -138,6 +138,11 @@ class TLSSamplingMetrics(SpectreSamplingMetrics):
         self.mean_tls_validity.reset()
         super().reset()
 
+    def record_projection_time(self, projection_time: float):
+        """Record projection time for timing metrics."""
+        # This is a no-op for TLS metrics
+        pass
+
 
 def tls_validity_ratio(generated_graphs: List[PlaceHolder], valid_cg_fn):
     cg_validities = [int(valid_cg_fn(cg)) for cg in generated_graphs]
