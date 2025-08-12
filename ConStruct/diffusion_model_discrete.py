@@ -850,6 +850,19 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
                         if not graph_valid:
                             logger.error(f"❌ RING LENGTH CONSTRAINT VIOLATION at t=0: max cycle length {max_ring_length_after} > {rev_projector.max_ring_length}")
                             raise AssertionError(f"Ring length constraint violated at t=0: max cycle length {max_ring_length_after} > {rev_projector.max_ring_length}")
+                        
+                        # Ring-length-at-most: assert at the final step too
+                        if hasattr(rev_projector, 'max_ring_length'):
+                            from networkx import cycle_basis
+                            L = rev_projector.max_ring_length
+                            for g_idx, g in enumerate(rev_projector.nx_graphs_list):
+                                try:
+                                    cycles = cycle_basis(g)
+                                    if any(len(c) > L for c in cycles):
+                                        raise AssertionError(f"Ring-length-at-most violated at t=0 on graph {g_idx}: found cycle length > {L}")
+                                except Exception as e:
+                                    # If we cannot verify, fail loudly to avoid silent violations
+                                    raise
                 
                 # Planarity-specific validation
                 elif self.cfg.model.rev_proj == "planar":

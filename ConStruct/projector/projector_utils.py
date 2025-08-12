@@ -26,35 +26,21 @@ logger = logging.getLogger(__name__)
 def build_simple_graph_from_edge_tensor(edge_tensor: torch.Tensor, mask: torch.Tensor):
     """
     Unified graph construction helper for consistent graph building across all components.
-    
-    Args:
-        edge_tensor: [N, N, C] or [N, N] - edge tensor with channels
-        mask: [N] boolean or 0/1 tensor - nodes to keep
-        
-    Returns:
-        networkx.Graph: simple, undirected graph with no parallel edges
-        
-    Notes:
-        - Channels: 0 = no-edge, 1..3 = bond types we enforce; ignore others
-        - Ensures consistent graph construction across projectors, WandB, and tables
-        - Uses structural semantics (cycle-basis based) for ring constraints
+
+    - Channel 0 = no-edge
+    - Channels 1..4 = edges (single, double, triple, AROMATIC)  ← include aromatic
     """
     n = int(mask.sum().item()) if mask is not None else edge_tensor.shape[0]
     et = edge_tensor[:n, :n]
-    
+
     if et.dim() == 3:
-        # Multi-channel edge tensor: sum across bond types 1-3 (ignore channel 0 and others)
-        adj = (et[..., 1:4].sum(dim=-1) > 0).int()
+        # Include aromatic channel (index 4). Sum 1..4.
+        adj = (et[..., 1:5].sum(dim=-1) > 0).int()
     else:
-        # Single-channel edge tensor: treat as binary
         adj = (et > 0).int()
-    
-    # Convert to NetworkX graph
+
     g = nx.from_numpy_array(adj.cpu().numpy())
-    
-    # Ensure simple undirected graph (no self-loops, no parallel edges)
     g = nx.Graph(g)
-    
     return g
 
 
@@ -288,9 +274,8 @@ def get_forbidden_edges(adj_matrix):
 
 
 def get_adj_matrix(z_t):
-    # Check if edge exists by looking at the actual value, not just argmax
-    # Only consider edge types 1, 2, 3 (single, double, triple bonds), not 0 (no edge)
-    z_t_adj = (z_t.E[:, :, :, 1:4].sum(dim=3) > 0).int()  # Sum across edge types 1,2,3 and check if > 0
+    # Include aromatic channel in structural view
+    z_t_adj = (z_t.E[:, :, :, 1:5].sum(dim=3) > 0).int()
     return z_t_adj
 
 

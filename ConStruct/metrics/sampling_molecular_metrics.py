@@ -375,21 +375,28 @@ class SamplingMolecularMetrics(nn.Module):
             eval_meta = {"sampler": "reverse"}  # or infer if you have faster sampling flag
             
             # constraint caption
-            kind = detect_constraint_kind(metrics_to_pass, split)
+            kind = detect_constraint_kind(metrics_to_pass, split, self.cfg)
             constraint_meta = {
                 "max_rings": getattr(self.cfg.model, 'max_rings', None),
                 "max_ring_length": getattr(self.cfg.model, 'max_ring_length', None)
             }
             constraint_str = constraint_caption(kind, constraint_meta)
             
-            # Collect ring count and ring length distributions for detailed structural analysis
-            ring_counts_all, ring_lengths_all = self.collect_ring_distributions(generated_graphs)
-            
+            # New (STRUCTURAL, projector-consistent)
+            cycle_rank_counts, max_cycle_length_counts = self.collect_structural_distributions_from_graphs(generated_graphs)
+            N_struct = sum(cycle_rank_counts)  # equals number of molecules
+
             # core/structural metrics (removed alignment)
-            core_rows = collect_core(split, metrics_to_pass, N_total)
-            struct_rows = collect_structural(split, metrics_to_pass, N_total, ring_counts_all, ring_lengths_all,
-                                           max_rings=getattr(self.cfg.model, 'max_rings', None),
-                                           max_ring_length=getattr(self.cfg.model, 'max_ring_length', None))
+            core_rows = collect_core(split, metrics_to_pass, N_total, self.cfg)
+            struct_rows = collect_structural(
+                split,
+                metrics_to_pass,
+                N_struct,  # denominator = all generated graphs (structural)
+                cycle_rank_counts,              # per-molecule cycle-rank histogram
+                max_cycle_length_counts,        # per-molecule MAX basis-cycle-length histogram (with 0=acyclic)
+                max_rings=getattr(self.cfg.model, 'max_rings', None),
+                max_ring_length=getattr(self.cfg.model, 'max_ring_length', None),
+            )
             
             # Collect actual timing data with proper defaults
             timing_dict = {
@@ -629,6 +636,54 @@ class SamplingMolecularMetrics(nn.Module):
         
         return mean_projection_time * 1000, projection_share  # Convert to ms
     
+    def collect_structural_distributions_from_graphs(self, generated_graphs: list[PlaceHolder]):
+        """
+        Returns:
+            cycle_rank_counts: list sized 10 → bins [0,1,2,3,4,5,6,7,8,9+]
+            max_cycle_length_counts: list sized 12 → bins:
+                [0 (acyclic), 3,4,5,6,7,8,9,10,11,12, >12]
+        """
+        from ConStruct.projector.projector_utils import build_simple_graph_from_edge_tensor
+        import networkx as nx
+
+        # Cycle-rank histogram: 0..8, 9+ lumped
+        cycle_rank_counts = [0] * 10
+
+        # Max-basis-cycle-length histogram:
+        # index 0 = acyclic
+        # index 1..10 => lengths 3..12
+        # index 11 => >12
+        max_cycle_length_counts = [0] * 12
+
+        for batch in generated_graphs:
+            for edge_mat, mask in zip(batch.E, batch.node_mask):
+                g = build_simple_graph_from_edge_tensor(edge_mat, mask)
+                try:
+                    cycles = nx.cycle_basis(g)
+                except Exception:
+                    # Count as unknown → treat as violating bucket for safety
+                    # but here we place into " >12 " max-length bin to keep totals consistent
+                    cycle_rank_counts[-1] += 1
+                    max_cycle_length_counts[-1] += 1
+                    continue
+
+                # Cycle rank
+                r = len(cycles)
+                cycle_rank_counts[r if r < 9 else 9] += 1
+
+                # Max basis-cycle length (per molecule)
+                if not cycles:
+                    max_cycle_length_counts[0] += 1  # acyclic
+                else:
+                    Lmax = max(len(c) for c in cycles)
+                    if 3 <= Lmax <= 12:
+                        idx = (Lmax - 3) + 1  # 3→1, 12→10
+                        max_cycle_length_counts[idx] += 1
+                    else:
+                        max_cycle_length_counts[-1] += 1  # >12
+
+        return cycle_rank_counts, max_cycle_length_counts
+
     def collect_ring_distributions(self, generated_graphs: list[PlaceHolder]) -> Tuple[List[int], List[int]]:
         """
         Collect ring count and ring length distributions from generated graphs using structural methods.

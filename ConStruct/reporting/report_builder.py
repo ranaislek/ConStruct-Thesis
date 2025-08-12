@@ -85,13 +85,15 @@ def split_prefix(split: str) -> str:
     return f"{split}_sampling"
 
 # -------- constraint detection & captions --------
-def detect_constraint_kind(metrics: Dict[str, Any], split: str) -> str:
+def detect_constraint_kind(metrics: Dict[str, Any], split: str, cfg=None) -> str:
     p = split_prefix(split)
     # Check for enforced constraints (satisfaction metrics)
     if f"{p}/ring_count_satisfaction" in metrics: return "ring_count"
     if f"{p}/ring_length_satisfaction" in metrics: return "ring_length"
-    # Note: planarity metric alone doesn't mean it's enforced - it's just measured
-    # Only return "planarity" if there's evidence it's actually enforced
+    # Check configuration for planarity constraint
+    if cfg is not None and hasattr(cfg.model, 'rev_proj') and cfg.model.rev_proj == "planar":
+        return "planarity"
+    # For no-constraint trainings, even if planarity is high, it's not enforced
     return "none"
 
 def constraint_caption(kind: str, meta: Dict[str, Any]) -> str:
@@ -101,7 +103,7 @@ def constraint_caption(kind: str, meta: Dict[str, Any]) -> str:
     return "No structural constraint"
 
 # -------- Core (main) --------
-def collect_core(split: str, metrics: Dict[str, Any], N_total: Optional[int]) -> List[Tuple[str,str]]:
+def collect_core(split: str, metrics: Dict[str, Any], N_total: Optional[int], cfg=None) -> List[Tuple[str,str]]:
     p = split_prefix(split)
     rows = []
     rows.append(("Molecules generated (N)", intc(N_total)))
@@ -111,7 +113,7 @@ def collect_core(split: str, metrics: Dict[str, Any], N_total: Optional[int]) ->
     rows.append(("Valid (%)",           pct(metrics.get(f"{p}/Validity"))))
     rows.append(("Disconnected (%)",    pct(metrics.get(f"{p}/Disconnected"))))
     # Property satisfied (%)
-    kind = detect_constraint_kind(metrics, split)
+    kind = detect_constraint_kind(metrics, split, cfg)
     prop = None
     if kind == "planarity":   prop = metrics.get(f"{p}/planarity")
     elif kind == "ring_count":   prop = metrics.get(f"{p}/ring_count_satisfaction")
@@ -145,8 +147,8 @@ def collect_structural(split: str, metrics: Dict[str, Any], N_total: Optional[in
     p = split_prefix(split)
     rows = []
     kind = detect_constraint_kind(metrics, split)
-    
-    # Constraint satisfaction (if enforced)
+
+    # 1) Satisfaction row
     if kind == "planarity":
         rows.append(("Planarity satisfied (%)", pct(metrics.get(f"{p}/planarity"))))
     elif kind == "ring_count":
@@ -155,68 +157,67 @@ def collect_structural(split: str, metrics: Dict[str, Any], N_total: Optional[in
         rows.append(("Ring length satisfied (%)", pct(metrics.get(f"{p}/ring_length_satisfaction"))))
     else:
         rows.append(("Constraint", "No structural constraint"))
-    
-    # Distributions: show complete distributions for enforced constraints
-    if kind == "none":
-        # No constraint: show comprehensive natural distributions
-        if ring_counts_all is not None:
-            # Show individual cycle rank values (0, 1, 2, 3, 4, 5, 6, etc.)
-            for i, count in enumerate(ring_counts_all):
-                if count > 0:  # Only show non-zero counts
-                    pct_val = (100.0 * count / N_total) if N_total else 0.0
-                    rows.append((f"Cycle rank {i} (%)", f"{pct_val:.1f}%"))
-        if ring_lengths_all is not None:
-            # Show individual cycle length values (0, 3, 4, 5, 6, 7, 8, 9, etc.)
-            for i, count in enumerate(ring_lengths_all):
-                if count > 0:  # Only show non-zero counts
-                    pct_val = (100.0 * count / N_total) if N_total else 0.0
-                    if i == 0:
-                        rows.append((f"Cycle length 0 (acyclic) (%)", f"{pct_val:.1f}%"))
-                    else:
-                        rows.append((f"Cycle length {i+2} (%)", f"{pct_val:.1f}%"))  # i+2 because cycle lengths start at 3 (i=1->3, i=2->4, etc.)
-        # Add planarity distribution if available
-        planarity_val = metrics.get(f"{p}/planarity")
-        if planarity_val is not None:
-            rows.append(("Planarity (%)", pct(planarity_val)))
-    else:
-        # Enforced constraint: show complete distribution up to constraint value + "greater than"
-        if kind == "ring_count" and ring_counts_all is not None:
-            # Show complete ring count distribution
-            constraint_value = max_rings if max_rings is not None else 4  # Default fallback
-            
-            # Show all values from 0 up to constraint value
-            for i in range(constraint_value + 1):
+
+    # 2) Distributions (per-molecule)
+    if ring_counts_all is not None:
+        # For constrained trainings, show only up to enforced value and set bigger values to 0
+        # For unconstrained trainings, show all natural distribution
+        if kind == "ring_count" and max_rings is not None:
+            # Constrained training: show up to max_rings, then calculate >max_rings
+            for i in range(max_rings + 1):
                 count = ring_counts_all[i] if i < len(ring_counts_all) else 0
+                label = f"Cycle rank {i} (%)"
                 pct_val = (100.0 * count / N_total) if N_total else 0.0
-                rows.append((f"Cycle rank {i} (%)", f"{pct_val:.1f}%"))
-            
-            # Show "greater than constraint" category (should be 0.0% for constraint satisfaction)
-            sum_gt = sum(ring_counts_all[constraint_value + 1:]) if len(ring_counts_all) > constraint_value + 1 else 0
+                rows.append((label, f"{pct_val:.1f}%"))
+            # Calculate >max_rings from actual data to detect constraint violations
+            sum_gt = 0
+            for i in range(max_rings + 1, len(ring_counts_all)):
+                sum_gt += ring_counts_all[i]
             pct_gt = (100.0 * sum_gt / N_total) if N_total else 0.0
-            rows.append((f"Cycle rank >{constraint_value} (%)", f"{pct_gt:.1f}%"))
-            
-        elif kind == "ring_length" and ring_lengths_all is not None:
-            # Show complete ring length distribution
-            constraint_value = max_ring_length if max_ring_length is not None else 6  # Default fallback
-            
-            # Show acyclic graphs (length 0) first
-            count_acyclic = ring_lengths_all[0] if len(ring_lengths_all) > 0 else 0
-            pct_acyclic = (100.0 * count_acyclic / N_total) if N_total else 0.0
-            rows.append((f"Cycle length 0 (acyclic) (%)", f"{pct_acyclic:.1f}%"))
-            
-            # Show all values from 3 up to constraint value
-            for i in range(1, constraint_value - 1):  # Start from 1 (length 3), up to constraint_value
-                length = i + 2  # Convert index to length (i=1->3, i=2->4, etc.)
-                count = ring_lengths_all[i] if i < len(ring_lengths_all) else 0
+            rows.append((f"Cycle rank >{max_rings} (%)", f"{pct_gt:.1f}%"))
+        else:
+            # Unconstrained training: show all natural distribution
+            for i, count in enumerate(ring_counts_all):
+                label = f"Cycle rank {i} (%)" if i < 9 else "Cycle rank 9+ (%)"
                 pct_val = (100.0 * count / N_total) if N_total else 0.0
-                rows.append((f"Cycle length {length} (%)", f"{pct_val:.1f}%"))
-            
-            # Show "greater than constraint" category (should be 0.0% for constraint satisfaction)
-            start_idx = constraint_value - 1  # Index for constraint_value + 1
-            sum_gt = sum(ring_lengths_all[start_idx:]) if len(ring_lengths_all) > start_idx else 0
+                rows.append((label, f"{pct_val:.1f}%"))
+
+    if ring_lengths_all is not None:
+        # index 0 = acyclic
+        count0 = ring_lengths_all[0] if len(ring_lengths_all) > 0 else 0
+        pct0 = (100.0 * count0 / N_total) if N_total else 0.0
+        rows.append(("Acyclic (max len 0) (%)", f"{pct0:.1f}%"))
+
+        # indices 1..10 => lengths 3..12 ; index 11 => >12
+        # For constrained trainings, show only up to enforced value and set bigger values to 0
+        # For unconstrained trainings, show all natural distribution
+        if kind == "ring_length" and max_ring_length is not None:
+            # Constrained training: show up to max_ring_length, then calculate >max_ring_length
+            L = max_ring_length
+            # 3..L
+            for length in range(3, L+1):
+                idx = (length - 3) + 1  # map 3→1
+                count = ring_lengths_all[idx] if idx < len(ring_lengths_all) else 0
+                pct_val = (100.0 * count / N_total) if N_total else 0.0
+                rows.append((f"Cycle length {length} (max) (%)", f"{pct_val:.1f}%"))
+            # Calculate >L from actual data to detect constraint violations
+            sum_gt = 0
+            for idx in range((L - 3) + 2, len(ring_lengths_all)):  # indices whose length > L
+                sum_gt += ring_lengths_all[idx]
             pct_gt = (100.0 * sum_gt / N_total) if N_total else 0.0
-            rows.append((f"Cycle length >{constraint_value} (%)", f"{pct_gt:.1f}%"))
-    
+            rows.append((f"Cycle length >{L} (max) (%)", f"{pct_gt:.1f}%"))
+        else:
+            # Natural distribution: show 3..12 and >12
+            for length in range(3, 13):
+                idx = (length - 3) + 1
+                count = ring_lengths_all[idx] if idx < len(ring_lengths_all) else 0
+                pct_val = (100.0 * count / N_total) if N_total else 0.0
+                rows.append((f"Cycle length {length} (max) (%)", f"{pct_val:.1f}%"))
+            # >12
+            count_gt = ring_lengths_all[-1] if len(ring_lengths_all) > 0 else 0
+            pct_gt = (100.0 * count_gt / N_total) if N_total else 0.0
+            rows.append(("Cycle length >12 (max) (%)", f"{pct_gt:.1f}%"))
+
     return rows
 
 # -------- Alignment (appendix) --------
@@ -378,12 +379,18 @@ def write_tables(outdir: str, split: str, exp_name: str, dataset: str, constrain
                  include_timing: bool = True):
     os.makedirs(outdir, exist_ok=True)
     hdr = f"{exp_name} — {split.upper()} — {dataset}"
-    # Remove seeds information from subtitle
-    sub = f"Constraint: {constraint_str} · N={intc(N_total)} · diffusion_steps={diffusion_steps if diffusion_steps is not None else 'NA'} · sampler={eval_meta.get('sampler','reverse')}"
+    sub = f"Constraint: {constraint_str} · N={intc(N_total)} · d={intc(diffusion_steps)} · sampler={eval_meta.get('sampler','reverse')}"
+    # Structural subtitle explains the calculation:
+    sub_struct = (
+        sub
+        + " · Structural cycles via NetworkX cycle_basis; "
+          "ring-length rows = per-molecule MAX basis-cycle length; "
+          "aromatic bonds included"
+    )
     with open(os.path.join(outdir, f"{split}_core.md"), "w") as f:
         f.write(render_table_md(hdr, sub, core, tail_note=core_definitions_md()))
     with open(os.path.join(outdir, f"{split}_structural.md"), "w") as f:
-        f.write(render_table_md(hdr+" — Structural", sub, structural))
+        f.write(render_table_md(hdr+" — Structural", sub_struct, structural))
     if include_alignment and alignment:
         with open(os.path.join(outdir, f"{split}_alignment.md"), "w") as f:
             f.write(render_table_md(hdr+" — Alignment (Appendix)", sub, alignment))
