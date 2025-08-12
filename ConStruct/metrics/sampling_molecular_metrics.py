@@ -159,7 +159,7 @@ class SamplingMolecularMetrics(nn.Module):
                     # Skip invalid SMILES
                     continue
             self.train_smiles = canonical_train_smiles
-            print(f"DEBUG: Canonicalized {len(canonical_train_smiles)} training SMILES")
+
         else:
             self.train_smiles = set()
         
@@ -178,20 +178,7 @@ class SamplingMolecularMetrics(nn.Module):
         self.atom_stable = MeanMetric()
         self.mol_stable = MeanMetric()
 
-        # DEBUG: Add debugging to understand what's happening with train_smiles
-        print(f"DEBUG: dataset_infos.train_smiles type: {type(dataset_infos.train_smiles)}")
-        print(f"DEBUG: dataset_infos.train_smiles length: {len(dataset_infos.train_smiles) if dataset_infos.train_smiles is not None else 'None'}")
-        if dataset_infos.train_smiles is not None and len(dataset_infos.train_smiles) > 0:
-            print(f"DEBUG: First few train_smiles: {list(dataset_infos.train_smiles)[:5]}")
-        else:
-            print("DEBUG: train_smiles is None or empty!")
-        print(f"DEBUG: self.train_smiles length: {len(self.train_smiles)}")
-        
-        # DEBUG: Show canonicalized training SMILES format
-        if len(self.train_smiles) > 0:
-            print(f"DEBUG: First few CANONICALIZED train_smiles: {list(self.train_smiles)[:5]}")
-        else:
-            print("DEBUG: No canonicalized training SMILES!")
+
         
         # Retrieve dataset smiles only for qm9 currently.
         # self.train_smiles = set(dataset_infos.train_smiles)  # REMOVED DUPLICATE

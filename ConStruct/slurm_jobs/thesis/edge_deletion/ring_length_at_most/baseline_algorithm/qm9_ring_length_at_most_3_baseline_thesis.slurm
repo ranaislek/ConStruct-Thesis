@@ -30,7 +30,9 @@ export WANDB_NETWORK_TIMEOUT=300
 export WANDB_HTTP_TIMEOUT=300
 
 # CUDA optimizations
-export CUDA_LAUNCH_BLOCKING=1
+export OMP_NUM_THREADS=4
+export MKL_NUM_THREADS=4
+export PYTORCH_CUDNN_BENCHMARK=1
 
 # Force unbuffered output for better logging
 export PYTHONUNBUFFERED=1
