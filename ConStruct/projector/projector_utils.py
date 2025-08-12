@@ -23,6 +23,41 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
+def build_simple_graph_from_edge_tensor(edge_tensor: torch.Tensor, mask: torch.Tensor):
+    """
+    Unified graph construction helper for consistent graph building across all components.
+    
+    Args:
+        edge_tensor: [N, N, C] or [N, N] - edge tensor with channels
+        mask: [N] boolean or 0/1 tensor - nodes to keep
+        
+    Returns:
+        networkx.Graph: simple, undirected graph with no parallel edges
+        
+    Notes:
+        - Channels: 0 = no-edge, 1..3 = bond types we enforce; ignore others
+        - Ensures consistent graph construction across projectors, WandB, and tables
+        - Uses structural semantics (cycle-basis based) for ring constraints
+    """
+    n = int(mask.sum().item()) if mask is not None else edge_tensor.shape[0]
+    et = edge_tensor[:n, :n]
+    
+    if et.dim() == 3:
+        # Multi-channel edge tensor: sum across bond types 1-3 (ignore channel 0 and others)
+        adj = (et[..., 1:4].sum(dim=-1) > 0).int()
+    else:
+        # Single-channel edge tensor: treat as binary
+        adj = (et > 0).int()
+    
+    # Convert to NetworkX graph
+    g = nx.from_numpy_array(adj.cpu().numpy())
+    
+    # Ensure simple undirected graph (no self-loops, no parallel edges)
+    g = nx.Graph(g)
+    
+    return g
+
+
 def resize_placeholder_tensor(z_s: PlaceHolder, new_size: int, graph_idx: int = 0) -> PlaceHolder:
     """
     Resize PlaceHolder tensor to accommodate new nodes for dynamic tensor resizing.
@@ -255,7 +290,7 @@ def get_forbidden_edges(adj_matrix):
 def get_adj_matrix(z_t):
     # Check if edge exists by looking at the actual value, not just argmax
     # Only consider edge types 1, 2, 3 (single, double, triple bonds), not 0 (no edge)
-    z_t_adj = (z_t.E[:, :, :, 1:].sum(dim=3) > 0).int()  # Sum across edge types 1,2,3 and check if > 0
+    z_t_adj = (z_t.E[:, :, :, 1:4].sum(dim=3) > 0).int()  # Sum across edge types 1,2,3 and check if > 0
     return z_t_adj
 
 
@@ -283,27 +318,19 @@ class AbstractProjector(abc.ABC):
 
         # add data structure where planarity is checked
         for graph_idx in range(self.batch_size):
-            num_nodes = int(z_t.node_mask[graph_idx].sum().item())
-            
-            # For edge-insertion with "at least" constraints:
-            # - Start with the ACTUAL graph from the tensor
-            # - This is the current state of the diffusion process
-            # FIX: Ensure proper GPU tensor handling with bounds checking
-            max_nodes = min(num_nodes, self.z_t_adj.shape[1], self.z_t_adj.shape[2])
-            adj_matrix = self.z_t_adj[graph_idx, :max_nodes, :max_nodes]
-            if adj_matrix.is_cuda:
-                adj_matrix = adj_matrix.cpu()
-            adj_matrix = adj_matrix.numpy()
-            nx_graph = nx.from_numpy_array(adj_matrix)
+            # Use unified graph construction helper
+            edge_mat = z_t.E[graph_idx]
+            mask = z_t.node_mask[graph_idx]
+            nx_graph = build_simple_graph_from_edge_tensor(edge_mat, mask)
             
             # For edge-insertion, we validate the initial graph
             # because we need to add edges to satisfy constraints
             self.nx_graphs_list.append(nx_graph)
             # initialize block edge list with bounds checking
             if self.can_block_edges:
-                max_nodes = min(num_nodes, self.z_t_adj.shape[1], self.z_t_adj.shape[2])
-                for node_1_idx in range(max_nodes):
-                    for node_2_idx in range(node_1_idx + 1, max_nodes):
+                num_nodes = nx_graph.number_of_nodes()
+                for node_1_idx in range(num_nodes):
+                    for node_2_idx in range(node_1_idx + 1, num_nodes):
                         self.blocked_edges[graph_idx][(node_1_idx, node_2_idx)] = False
 
     def project(self, z_s: PlaceHolder):
@@ -507,29 +534,29 @@ class LobsterProjector(AbstractProjector):
 
 class RingCountAtMostProjector(AbstractProjector):
     """
-    Edge-Deletion Projector: Ensures graphs have at most N rings.
+    Edge-Deletion Projector: Ensures graphs have at most N cycles (cycle rank ≤ K).
     
     CONSTRUCT PHILOSOPHY: This projector enforces ONLY structural constraints
-    (ring count) and does NOT enforce chemical validity, valency, or connectivity.
+    (cycle rank) and does NOT enforce chemical validity, valency, or connectivity.
     Chemical properties are measured post-generation.
     
     Mathematical Construction:
-    - Constraint: "At most N rings" (structural only)
+    - Constraint: "Cycle rank ≤ K" (structural only)
     - Forward diffusion: Edges progressively disappear toward no-edge state
-    - Reverse diffusion: Edges are added while preserving max ring constraint
-    - Natural bias: toward sparse graphs (fewer edges = fewer ring possibilities)
+    - Reverse diffusion: Edges are added while preserving max cycle rank constraint
+    - Natural bias: toward sparse graphs (fewer edges = fewer cycle possibilities)
     
     Structural Constraint:
-    - Count cycles using NetworkX cycle_basis()
-    - Remove edges that break excess rings
-    - Block edge additions that would exceed maximum ring count
+    - Count cycles using NetworkX cycle_basis() (cycle rank = basis size)
+    - Remove edges that break excess cycles
+    - Block edge additions that would exceed maximum cycle rank
     
     CRITICAL: Chemical validity (valency, connectivity, atom types) is NOT enforced.
     These properties are measured separately after generation using RDKit.
     
     Usage:
     - Transition: 'absorbing_edges'
-    - Config: rev_proj: 'ring_count_at_most', max_rings: N, use_incremental: bool
+    - Config: rev_proj: 'ring_count_at_most', max_rings: K, use_incremental: bool
     - Post-generation: Run RDKit validation to measure chemical properties
     
     MODES:
@@ -569,23 +596,23 @@ class RingCountAtMostProjector(AbstractProjector):
 
     def valid_graph_fn(self, nx_graph):
         """
-        Check if graph satisfies structural constraint: at most N rings.
+        Check if graph satisfies structural constraint: cycle rank ≤ K.
         
-        This function ONLY checks structural properties (ring count) and does
+        This function ONLY checks structural properties (cycle rank) and does
         NOT enforce chemical validity, valency, or connectivity.
         
         Args:
             nx_graph: NetworkX graph to validate
             
         Returns:
-            bool: True if graph has at most max_rings cycles
+            bool: True if graph has cycle rank ≤ max_rings
         """
-        # Use NetworkX to count cycles (rings) - structural constraint only
+        # Use NetworkX to count cycles (cycle rank = basis size) - structural constraint only
         cycles = nx.cycle_basis(nx_graph)
-        ring_count = len(cycles)
-        is_valid = ring_count <= self.max_rings
-        # print(f"   🔍 RingCountAtMostProjector.valid_graph_fn(): {ring_count} rings, max={self.max_rings}, valid={is_valid}")
-        return is_valid  # At most N rings
+        cycle_rank = len(cycles)
+        is_valid = cycle_rank <= self.max_rings
+        # print(f"   🔍 RingCountAtMostProjector.valid_graph_fn(): {cycle_rank} cycles, max={self.max_rings}, valid={is_valid}")
+        return is_valid  # Cycle rank ≤ K
 
     @property
     def can_block_edges(self):
@@ -671,29 +698,29 @@ class RingCountAtMostProjector(AbstractProjector):
 
 class RingLengthAtMostProjector(AbstractProjector):
     """
-    Edge-Deletion Projector: Ensures graphs have rings of at most N length.
+    Edge-Deletion Projector: Ensures graphs have max basis-cycle length ≤ L.
     
     CONSTRUCT PHILOSOPHY: This projector enforces ONLY structural constraints
-    (ring length) and does NOT enforce chemical validity, valency, or connectivity.
+    (max basis-cycle length) and does NOT enforce chemical validity, valency, or connectivity.
     Chemical properties are measured post-generation.
     
     Mathematical Construction:
-    - Constraint: "All rings have length at most N" (structural only)
+    - Constraint: "Max basis-cycle length ≤ L" (structural only)
     - Forward diffusion: Edges progressively disappear toward no-edge state
-    - Reverse diffusion: Edges are added while preserving max ring length constraint
-    - Natural bias: toward sparse graphs (fewer edges = fewer ring possibilities)
+    - Reverse diffusion: Edges are added while preserving max basis-cycle length constraint
+    - Natural bias: toward sparse graphs (fewer edges = fewer cycle possibilities)
     
     Structural Constraint:
-    - Check ring lengths using NetworkX cycle_basis()
-    - Block edge additions that would create rings longer than maximum
-    - Remove edges that create rings longer than allowed
+    - Check basis-cycle lengths using NetworkX cycle_basis()
+    - Block edge additions that would create cycles longer than maximum
+    - Remove edges that create cycles longer than allowed
     
     CRITICAL: Chemical validity (valency, connectivity, atom types) is NOT enforced.
     These properties are measured separately after generation using RDKit.
     
     Usage:
     - Transition: 'absorbing_edges'
-    - Config: rev_proj: 'ring_length_at_most', max_ring_length: N, use_incremental: bool
+    - Config: rev_proj: 'ring_length_at_most', max_ring_length: L, use_incremental: bool
     - Post-generation: Run RDKit validation to measure chemical properties
     
     MODES:
@@ -724,7 +751,7 @@ class RingLengthAtMostProjector(AbstractProjector):
         self.verbose = False
 
     def valid_graph_fn(self, nx_graph):
-        """Check if all rings have length at most N."""
+        """Check if max basis-cycle length ≤ L."""
         cycles = nx.cycle_basis(nx_graph)
         for cycle in cycles:
             if len(cycle) > self.max_ring_length:

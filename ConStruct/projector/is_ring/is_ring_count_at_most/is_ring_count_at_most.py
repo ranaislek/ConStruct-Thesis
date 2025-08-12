@@ -10,15 +10,15 @@ __all__ = ["has_at_most_n_rings", "ring_count_at_most_projector", "count_rings_a
 
 
 def has_at_most_n_rings(graph, n):
-    """Return True if the graph has at most n rings (cycles)."""
+    """Return True if the graph has cycle rank ≤ n (structural constraint)."""
     cycles = nx.cycle_basis(graph)
     return len(cycles) <= n
 
 
 def ring_count_at_most_projector(graph, max_rings):
     """
-    Edge-Deletion Projector: If the graph has more than max_rings, remove edges to break cycles.
-    GENTLE APPROACH: Only remove edges from excess rings, preserve as many rings as possible.
+    Edge-Deletion Projector: Enforces structural constraint: cycle rank (basis size) ≤ max_rings.
+    GENTLE APPROACH: Only remove edges from excess cycles, preserve as many cycles as possible.
     """
     while True:
         cycles = nx.cycle_basis(graph)
@@ -47,6 +47,6 @@ def ring_count_at_most_projector(graph, max_rings):
 
 
 def count_rings_at_most(graph):
-    """Return the number of rings (cycles) in the graph for 'at most' constraints."""
+    """Return the cycle rank (basis size) in the graph for 'at most' constraints."""
     cycles = nx.cycle_basis(graph)
     return len(cycles) 

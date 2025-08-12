@@ -272,29 +272,9 @@ class SamplingMolecularMetrics(nn.Module):
                 value=len(novel) / len(unique), weight=len(unique)
             )
             novelty = self.novelty_metric.compute().item()
-            # DEBUG: Add debugging for novelty calculation
-            print(f"DEBUG: Novelty calculation - unique molecules: {len(unique)}, novel molecules: {len(novel)}")
-            print(f"DEBUG: Novelty percentage: {novelty * 100:.2f}%")
-            # DEBUG: Show sample comparisons
-            if len(unique) > 0:
-                sample_unique = unique[0]
-                sample_in_training = sample_unique in self.train_smiles
-                print(f"DEBUG: Sample unique SMILES: '{sample_unique}'")
-                print(f"DEBUG: Is in training set? {sample_in_training}")
-                if len(self.train_smiles) > 0:
-                    sample_training = list(self.train_smiles)[0]
-                    print(f"DEBUG: Sample training SMILES: '{sample_training}'")
-                    print(f"DEBUG: Direct comparison: '{sample_unique}' == '{sample_training}'? {sample_unique == sample_training}")
         else:
             print("No valid molecules")
             novelty = 0.0
-            # DEBUG: Add debugging for when novelty calculation fails
-            print(f"DEBUG: Novelty calculation failed - train_smiles is None: {self.train_smiles is None}")
-            print(f"DEBUG: Novelty calculation failed - len(unique): {len(unique)}")
-            if self.train_smiles is not None:
-                print(f"DEBUG: train_smiles length: {len(self.train_smiles)}")
-            else:
-                print("DEBUG: train_smiles is None")
         # num_molecules = int(self.validity_metric.weight.item())
         # print(f"Validity over {num_molecules} molecules: {validity * 100 :.2f}%")
 
@@ -375,7 +355,7 @@ class SamplingMolecularMetrics(nn.Module):
                     metrics_to_pass = {**computed_metrics, **metrics}
                 else:
                     metrics_to_pass = metrics
-                table_report = self.generate_table_report(constraint_type, constraint_value, all_generated_smiles, metrics_to_pass)
+                table_report = self.generate_table_report(constraint_type, constraint_value, all_generated_smiles, generated_graphs, metrics_to_pass)
                 print(table_report)
                 print("="*80)
             else:
@@ -390,7 +370,7 @@ class SamplingMolecularMetrics(nn.Module):
                     metrics_to_pass = {**computed_metrics, **metrics}
                 else:
                     metrics_to_pass = metrics
-                comprehensive_report = self.generate_comprehensive_report(all_generated_smiles, metrics_to_pass)
+                comprehensive_report = self.generate_comprehensive_report(all_generated_smiles, generated_graphs, metrics_to_pass)
                 print(comprehensive_report)
                 print("="*80)
 
@@ -492,7 +472,7 @@ class SamplingMolecularMetrics(nn.Module):
 
     # No chemical validation metrics method in initial commit - removed to match exactly
 
-    def generate_table_report(self, constraint_type: str, constraint_value: int, all_generated_smiles: List[str], computed_metrics: Dict = None) -> str:
+    def generate_table_report(self, constraint_type: str, constraint_value: int, all_generated_smiles: List[str], generated_graphs: List[PlaceHolder] = None, computed_metrics: Dict = None) -> str:
         """
         Generate a comprehensive table report for constraint satisfaction metrics.
         Includes both ALL molecules (structural analysis) and VALID molecules (chemical analysis).
@@ -501,6 +481,7 @@ class SamplingMolecularMetrics(nn.Module):
             constraint_type: Type of constraint (e.g., 'ring_count_at_most', 'planar')
             constraint_value: Value of the constraint (e.g., 1)
             all_generated_smiles: List of all generated SMILES strings
+            generated_graphs: List of generated graph batches (for graph-based calculations)
             
         Returns:
             Formatted table string with both structural and chemical analysis
@@ -524,12 +505,20 @@ class SamplingMolecularMetrics(nn.Module):
         
         # Get structural constraint satisfaction results (using ALL molecules)
         if constraint_type == "planar":
-            # For planar constraints, use the existing function for ALL molecules
-            structural_results = check_planarity_constraint_all_molecules(all_generated_smiles, logger=lambda x: None)
+            # For planar constraints, use the graph-based function for ALL molecules (same as WandB)
+            if generated_graphs is not None:
+                structural_results = check_planarity_constraint_all_molecules(generated_graphs, logger=lambda x: None)
+            else:
+                # Fallback to SMILES-based if graphs not available
+                structural_results = check_planarity_constraint_all_molecules(all_generated_smiles, logger=lambda x: None)
             structural_satisfaction_rate = structural_results['satisfaction_rate'] * 100
         else:
-            # For ring-based constraints, use the ALL molecules function
-            structural_results = check_ring_constraints_all_molecules(all_generated_smiles, constraint_type, constraint_value, logger=lambda x: None)
+            # For ring-based constraints, use the graph-based function for ALL molecules (same as projectors)
+            if generated_graphs is not None:
+                structural_results = check_ring_constraints_all_molecules_from_graphs(generated_graphs, constraint_type, constraint_value, logger=lambda x: None)
+            else:
+                # Fallback to SMILES-based if graphs not available
+                structural_results = check_ring_constraints_all_molecules(all_generated_smiles, constraint_type, constraint_value, logger=lambda x: None)
             structural_satisfaction_rate = structural_results['satisfaction_rate'] * 100
         
         # ============================================================================
@@ -538,8 +527,12 @@ class SamplingMolecularMetrics(nn.Module):
         
         # Get chemical constraint satisfaction results (using valid molecules only)
         if constraint_type == "planar":
-            # For planar constraints, use the existing function for valid molecules
-            chemical_results = check_planarity_constraint(valid_smiles, logger=lambda x: None)
+            # For planar constraints, use the graph-based function for valid molecules (same as WandB)
+            if generated_graphs is not None:
+                chemical_results = check_planarity_constraint(generated_graphs, logger=lambda x: None)
+            else:
+                # Fallback to SMILES-based if graphs not available
+                chemical_results = check_planarity_constraint(valid_smiles, logger=lambda x: None)
             chemical_satisfaction_rate = chemical_results['satisfaction_rate'] * 100
         else:
             # For ring-based constraints, use the existing function for valid molecules
@@ -632,32 +625,38 @@ class SamplingMolecularMetrics(nn.Module):
         # Create structural constraint verification table (ALL molecules)
         structural_verification_data = []
         if constraint_type == "ring_count_at_most":
-            # Check ring_count_at_most for values 0-6 using ALL molecules
+            # Check cycle_rank_at_most for values 0-6 using ALL molecules
             for test_value in range(7):  # 0 to 6
-                test_results = check_ring_constraints_all_molecules(all_generated_smiles, "ring_count_at_most", test_value, logger=lambda x: None)
+                if generated_graphs is not None:
+                    test_results = check_ring_constraints_all_molecules_from_graphs(generated_graphs, "ring_count_at_most", test_value, logger=lambda x: None)
+                else:
+                    test_results = check_ring_constraints_all_molecules(all_generated_smiles, "ring_count_at_most", test_value, logger=lambda x: None)
                 satisfied = test_results['satisfied_molecules']
                 total = test_results['total_molecules']
                 rate = test_results['satisfaction_rate'] * 100
                 
                 # Highlight the enforced constraint
                 if test_value == constraint_value:
-                    structural_verification_data.append([f"≤{test_value}", f"{satisfied}/{total}", f"{rate:.1f}%", "⭐ ENFORCED"])
+                    structural_verification_data.append([f"Cycle Rank ≤{test_value}", f"{satisfied}/{total}", f"{rate:.1f}%", "⭐ ENFORCED"])
                 else:
-                    structural_verification_data.append([f"≤{test_value}", f"{satisfied}/{total}", f"{rate:.1f}%", ""])
+                    structural_verification_data.append([f"Cycle Rank ≤{test_value}", f"{satisfied}/{total}", f"{rate:.1f}%", ""])
                     
         elif constraint_type == "ring_length_at_most":
-            # Check ring_length_at_most for values 3-8 using ALL molecules
+            # Check max_basis_cycle_length_at_most for values 3-8 using ALL molecules
             for test_value in range(3, 9):  # 3 to 8
-                test_results = check_ring_constraints_all_molecules(all_generated_smiles, "ring_length_at_most", test_value, logger=lambda x: None)
+                if generated_graphs is not None:
+                    test_results = check_ring_constraints_all_molecules_from_graphs(generated_graphs, "ring_length_at_most", test_value, logger=lambda x: None)
+                else:
+                    test_results = check_ring_constraints_all_molecules(all_generated_smiles, "ring_length_at_most", test_value, logger=lambda x: None)
                 satisfied = test_results['satisfied_molecules']
                 total = test_results['total_molecules']
                 rate = test_results['satisfaction_rate'] * 100
                 
                 # Highlight the enforced constraint
                 if test_value == constraint_value:
-                    structural_verification_data.append([f"≤{test_value}", f"{satisfied}/{total}", f"{rate:.1f}%", "⭐ ENFORCED"])
+                    structural_verification_data.append([f"Max Basis-Cycle Length ≤{test_value}", f"{satisfied}/{total}", f"{rate:.1f}%", "⭐ ENFORCED"])
                 else:
-                    structural_verification_data.append([f"≤{test_value}", f"{satisfied}/{total}", f"{rate:.1f}%", ""])
+                    structural_verification_data.append([f"Max Basis-Cycle Length ≤{test_value}", f"{satisfied}/{total}", f"{rate:.1f}%", ""])
         
         elif constraint_type == "planar":
             # For planar, just show the single result
@@ -673,7 +672,7 @@ class SamplingMolecularMetrics(nn.Module):
         # Create chemical constraint verification table (VALID molecules only)
         chemical_verification_data = []
         if constraint_type == "ring_count_at_most":
-            # Check ring_count_at_most for values 0-6 using valid molecules only
+            # Check cycle_rank_at_most for values 0-6 using valid molecules only
             for test_value in range(7):  # 0 to 6
                 test_results = check_ring_constraints(valid_smiles, "ring_count_at_most", test_value, logger=lambda x: None)
                 satisfied = test_results['satisfied_molecules']
@@ -682,12 +681,12 @@ class SamplingMolecularMetrics(nn.Module):
                 
                 # Highlight the enforced constraint
                 if test_value == constraint_value:
-                    chemical_verification_data.append([f"≤{test_value}", f"{satisfied}/{total}", f"{rate:.1f}%", "⭐ ENFORCED"])
+                    chemical_verification_data.append([f"Cycle Rank ≤{test_value}", f"{satisfied}/{total}", f"{rate:.1f}%", "⭐ ENFORCED"])
                 else:
-                    chemical_verification_data.append([f"≤{test_value}", f"{satisfied}/{total}", f"{rate:.1f}%", ""])
+                    chemical_verification_data.append([f"Cycle Rank ≤{test_value}", f"{satisfied}/{total}", f"{rate:.1f}%", ""])
                     
         elif constraint_type == "ring_length_at_most":
-            # Check ring_length_at_most for values 3-8 using valid molecules only
+            # Check max_basis_cycle_length_at_most for values 3-8 using valid molecules only
             for test_value in range(3, 9):  # 3 to 8
                 test_results = check_ring_constraints(valid_smiles, "ring_length_at_most", test_value, logger=lambda x: None)
                 satisfied = test_results['satisfied_molecules']
@@ -696,9 +695,9 @@ class SamplingMolecularMetrics(nn.Module):
                 
                 # Highlight the enforced constraint
                 if test_value == constraint_value:
-                    chemical_verification_data.append([f"≤{test_value}", f"{satisfied}/{total}", f"{rate:.1f}%", "⭐ ENFORCED"])
+                    chemical_verification_data.append([f"Max Basis-Cycle Length ≤{test_value}", f"{satisfied}/{total}", f"{rate:.1f}%", "⭐ ENFORCED"])
                 else:
-                    chemical_verification_data.append([f"≤{test_value}", f"{satisfied}/{total}", f"{rate:.1f}%", ""])
+                    chemical_verification_data.append([f"Max Basis-Cycle Length ≤{test_value}", f"{satisfied}/{total}", f"{rate:.1f}%", ""])
         
         elif constraint_type == "planar":
             # For planar, just show the single result
@@ -706,7 +705,7 @@ class SamplingMolecularMetrics(nn.Module):
         
         chemical_verification_table = ""
         if chemical_verification_data:
-            chemical_verification_table = "\n\n🧪 CHEMICAL CONSTRAINT ENFORCEMENT (Valid Molecules Only):\n"
+            chemical_verification_table = "\n\n🧪 CHEMICAL CONSTRAINT ENFORCEMENT (Valid Molecules Only - Same Structural Metrics):\n"
             chemical_verification_table += tabulate(chemical_verification_data, 
                                                   headers=["Constraint", "Satisfied", "Rate", "Status"], 
                                                   tablefmt="grid", numalign="left")
@@ -716,21 +715,26 @@ class SamplingMolecularMetrics(nn.Module):
         chemical_distribution_table = ""
         if constraint_type in ["ring_count_at_most", "ring_length_at_most"]:
             # Structural distribution (ALL molecules)
-            structural_results = check_ring_constraints_all_molecules(all_generated_smiles, constraint_type, constraint_value, logger=lambda x: None)
-            structural_ring_counts = structural_results.get('ring_counts', [])
-            if structural_ring_counts:
+            if generated_graphs is not None:
+                structural_results = check_ring_constraints_all_molecules_from_graphs(generated_graphs, constraint_type, constraint_value, logger=lambda x: None)
+                structural_cycle_ranks = structural_results.get('cycle_ranks', [])
+            else:
+                structural_results = check_ring_constraints_all_molecules(all_generated_smiles, constraint_type, constraint_value, logger=lambda x: None)
+                structural_cycle_ranks = structural_results.get('ring_counts', [])
+            
+            if structural_cycle_ranks:
                 from collections import Counter
-                structural_ring_count_dist = Counter(structural_ring_counts)
+                structural_cycle_rank_dist = Counter(structural_cycle_ranks)
                 
-                structural_ring_data = []
-                for ring_count in sorted(structural_ring_count_dist.keys()):
-                    count = structural_ring_count_dist[ring_count]
+                structural_cycle_rank_data = []
+                for cycle_rank in sorted(structural_cycle_rank_dist.keys()):
+                    count = structural_cycle_rank_dist[cycle_rank]
                     percentage = (count / total_molecules * 100) if total_molecules > 0 else 0.0
-                    structural_ring_data.append([ring_count, count, f"{percentage:.1f}%"])
+                    structural_cycle_rank_data.append([cycle_rank, count, f"{percentage:.1f}%"])
                 
-                structural_distribution_table = "\n\n📊 STRUCTURAL RING COUNT DISTRIBUTION (ALL Molecules):\n"
-                structural_distribution_table += tabulate(structural_ring_data, 
-                                                       headers=["Rings", "Count", "Percentage"], 
+                structural_distribution_table = "\n\n📊 STRUCTURAL CYCLE RANK DISTRIBUTION (ALL Molecules):\n"
+                structural_distribution_table += tabulate(structural_cycle_rank_data, 
+                                                       headers=["Cycle Rank", "Count", "Percentage"], 
                                                        tablefmt="grid", numalign="left")
             
             # Chemical distribution (VALID molecules only)
@@ -745,33 +749,37 @@ class SamplingMolecularMetrics(nn.Module):
                     percentage = (count / valid_molecules * 100) if valid_molecules > 0 else 0.0
                     chemical_ring_data.append([ring_count, count, f"{percentage:.1f}%"])
                 
-                chemical_distribution_table = "\n\n📊 CHEMICAL RING COUNT DISTRIBUTION (Valid Molecules Only):\n"
+                chemical_distribution_table = "\n\n📊 CHEMICAL CYCLE RANK DISTRIBUTION (Valid Molecules Only):\n"
                 chemical_distribution_table += tabulate(chemical_ring_data, 
-                                                      headers=["Rings", "Count", "Percentage"], 
+                                                      headers=["Cycle Rank", "Count", "Percentage"], 
                                                       tablefmt="grid", numalign="left")
             
             # Add ring length distribution tables for ring_length_at_most constraint
             if constraint_type == "ring_length_at_most":
-                # Structural ring length distribution (ALL molecules)
-                structural_ring_lengths = structural_results.get('ring_lengths', [])
-                if structural_ring_lengths:
+                # Structural max basis-cycle length distribution (ALL molecules)
+                if generated_graphs is not None:
+                    structural_max_basis_cycle_lengths = structural_results.get('max_basis_cycle_lengths', [])
+                else:
+                    structural_max_basis_cycle_lengths = structural_results.get('ring_lengths', [])
+                
+                if structural_max_basis_cycle_lengths:
                     from collections import Counter
-                    structural_ring_length_dist = Counter(structural_ring_lengths)
+                    structural_max_basis_cycle_length_dist = Counter(structural_max_basis_cycle_lengths)
                     
-                    structural_ring_length_data = []
-                    for ring_length in sorted(structural_ring_length_dist.keys()):
-                        count = structural_ring_length_dist[ring_length]
+                    structural_max_basis_cycle_length_data = []
+                    for max_basis_cycle_length in sorted(structural_max_basis_cycle_length_dist.keys()):
+                        count = structural_max_basis_cycle_length_dist[max_basis_cycle_length]
                         percentage = (count / total_molecules * 100) if total_molecules > 0 else 0.0
-                        structural_ring_length_data.append([ring_length, count, f"{percentage:.1f}%"])
+                        structural_max_basis_cycle_length_data.append([max_basis_cycle_length, count, f"{percentage:.1f}%"])
                     
-                    structural_ring_length_table = "\n\n📊 STRUCTURAL RING LENGTH DISTRIBUTION (ALL Molecules):\n"
-                    structural_ring_length_table += tabulate(structural_ring_length_data, 
-                                                           headers=["Ring Length", "Count", "Percentage"], 
+                    structural_ring_length_table = "\n\n📊 STRUCTURAL MAX BASIS-CYCLE LENGTH DISTRIBUTION (ALL Molecules):\n"
+                    structural_ring_length_table += tabulate(structural_max_basis_cycle_length_data, 
+                                                           headers=["Max Basis-Cycle Length", "Count", "Percentage"], 
                                                            tablefmt="grid", numalign="left")
                 else:
                     structural_ring_length_table = ""
                 
-                # Chemical ring length distribution (VALID molecules only)
+                # Chemical max basis-cycle length distribution (VALID molecules only)
                 chemical_ring_lengths = chemical_results.get('ring_lengths', [])
                 if chemical_ring_lengths:
                     from collections import Counter
@@ -783,9 +791,9 @@ class SamplingMolecularMetrics(nn.Module):
                         percentage = (count / valid_molecules * 100) if valid_molecules > 0 else 0.0
                         chemical_ring_length_data.append([ring_length, count, f"{percentage:.1f}%"])
                     
-                    chemical_ring_length_table = "\n\n📊 CHEMICAL RING LENGTH DISTRIBUTION (Valid Molecules Only):\n"
+                    chemical_ring_length_table = "\n\n📊 CHEMICAL MAX BASIS-CYCLE LENGTH DISTRIBUTION (Valid Molecules Only):\n"
                     chemical_ring_length_table += tabulate(chemical_ring_length_data, 
-                                                          headers=["Ring Length", "Count", "Percentage"], 
+                                                          headers=["Max Basis-Cycle Length", "Count", "Percentage"], 
                                                           tablefmt="grid", numalign="left")
                 else:
                     chemical_ring_length_table = ""
@@ -864,7 +872,7 @@ class SamplingMolecularMetrics(nn.Module):
         
         return full_report
 
-    def generate_comprehensive_report(self, all_generated_smiles: List[str], computed_metrics: Dict = None) -> str:
+    def generate_comprehensive_report(self, all_generated_smiles: List[str], generated_graphs: List[PlaceHolder] = None, computed_metrics: Dict = None) -> str:
         """
         Generates a comprehensive report for all constraint types, showing satisfaction rates.
         Uses computed metrics from the original wandb-submitting calculations to avoid duplication.
@@ -994,8 +1002,12 @@ class SamplingMolecularMetrics(nn.Module):
         
         for constraint_type, constraint_value in constraint_types:
             if constraint_type == "planar":
-                # For planar constraints, analyze ALL molecules for structural planarity
-                structural_results = check_planarity_constraint_all_molecules(all_generated_smiles, logger=lambda x: None)
+                # For planar constraints, analyze ALL molecules for structural planarity (same as WandB)
+                if generated_graphs is not None:
+                    structural_results = check_planarity_constraint_all_molecules(generated_graphs, logger=lambda x: None)
+                else:
+                    # Fallback to SMILES-based if graphs not available
+                    structural_results = check_planarity_constraint_all_molecules(all_generated_smiles, logger=lambda x: None)
                 structural_constraint_data.append({
                     "Constraint Type": constraint_type,
                     "Constraint Value": "Planar",
@@ -1004,8 +1016,11 @@ class SamplingMolecularMetrics(nn.Module):
                     "Satisfaction Rate": f"{structural_results['satisfaction_rate'] * 100:.1f}%"
                 })
             else:
-                # For ring-based constraints, use the ALL molecules function
-                structural_results = check_ring_constraints_all_molecules(all_generated_smiles, constraint_type, constraint_value, logger=lambda x: None)
+                # For ring-based constraints, use the graph-based function for ALL molecules (same as projectors)
+                if generated_graphs is not None:
+                    structural_results = check_ring_constraints_all_molecules_from_graphs(generated_graphs, constraint_type, constraint_value, logger=lambda x: None)
+                else:
+                    structural_results = check_ring_constraints_all_molecules(all_generated_smiles, constraint_type, constraint_value, logger=lambda x: None)
                 structural_constraint_data.append({
                     "Constraint Type": constraint_type,
                     "Constraint Value": f"≤{constraint_value}",
@@ -1019,8 +1034,12 @@ class SamplingMolecularMetrics(nn.Module):
         
         for constraint_type, constraint_value in constraint_types:
             if constraint_type == "planar":
-                # For planar constraints, check planarity using the same method as constraint enforcement
-                chemical_results = check_planarity_constraint(valid_smiles, logger=lambda x: None)
+                # For planar constraints, check planarity using the same method as constraint enforcement (same as WandB)
+                if generated_graphs is not None:
+                    chemical_results = check_planarity_constraint(generated_graphs, logger=lambda x: None)
+                else:
+                    # Fallback to SMILES-based if graphs not available
+                    chemical_results = check_planarity_constraint(valid_smiles, logger=lambda x: None)
                 chemical_constraint_data.append({
                     "Constraint Type": constraint_type,
                     "Constraint Value": "Planar",
@@ -1892,13 +1911,99 @@ def check_ring_constraints_all_molecules(smiles_list, constraint_type, constrain
     }
 
 
-def check_planarity_constraint(smiles_list, logger=print):
+def check_ring_constraints_all_molecules_from_graphs(generated_graphs, constraint_type, constraint_value, logger=print):
     """
-    Check planarity constraint for valid molecules only.
-    Uses the existing is_planar function from the codebase.
+    Check ring constraints for ALL molecules using graph-based structural analysis.
+    This provides structural constraint analysis using the same graph construction as projectors.
     
     Args:
-        smiles_list: List of SMILES strings (valid molecules only)
+        generated_graphs: List of generated graph batches (same as WandB)
+        constraint_type: Type of constraint ('ring_count_at_most', 'ring_length_at_most', etc.)
+        constraint_value: Value of the constraint
+        logger: Logger function
+        
+    Returns:
+        Dictionary with structural constraint analysis results
+    """
+    total_molecules = 0
+    satisfied_molecules = 0
+    
+    # Collect distribution data for structural analysis
+    cycle_ranks = []
+    max_basis_cycle_lengths = []
+    
+    # Use the same approach as WandB: direct graph analysis
+    for batch in generated_graphs:
+        for edge_mat, mask in zip(batch.E, batch.node_mask):
+            # Use unified graph construction helper
+            from ConStruct.projector.projector_utils import build_simple_graph_from_edge_tensor
+            nx_graph = build_simple_graph_from_edge_tensor(edge_mat, mask)
+            
+            total_molecules += 1
+            
+            try:
+                # Use NetworkX cycle_basis for structural constraint
+                cycles = nx.cycle_basis(nx_graph)
+                cycle_rank = len(cycles)
+                cycle_ranks.append(cycle_rank)
+                
+                if cycles:
+                    max_basis_cycle_length = max(len(cycle) for cycle in cycles)
+                else:
+                    max_basis_cycle_length = 0
+                max_basis_cycle_lengths.append(max_basis_cycle_length)
+                
+                # Check constraint satisfaction
+                if constraint_type == "ring_count_at_most":
+                    satisfies_constraint = cycle_rank <= constraint_value
+                elif constraint_type == "ring_length_at_most":
+                    satisfies_constraint = max_basis_cycle_length <= constraint_value
+                elif constraint_type == "ring_count_at_least":
+                    satisfies_constraint = cycle_rank >= constraint_value
+                elif constraint_type == "ring_length_at_least":
+                    satisfies_constraint = max_basis_cycle_length >= constraint_value
+                else:
+                    satisfies_constraint = False
+                
+                if satisfies_constraint:
+                    satisfied_molecules += 1
+                    
+            except Exception as e:
+                # If structural analysis fails, assume constraint not satisfied
+                cycle_ranks.append(0)
+                max_basis_cycle_lengths.append(0)
+                pass
+    
+    # Calculate satisfaction rate (structural - based on ALL molecules)
+    satisfaction_rate = (satisfied_molecules / total_molecules) if total_molecules > 0 else 0.0
+    
+    # Determine the correct operator based on constraint type
+    if constraint_type in ["ring_count_at_least", "ring_length_at_least"]:
+        operator = "≥"
+    else:
+        operator = "≤"
+    
+    # Enhanced output with distribution information
+    logger(f"[Structural Constraint Check (Graphs)] {satisfied_molecules}/{total_molecules} molecules satisfy {constraint_type} {operator} {constraint_value} ({satisfaction_rate*100:.1f}%)")
+    
+    return {
+        'constraint_type': constraint_type,
+        'constraint_value': constraint_value,
+        'total_molecules': total_molecules,
+        'satisfied_molecules': satisfied_molecules,
+        'satisfaction_rate': satisfaction_rate,
+        'cycle_ranks': cycle_ranks,
+        'max_basis_cycle_lengths': max_basis_cycle_lengths
+    }
+
+
+def check_planarity_constraint(generated_graphs, logger=print):
+    """
+    Check planarity constraint for valid molecules only.
+    Uses the same graph-based approach as WandB logging.
+    
+    Args:
+        generated_graphs: List of generated graph batches (same as WandB)
         logger: Logger function
         
     Returns:
@@ -1907,27 +2012,23 @@ def check_planarity_constraint(smiles_list, logger=print):
     satisfied_molecules = 0
     total_molecules = 0
     
-    for smi in smiles_list:
-        if smi and smi != "error":
+    # Use the same approach as WandB: direct graph analysis
+    for batch in generated_graphs:
+        for edge_mat, mask in zip(batch.E, batch.node_mask):
+            # Use unified graph construction helper
+            from ConStruct.projector.projector_utils import build_simple_graph_from_edge_tensor
+            nx_graph = build_simple_graph_from_edge_tensor(edge_mat, mask)
+            
+            # Use the same is_planar function as WandB
             try:
-                mol = Chem.MolFromSmiles(smi)
-                if mol is not None:
-                    total_molecules += 1
-                    # Use existing planarity check from codebase
-                    try:
-                        from ConStruct.projector.is_planar import is_planar
-                        import networkx as nx
-                        
-                        # Convert RDKit molecule to NetworkX graph
-                        adj_matrix = Chem.GetAdjacencyMatrix(mol)
-                        nx_graph = nx.from_numpy_array(adj_matrix)
-                        
-                        if is_planar(nx_graph):
-                            satisfied_molecules += 1
-                    except Exception as e:
-                        # If planarity check fails, assume non-planar
-                        pass
-            except:
+                from ConStruct.projector.is_planar import is_planar
+                is_planar_result = is_planar(nx_graph)
+                total_molecules += 1
+                if is_planar_result:
+                    satisfied_molecules += 1
+            except Exception as e:
+                # If planarity check fails, assume non-planar
+                total_molecules += 1
                 pass
     
     satisfaction_rate = (satisfied_molecules / total_molecules) if total_molecules > 0 else 0.0
@@ -1939,13 +2040,13 @@ def check_planarity_constraint(smiles_list, logger=print):
     }
 
 
-def check_planarity_constraint_all_molecules(smiles_list, logger=print):
+def check_planarity_constraint_all_molecules(generated_graphs, logger=print):
     """
     Check planarity constraint for ALL molecules (including invalid ones).
-    Uses the existing is_planar function from the codebase.
+    Uses the same graph-based approach as WandB logging.
     
     Args:
-        smiles_list: List of SMILES strings (ALL molecules)
+        generated_graphs: List of generated graph batches (same as WandB)
         logger: Logger function
         
     Returns:
@@ -1954,27 +2055,23 @@ def check_planarity_constraint_all_molecules(smiles_list, logger=print):
     satisfied_molecules = 0
     total_molecules = 0
     
-    for smi in smiles_list:
-        if smi and smi != "error":
+    # Use the same approach as WandB: direct graph analysis
+    for batch in generated_graphs:
+        for edge_mat, mask in zip(batch.E, batch.node_mask):
+            # Use unified graph construction helper
+            from ConStruct.projector.projector_utils import build_simple_graph_from_edge_tensor
+            nx_graph = build_simple_graph_from_edge_tensor(edge_mat, mask)
+            
+            # Use the same is_planar function as WandB
             try:
-                mol = Chem.MolFromSmiles(smi)
-                if mol is not None:
-                    total_molecules += 1
-                    # Use existing planarity check from codebase
-                    try:
-                        from ConStruct.projector.is_planar import is_planar
-                        import networkx as nx
-                        
-                        # Convert RDKit molecule to NetworkX graph
-                        adj_matrix = Chem.GetAdjacencyMatrix(mol)
-                        nx_graph = nx.from_numpy_array(adj_matrix)
-                        
-                        if is_planar(nx_graph):
-                            satisfied_molecules += 1
-                    except Exception as e:
-                        # If planarity check fails, assume non-planar
-                        pass
-            except:
+                from ConStruct.projector.is_planar import is_planar
+                is_planar_result = is_planar(nx_graph)
+                total_molecules += 1
+                if is_planar_result:
+                    satisfied_molecules += 1
+            except Exception as e:
+                # If planarity check fails, assume non-planar
+                total_molecules += 1
                 pass
     
     satisfaction_rate = (satisfied_molecules / total_molecules) if total_molecules > 0 else 0.0

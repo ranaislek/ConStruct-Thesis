@@ -46,9 +46,9 @@ class SamplingMetrics(nn.Module):
         self.mean_no_cycles = MeanMetric()
         self.mean_lobster_components = MeanMetric()
         
-        # Add ring constraint metrics
-        self.mean_ring_count_satisfaction = MeanMetric()
-        self.mean_ring_length_satisfaction = MeanMetric()
+        # Add ring constraint metrics (structural)
+        self.mean_cycle_rank_satisfaction = MeanMetric()
+        self.mean_max_basis_cycle_length_satisfaction = MeanMetric()
         
         self.deg_histogram = DegreeHistogramMetric(self.stat)
 
@@ -131,8 +131,8 @@ class SamplingMetrics(nn.Module):
             self.mean_planarity,
             self.mean_no_cycles,
             self.mean_lobster_components,
-            self.mean_ring_count_satisfaction,
-            self.mean_ring_length_satisfaction,
+            self.mean_cycle_rank_satisfaction,
+            self.mean_max_basis_cycle_length_satisfaction,
             self.deg_histogram,
         ]:
             metric.reset()
@@ -182,20 +182,20 @@ class SamplingMetrics(nn.Module):
         )
         self.mean_lobster_components(lobster_components_ratios)
 
-        # Ring constraint satisfaction (similar to planarity)
+        # Ring constraint satisfaction (structural)
         ring_constraint_info = None
         if hasattr(self, 'cfg') and self.cfg and hasattr(self.cfg.model, 'rev_proj'):
             if self.cfg.model.rev_proj == 'ring_count_at_most':
-                max_rings = getattr(self.cfg.model, 'max_rings', 3)
-                ring_count_ratios = ring_count_satisfaction_ratio(generated_graphs, max_rings).to(device)
-                self.mean_ring_count_satisfaction(ring_count_ratios)
-                ring_constraint_info = ('ring_count_at_most', max_rings)
+                max_cycle_rank = getattr(self.cfg.model, 'max_rings', 3)
+                cycle_rank_ratios = cycle_rank_satisfaction_ratio(generated_graphs, max_cycle_rank).to(device)
+                self.mean_cycle_rank_satisfaction(cycle_rank_ratios)
+                ring_constraint_info = ('ring_count_at_most', max_cycle_rank)
             
             elif self.cfg.model.rev_proj == 'ring_length_at_most':
-                max_ring_length = getattr(self.cfg.model, 'max_ring_length', 6)
-                ring_length_ratios = ring_length_satisfaction_ratio(generated_graphs, max_ring_length).to(device)
-                self.mean_ring_length_satisfaction(ring_length_ratios)
-                ring_constraint_info = ('ring_length_at_most', max_ring_length)
+                max_basis_cycle_length = getattr(self.cfg.model, 'max_ring_length', 6)
+                max_basis_cycle_length_ratios = max_basis_cycle_length_satisfaction_ratio(generated_graphs, max_basis_cycle_length).to(device)
+                self.mean_max_basis_cycle_length_satisfaction(max_basis_cycle_length_ratios)
+                ring_constraint_info = ('ring_length_at_most', max_basis_cycle_length)
 
         # Degree distributions
         self.deg_histogram(generated_graphs)
@@ -228,9 +228,13 @@ class SamplingMetrics(nn.Module):
         if ring_constraint_info:
             constraint_type, constraint_value = ring_constraint_info
             if constraint_type == 'ring_count_at_most':
-                to_log[f"{key}/ring_count_satisfaction"] = self.mean_ring_count_satisfaction.compute().item()
+                # Log both old and new keys for backward compatibility
+                to_log[f"{key}/ring_count_satisfaction"] = self.mean_cycle_rank_satisfaction.compute().item()
+                to_log[f"{key}/cycle_rank_satisfaction"] = self.mean_cycle_rank_satisfaction.compute().item()
             elif constraint_type == 'ring_length_at_most':
-                to_log[f"{key}/ring_length_satisfaction"] = self.mean_ring_length_satisfaction.compute().item()
+                # Log both old and new keys for backward compatibility
+                to_log[f"{key}/ring_length_satisfaction"] = self.mean_max_basis_cycle_length_satisfaction.compute().item()
+                to_log[f"{key}/max_basis_cycle_length_satisfaction"] = self.mean_max_basis_cycle_length_satisfaction.compute().item()
 
         if self.domain_metrics is not None:
             # Compute domain metrics normally
@@ -385,10 +389,10 @@ def connected_components(generated_graphs: List[PlaceHolder]):
     all_num_components = []
     for batch in generated_graphs:
         for edge_mat, mask in zip(batch.E, batch.node_mask):
-            n = torch.sum(mask)
-            edge_mat = edge_mat[:n, :n]
-            adj = (edge_mat > 0).int()
-            num_components, _ = sp.csgraph.connected_components(adj.cpu().numpy())
+            # Use unified graph construction helper
+            from ConStruct.projector.projector_utils import build_simple_graph_from_edge_tensor
+            nx_graph = build_simple_graph_from_edge_tensor(edge_mat, mask)
+            num_components = nx.number_connected_components(nx_graph)
             all_num_components.append(num_components)
     all_num_components = torch.tensor(
         all_num_components, device=generated_graphs[0].X.device
@@ -401,10 +405,9 @@ def planarity_ratio(generated_graphs: List[PlaceHolder]):
     planarity_ratios = []
     for batch in generated_graphs:
         for edge_mat, mask in zip(batch.E, batch.node_mask):
-            n = torch.sum(mask)
-            edge_mat = edge_mat[:n, :n]
-            adj = (edge_mat > 0).int()
-            nx_graph = nx.from_numpy_array(adj.cpu().numpy())
+            # Use unified graph construction helper
+            from ConStruct.projector.projector_utils import build_simple_graph_from_edge_tensor
+            nx_graph = build_simple_graph_from_edge_tensor(edge_mat, mask)
             is_planar_result = is_planar(nx_graph)
             planarity_ratios.append(int(is_planar_result))
     planarity_ratios = torch.tensor(
@@ -417,10 +420,9 @@ def no_cycles_ratio(generated_graphs: List[PlaceHolder]):
     no_cycles_list = []
     for batch in generated_graphs:
         for edge_mat, mask in zip(batch.E, batch.node_mask):
-            n = torch.sum(mask)
-            edge_mat = edge_mat[:n, :n]
-            adj = (edge_mat > 0).int()
-            nx_graph = nx.from_numpy_array(adj.cpu().numpy())
+            # Use unified graph construction helper
+            from ConStruct.projector.projector_utils import build_simple_graph_from_edge_tensor
+            nx_graph = build_simple_graph_from_edge_tensor(edge_mat, mask)
             no_cycles_list.append(nx.is_forest(nx_graph))
     no_cycles_tg = torch.tensor(no_cycles_list, device=generated_graphs[0].X.device)
     return no_cycles_tg
@@ -433,10 +435,9 @@ def lobster_components_ratio(generated_graphs: List[PlaceHolder]):
     lobster_components_list = []
     for batch in generated_graphs:
         for edge_mat, mask in zip(batch.E, batch.node_mask):
-            n = torch.sum(mask)
-            edge_mat = edge_mat[:n, :n]
-            adj = (edge_mat > 0).int()
-            nx_graph = nx.from_numpy_array(adj.cpu().numpy())
+            # Use unified graph construction helper
+            from ConStruct.projector.projector_utils import build_simple_graph_from_edge_tensor
+            nx_graph = build_simple_graph_from_edge_tensor(edge_mat, mask)
             lobster_components_list.append(has_lobster_components(nx_graph))
     lobster_components_tg = torch.tensor(
         lobster_components_list, device=generated_graphs[0].X.device
@@ -444,13 +445,13 @@ def lobster_components_ratio(generated_graphs: List[PlaceHolder]):
     return lobster_components_tg
 
 
-def ring_count_satisfaction_ratio(generated_graphs: List[PlaceHolder], max_rings: int):
+def cycle_rank_satisfaction_ratio(generated_graphs: List[PlaceHolder], max_cycle_rank: int):
     """
-    Calculate the ratio of graphs that satisfy ring count constraint.
+    Calculate the ratio of graphs that satisfy cycle rank constraint (structural).
     
     Args:
         generated_graphs: List of generated graph batches
-        max_rings: Maximum allowed rings (constraint value)
+        max_cycle_rank: Maximum allowed cycle rank (basis size) (constraint value)
     
     Returns:
         Tensor of satisfaction ratios (1 for satisfied, 0 for not satisfied)
@@ -459,17 +460,18 @@ def ring_count_satisfaction_ratio(generated_graphs: List[PlaceHolder], max_rings
     
     for batch in generated_graphs:
         for edge_mat, mask in zip(batch.E, batch.node_mask):
-            n = torch.sum(mask)
-            edge_mat = edge_mat[:n, :n]
-            adj = (edge_mat > 0).int()
-            nx_graph = nx.from_numpy_array(adj.cpu().numpy())
+            # Use unified graph construction helper
+            from ConStruct.projector.projector_utils import build_simple_graph_from_edge_tensor
+            nx_graph = build_simple_graph_from_edge_tensor(edge_mat, mask)
             
-            # Check if graph satisfies ring count constraint
+            # Check if graph satisfies cycle rank constraint (structural)
             try:
-                from ConStruct.projector.is_ring.is_ring_count_at_most.is_ring_count_at_most import has_at_most_n_rings
-                satisfies_constraint = int(has_at_most_n_rings(nx_graph, max_rings))
-            except ImportError:
-                # Fallback if ring functions not available
+                # Use NetworkX cycle_basis for structural constraint
+                cycles = nx.cycle_basis(nx_graph)
+                cycle_rank = len(cycles)
+                satisfies_constraint = int(cycle_rank <= max_cycle_rank)
+            except Exception:
+                # Fallback if cycle basis calculation fails
                 satisfies_constraint = 1
             satisfaction_ratios.append(satisfies_constraint)
     
@@ -479,13 +481,13 @@ def ring_count_satisfaction_ratio(generated_graphs: List[PlaceHolder], max_rings
     return satisfaction_ratios
 
 
-def ring_length_satisfaction_ratio(generated_graphs: List[PlaceHolder], max_ring_length: int):
+def max_basis_cycle_length_satisfaction_ratio(generated_graphs: List[PlaceHolder], max_basis_cycle_length: int):
     """
-    Calculate the ratio of graphs that satisfy ring length constraint.
+    Calculate the ratio of graphs that satisfy max basis-cycle length constraint (structural).
     
     Args:
         generated_graphs: List of generated graph batches
-        max_ring_length: Maximum allowed ring length (constraint value)
+        max_basis_cycle_length: Maximum allowed basis-cycle length (constraint value)
     
     Returns:
         Tensor of satisfaction ratios (1 for satisfied, 0 for not satisfied)
@@ -494,17 +496,21 @@ def ring_length_satisfaction_ratio(generated_graphs: List[PlaceHolder], max_ring
     
     for batch in generated_graphs:
         for edge_mat, mask in zip(batch.E, batch.node_mask):
-            n = torch.sum(mask)
-            edge_mat = edge_mat[:n, :n]
-            adj = (edge_mat > 0).int()
-            nx_graph = nx.from_numpy_array(adj.cpu().numpy())
+            # Use unified graph construction helper
+            from ConStruct.projector.projector_utils import build_simple_graph_from_edge_tensor
+            nx_graph = build_simple_graph_from_edge_tensor(edge_mat, mask)
             
-            # Check if graph satisfies ring length constraint
+            # Check if graph satisfies max basis-cycle length constraint (structural)
             try:
-                from ConStruct.projector.is_ring.is_ring_length_at_most.is_ring_length_at_most import has_rings_of_length_at_most
-                satisfies_constraint = int(has_rings_of_length_at_most(nx_graph, max_ring_length))
-            except ImportError:
-                # Fallback if ring functions not available
+                # Use NetworkX cycle_basis for structural constraint
+                cycles = nx.cycle_basis(nx_graph)
+                if cycles:
+                    max_cycle_length = max(len(cycle) for cycle in cycles)
+                else:
+                    max_cycle_length = 0
+                satisfies_constraint = int(max_cycle_length <= max_basis_cycle_length)
+            except Exception:
+                # Fallback if cycle basis calculation fails
                 satisfies_constraint = 1
             satisfaction_ratios.append(satisfies_constraint)
     
@@ -547,11 +553,11 @@ class DegreeHistogramMetric(Metric):
         generated_degrees = []
         for batch in generated_graphs:
             for edge_mat, mask in zip(batch.E, batch.node_mask):
-                n = torch.sum(mask)
-                edge_mat = edge_mat[:n, :n]
-                adj = (edge_mat > 0).int()
-                degrees = torch.sum(adj, dim=0)
-                generated_degrees.extend(degrees.tolist())
+                # Use unified graph construction helper
+                from ConStruct.projector.projector_utils import build_simple_graph_from_edge_tensor
+                nx_graph = build_simple_graph_from_edge_tensor(edge_mat, mask)
+                degrees = [nx_graph.degree(node) for node in nx_graph.nodes()]
+                generated_degrees.extend(degrees)
 
         generated_hist = self.get_histogram(generated_degrees)
 

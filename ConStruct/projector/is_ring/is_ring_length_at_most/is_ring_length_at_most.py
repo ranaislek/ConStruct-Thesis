@@ -10,7 +10,7 @@ __all__ = ["has_rings_of_length_at_most", "ring_length_at_most_projector", "get_
 
 
 def has_rings_of_length_at_most(graph, max_length):
-    """Return True if all rings in the graph have length at most max_length."""
+    """Return True if max basis-cycle length ≤ max_length (structural constraint)."""
     cycles = nx.cycle_basis(graph)
     for cycle in cycles:
         if len(cycle) > max_length:
@@ -20,8 +20,8 @@ def has_rings_of_length_at_most(graph, max_length):
 
 def ring_length_at_most_projector(graph, max_length):
     """
-    Edge-Deletion Projector: If the graph has rings longer than max_length, remove edges to break them.
-    This removes edges from the largest rings first, but tries to preserve smaller rings.
+    Edge-Deletion Projector: Enforces structural constraint: max basis-cycle length ≤ max_length.
+    This removes edges from the largest cycles first, but tries to preserve smaller cycles.
     """
     while True:
         cycles = nx.cycle_basis(graph)
@@ -81,7 +81,7 @@ def ring_length_at_most_projector_improved(graph, max_length):
 
 
 def get_max_ring_length_at_most(graph):
-    """Return the length of the largest ring in the graph for 'at most' constraints, or 0 if no rings."""
+    """Return the max basis-cycle length in the graph for 'at most' constraints, or 0 if no cycles."""
     cycles = nx.cycle_basis(graph)
     if not cycles:
         return 0
