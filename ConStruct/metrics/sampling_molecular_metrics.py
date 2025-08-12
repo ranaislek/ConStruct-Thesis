@@ -145,7 +145,24 @@ class SamplingMolecularMetrics(nn.Module):
         self.cfg = cfg
         self.is_molecular = dataset_infos.is_molecular
         self.remove_h = dataset_infos.remove_h
-        self.train_smiles = set(dataset_infos.train_smiles)
+        # FIX: Canonicalize training SMILES to match generated SMILES format
+        if dataset_infos.train_smiles is not None:
+            # Canonicalize training SMILES to match the format used in compute_validity
+            canonical_train_smiles = set()
+            for smiles in dataset_infos.train_smiles:
+                try:
+                    mol = Chem.MolFromSmiles(smiles)
+                    if mol is not None:
+                        canonical_smiles = Chem.MolToSmiles(mol, canonical=True)
+                        canonical_train_smiles.add(canonical_smiles)
+                except:
+                    # Skip invalid SMILES
+                    continue
+            self.train_smiles = canonical_train_smiles
+            print(f"DEBUG: Canonicalized {len(canonical_train_smiles)} training SMILES")
+        else:
+            self.train_smiles = set()
+        
         self.test_smiles = (
             dataset_infos.test_smiles if test else dataset_infos.val_smiles
         )
@@ -161,8 +178,23 @@ class SamplingMolecularMetrics(nn.Module):
         self.atom_stable = MeanMetric()
         self.mol_stable = MeanMetric()
 
+        # DEBUG: Add debugging to understand what's happening with train_smiles
+        print(f"DEBUG: dataset_infos.train_smiles type: {type(dataset_infos.train_smiles)}")
+        print(f"DEBUG: dataset_infos.train_smiles length: {len(dataset_infos.train_smiles) if dataset_infos.train_smiles is not None else 'None'}")
+        if dataset_infos.train_smiles is not None and len(dataset_infos.train_smiles) > 0:
+            print(f"DEBUG: First few train_smiles: {list(dataset_infos.train_smiles)[:5]}")
+        else:
+            print("DEBUG: train_smiles is None or empty!")
+        print(f"DEBUG: self.train_smiles length: {len(self.train_smiles)}")
+        
+        # DEBUG: Show canonicalized training SMILES format
+        if len(self.train_smiles) > 0:
+            print(f"DEBUG: First few CANONICALIZED train_smiles: {list(self.train_smiles)[:5]}")
+        else:
+            print("DEBUG: No canonicalized training SMILES!")
+        
         # Retrieve dataset smiles only for qm9 currently.
-        self.train_smiles = set(dataset_infos.train_smiles)
+        # self.train_smiles = set(dataset_infos.train_smiles)  # REMOVED DUPLICATE
         self.validity_metric = MeanMetric()
         # self.uniqueness_metric = UniquenessMetric()
         self.novelty_metric = MeanMetric(nan_strategy="ignore")
@@ -253,9 +285,29 @@ class SamplingMolecularMetrics(nn.Module):
                 value=len(novel) / len(unique), weight=len(unique)
             )
             novelty = self.novelty_metric.compute().item()
+            # DEBUG: Add debugging for novelty calculation
+            print(f"DEBUG: Novelty calculation - unique molecules: {len(unique)}, novel molecules: {len(novel)}")
+            print(f"DEBUG: Novelty percentage: {novelty * 100:.2f}%")
+            # DEBUG: Show sample comparisons
+            if len(unique) > 0:
+                sample_unique = unique[0]
+                sample_in_training = sample_unique in self.train_smiles
+                print(f"DEBUG: Sample unique SMILES: '{sample_unique}'")
+                print(f"DEBUG: Is in training set? {sample_in_training}")
+                if len(self.train_smiles) > 0:
+                    sample_training = list(self.train_smiles)[0]
+                    print(f"DEBUG: Sample training SMILES: '{sample_training}'")
+                    print(f"DEBUG: Direct comparison: '{sample_unique}' == '{sample_training}'? {sample_unique == sample_training}")
         else:
             print("No valid molecules")
             novelty = 0.0
+            # DEBUG: Add debugging for when novelty calculation fails
+            print(f"DEBUG: Novelty calculation failed - train_smiles is None: {self.train_smiles is None}")
+            print(f"DEBUG: Novelty calculation failed - len(unique): {len(unique)}")
+            if self.train_smiles is not None:
+                print(f"DEBUG: train_smiles length: {len(self.train_smiles)}")
+            else:
+                print("DEBUG: train_smiles is None")
         # num_molecules = int(self.validity_metric.weight.item())
         # print(f"Validity over {num_molecules} molecules: {validity * 100 :.2f}%")
 
