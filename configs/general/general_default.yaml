@@ -7,7 +7,7 @@ resume: null            # If resume, path to ckpt file from outputs directory in
 test_only: null         # Use absolute path
 
 check_val_every_n_epochs: 5        # was 20
-sample_every_val: 3                # sampling every 15 epochs (5*3)
+sample_every_val: 4                # sampling every 20 epochs (5*4)
 val_check_interval: null
 samples_to_generate: 200           # was 1000
 samples_to_save: 50                # was 200

@@ -12,6 +12,8 @@ weight_decay: 1e-12
 optimizer: adamw               # adamw,nadamw,nadam => nadamw for large batches, see http://arxiv.org/abs/2102.06356 for the use of nesterov momentum with large batches
 seed: 0
 
+# NOTE: LR scheduler (ReduceLROnPlateau) not applied: no scheduler support detected in this repo.
+
 # Early stopping settings (thesis-optimized)
 early_stopping:
   enable: true                    # Enable early stopping for efficient training
