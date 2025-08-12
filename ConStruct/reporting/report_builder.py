@@ -143,10 +143,11 @@ def collect_structural(split: str, metrics: Dict[str, Any], N_total: Optional[in
                        ring_counts_all: Optional[List[int]]=None,
                        ring_lengths_all: Optional[List[int]]=None,
                        max_rings: Optional[int]=None,
-                       max_ring_length: Optional[int]=None) -> List[Tuple[str,str]]:
+                       max_ring_length: Optional[int]=None,
+                       cfg=None) -> List[Tuple[str,str]]:
     p = split_prefix(split)
     rows = []
-    kind = detect_constraint_kind(metrics, split)
+    kind = detect_constraint_kind(metrics, split, cfg)
 
     # 1) Satisfaction row
     if kind == "planarity":
@@ -159,10 +160,9 @@ def collect_structural(split: str, metrics: Dict[str, Any], N_total: Optional[in
         rows.append(("Constraint", "No structural constraint"))
 
     # 2) Distributions (per-molecule)
-    if ring_counts_all is not None:
-        # For constrained trainings, show only up to enforced value and set bigger values to 0
-        # For unconstrained trainings, show all natural distribution
-        if kind == "ring_count" and max_rings is not None:
+    # For ring count constraints: show only ring count distribution
+    if kind == "ring_count" and ring_counts_all is not None:
+        if max_rings is not None:
             # Constrained training: show up to max_rings, then calculate >max_rings
             for i in range(max_rings + 1):
                 count = ring_counts_all[i] if i < len(ring_counts_all) else 0
@@ -182,7 +182,8 @@ def collect_structural(split: str, metrics: Dict[str, Any], N_total: Optional[in
                 pct_val = (100.0 * count / N_total) if N_total else 0.0
                 rows.append((label, f"{pct_val:.1f}%"))
 
-    if ring_lengths_all is not None:
+    # For ring length constraints: show only ring length distribution
+    elif kind == "ring_length" and ring_lengths_all is not None:
         # index 0 = acyclic
         count0 = ring_lengths_all[0] if len(ring_lengths_all) > 0 else 0
         pct0 = (100.0 * count0 / N_total) if N_total else 0.0
@@ -207,6 +208,38 @@ def collect_structural(split: str, metrics: Dict[str, Any], N_total: Optional[in
             pct_gt = (100.0 * sum_gt / N_total) if N_total else 0.0
             rows.append((f"Cycle length >{L} (max) (%)", f"{pct_gt:.1f}%"))
         else:
+            # Natural distribution: show 3..12 and >12
+            for length in range(3, 13):
+                idx = (length - 3) + 1
+                count = ring_lengths_all[idx] if idx < len(ring_lengths_all) else 0
+                pct_val = (100.0 * count / N_total) if N_total else 0.0
+                rows.append((f"Cycle length {length} (max) (%)", f"{pct_val:.1f}%"))
+            # >12
+            count_gt = ring_lengths_all[-1] if len(ring_lengths_all) > 0 else 0
+            pct_gt = (100.0 * count_gt / N_total) if N_total else 0.0
+            rows.append(("Cycle length >12 (max) (%)", f"{pct_gt:.1f}%"))
+
+    # For planarity constraints: show only planarity satisfaction, no ring distributions
+    elif kind == "planarity":
+        # Planarity constraints don't show ring distributions
+        pass
+
+    # For no-constraint trainings: show both distributions (natural)
+    elif kind == "none":
+        # Show ring count distribution
+        if ring_counts_all is not None:
+            for i, count in enumerate(ring_counts_all):
+                label = f"Cycle rank {i} (%)" if i < 9 else "Cycle rank 9+ (%)"
+                pct_val = (100.0 * count / N_total) if N_total else 0.0
+                rows.append((label, f"{pct_val:.1f}%"))
+        
+        # Show ring length distribution
+        if ring_lengths_all is not None:
+            # index 0 = acyclic
+            count0 = ring_lengths_all[0] if len(ring_lengths_all) > 0 else 0
+            pct0 = (100.0 * count0 / N_total) if N_total else 0.0
+            rows.append(("Acyclic (max len 0) (%)", f"{pct0:.1f}%"))
+
             # Natural distribution: show 3..12 and >12
             for length in range(3, 13):
                 idx = (length - 3) + 1

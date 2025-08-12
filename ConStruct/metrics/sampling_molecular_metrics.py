@@ -396,6 +396,7 @@ class SamplingMolecularMetrics(nn.Module):
                 max_cycle_length_counts,        # per-molecule MAX basis-cycle-length histogram (with 0=acyclic)
                 max_rings=getattr(self.cfg.model, 'max_rings', None),
                 max_ring_length=getattr(self.cfg.model, 'max_ring_length', None),
+                cfg=self.cfg,  # Pass configuration for constraint detection
             )
             
             # Collect actual timing data with proper defaults
