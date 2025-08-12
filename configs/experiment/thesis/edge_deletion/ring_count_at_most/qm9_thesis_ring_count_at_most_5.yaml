@@ -6,12 +6,9 @@ defaults:
 general:
   name: 'qm9_thesis_ring_count_at_most_5'  # Override name for this specific experiment
 
-# Training config is inherited from thesis_train (includes early stopping)
-# No need to override here since thesis_train has all the right settings
-
 model:
-  diffusion_steps: 500    # Stable trade-off between speed and quality; increase if resources allow
-  n_layers: 4             # Increased layers for better molecular representation
+  diffusion_steps: 500
+  n_layers: 4
   hidden_mlp_dims:
     X: 128
     E: 128
@@ -26,9 +23,9 @@ model:
     dim_ffy: 256
 
   # Edge-deletion constraint settings aligned to QM9 dataset statistics:
-  max_rings: 5            # At most 5 rings allowed
-  max_ring_length: 6      # Maximum ring length
-  rev_proj: ring_count_at_most  # Edge-deletion projector for "at most" constraints
-  transition: absorbing_edges       # Edge-deletion transition
+  max_rings: 5
+  rev_proj: ring_count_at_most
+  transition: absorbing_edges
 
-# Dataset config inherited from qm9.yaml (includes all QM9-specific settings)
+  # If the code supports incremental projectors; otherwise omit without error:
+  use_incremental: true

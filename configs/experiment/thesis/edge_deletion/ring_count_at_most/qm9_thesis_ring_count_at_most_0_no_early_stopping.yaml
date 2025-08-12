@@ -29,7 +29,6 @@ model:
 
   # Edge-deletion constraint settings aligned to QM9 dataset statistics:
   max_rings: 0            # No rings allowed (acyclic molecules only)
-  max_ring_length: 6      # Maximum ring length (not enforced with max_rings=0)
   rev_proj: ring_count_at_most  # Edge-deletion projector for "at most" constraints
   transition: absorbing_edges       # Edge-deletion transition
 
