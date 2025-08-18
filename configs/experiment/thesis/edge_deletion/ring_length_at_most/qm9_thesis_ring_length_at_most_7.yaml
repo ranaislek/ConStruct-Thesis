@@ -1,0 +1,31 @@
+# @package _global_
+defaults:
+  - override /dataset: qm9     # Use QM9 dataset instead of default planar
+
+
+general:
+  name: 'qm9_thesis_ring_length_at_most_7'  # Override name for this specific experiment
+
+model:
+  diffusion_steps: 500
+  n_layers: 4
+  hidden_mlp_dims:
+    X: 128
+    E: 128
+    y: 128
+  hidden_dims:
+    dx: 128
+    de: 128
+    dy: 128
+    n_head: 4
+    dim_ffX: 256
+    dim_ffE: 256
+    dim_ffy: 256
+
+  # Edge-deletion constraint settings aligned to QM9 dataset statistics:
+  max_ring_length: 7      # Maximum ring length of 7
+  rev_proj: ring_length_at_most  # Edge-deletion projector for "at most" constraints
+  transition: absorbing_edges       # Edge-deletion transition
+
+  # If the code supports incremental projectors; otherwise omit without error:
+  use_incremental: true
