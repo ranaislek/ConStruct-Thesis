@@ -6,8 +6,9 @@
 #SBATCH --mem=16G  
 #SBATCH --gres=gpu:1
 #SBATCH --exclude=vgpu5-0
-#SBATCH --time=02:00:00
-#SBATCH --partition=debug
+#SBATCH --time=24:00:00
+#SBATCH --constraint=A6000|A5000
+#SBATCH --partition=allgroups,testing
 
 # Load environment
 cd /home/rislek/ConStruct-Thesis
@@ -32,9 +33,9 @@ export CUDA_VISIBLE_DEVICES=0
 # CUDA verification
 python -c 'import torch; print("torch version:", torch.__version__); print("CUDA available:", torch.cuda.is_available()); print("CUDA device:", torch.cuda.get_device_name(0) if torch.cuda.is_available() else "None")'
 
-echo "=== Running Checkpoint Test: No Constraint ==="
-echo "Config: checkpoint_testing/qm9_checkpoint_test_no_constraint"
-echo "Checkpoint: checkpoints/qm9_debug_no_constraint/last.ckpt"
+echo "=== Testing No Constraint (Baseline) ==="
+echo "Using No-Constraint Checkpoint: checkpoints/qm9_thesis_no_constraint/epoch-94.ckpt"
+echo "Constraint: No structural constraints (natural QM9 distribution)"
 echo "Job ID: $SLURM_JOB_ID"
 echo "Node: $SLURM_NODELIST"
 echo "Time: $(date)"
@@ -43,11 +44,14 @@ echo "Time: $(date)"
 mkdir -p /home/rislek/ConStruct-Thesis/ConStruct/outputs/checkpoint_testing/no_constraint
 mkdir -p /home/rislek/ConStruct-Thesis/ConStruct/logs/checkpoint_testing
 
-# Run the experiment
+# Run the experiment with no constraint (baseline)
 cd ConStruct
 python main.py \
-    +experiment=checkpoint_testing/qm9_checkpoint_test_no_constraint \
-    general.resume=checkpoints/qm9_debug_no_constraint/last.ckpt \
-    general.test_only=checkpoints/qm9_debug_no_constraint/last.ckpt
+    +experiment=thesis/no_constraint/qm9_thesis_no_constraint \
+    general.test_only=checkpoints/qm9_thesis_no_constraint/epoch-94.ckpt \
+    general.name=test_no_constraint \
+    general.final_model_samples_to_generate=10000 \
+    general.wandb=online
 
-echo "Experiment completed at $(date)"
+echo "No constraint test completed at $(date)"
+echo "Results saved to: outputs/checkpoint_testing/no_constraint/" 

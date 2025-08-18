@@ -6,32 +6,23 @@ wandb: 'online'             # online | offline | disabled
 resume: null            # If resume, path to ckpt file from outputs directory in main directory
 test_only: null         # Use absolute path
 
-check_val_every_n_epochs: 5        # was 20
-sample_every_val: 4                # sampling every 20 epochs (5*4)
+# Validation and sampling frequency (paper-optimized)
+check_val_every_n_epochs: 5        # Standard validation frequency
+sample_every_val: 8                # Sampling every 40 epochs (5*8) for good monitoring
 val_check_interval: null
-samples_to_generate: 200           # was 1000
-samples_to_save: 50                # was 200
-chains_to_save: 10                 # Save more chains for analysis (thesis setting)
+samples_to_generate: 256           # Good stability without killing time (was 200)
+samples_to_save: 50                # Save more samples for analysis (was 50)
+chains_to_save: 10                 # Save more chains for analysis (was 10)
 log_every_steps: 50
-number_chain_steps: 100            # was 200
+number_chain_steps: 100            # Optimized chain length
 
-final_model_samples_to_generate: 2000  # Comprehensive final evaluation (thesis setting)
-final_model_samples_to_save: 500       # Save more final samples (thesis setting)
-final_model_chains_to_save: 100        # More final chains (thesis setting)
+# Final evaluation settings (paper-optimized)
+final_model_samples_to_generate: 10000  # Comprehensive evaluation (ConStruct-style) (was 2000)
+final_model_samples_to_save: 1000       # Save more final samples (was 500)
+final_model_chains_to_save: 200         # More final chains (was 100)
 
 evaluate_all_checkpoints: false
 
-# Training system knobs
-n_epochs: 1200                  # budget cap, ES will stop earlier
-batch_size: 128
-lr: 1e-4
-ema_decay: 0.999
-clip_grad: 1.0
-num_workers: 4                  # matches SLURM cpus-per-task
-optimizer: adamw
-weight_decay: 1e-12
-seed: 0
-progress_bar: false
-
+# Memory and sampling settings
 memory_summary: False
 faster_sampling: 1                              # At each sampling step, set s=t-faster sampling (1 for normal sampling) # TODO: not implemented yet

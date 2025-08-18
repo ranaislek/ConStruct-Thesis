@@ -6,8 +6,9 @@
 #SBATCH --mem=16G  
 #SBATCH --gres=gpu:1
 #SBATCH --exclude=vgpu5-0
-#SBATCH --time=02:00:00
-#SBATCH --partition=debug
+#SBATCH --time=24:00:00
+#SBATCH --constraint=A6000|A5000
+#SBATCH --partition=allgroups,testing
 
 # Load environment
 cd /home/rislek/ConStruct-Thesis
@@ -17,12 +18,12 @@ conda activate construct-env
 export LD_PRELOAD="$CONDA_PREFIX/lib/libgomp.so.1"
 
 # WandB fixes to prevent hanging
-export WANDB_TIMEOUT=300
+export WANDB_TIMEOUT=700
 export WANDB_START_METHOD=thread
 export WANDB_CONSOLE=wrap
 export WANDB_SILENT=false
-export WANDB_NETWORK_TIMEOUT=300
-export WANDB_HTTP_TIMEOUT=300
+export WANDB_NETWORK_TIMEOUT=700
+export WANDB_HTTP_TIMEOUT=700
 
 # CUDA optimizations
 export CUDA_LAUNCH_BLOCKING=1
@@ -32,9 +33,9 @@ export CUDA_VISIBLE_DEVICES=0
 # CUDA verification
 python -c 'import torch; print("torch version:", torch.__version__); print("CUDA available:", torch.cuda.is_available()); print("CUDA device:", torch.cuda.get_device_name(0) if torch.cuda.is_available() else "None")'
 
-echo "=== Running Checkpoint Test: Ring Count ≤ 0 ==="
-echo "Config: checkpoint_testing/qm9_checkpoint_test_ring_count_0"
-echo "Checkpoint: checkpoints/qm9_debug_ring_count_at_most_0/last.ckpt"
+echo "=== Testing Ring Count ≤ 0 Constraint ==="
+echo "Using No-Constraint Checkpoint: checkpoints/qm9_thesis_no_constraint/epoch-94.ckpt"
+echo "Constraint: Maximum 0 rings allowed"
 echo "Job ID: $SLURM_JOB_ID"
 echo "Node: $SLURM_NODELIST"
 echo "Time: $(date)"
@@ -43,10 +44,18 @@ echo "Time: $(date)"
 mkdir -p /home/rislek/ConStruct-Thesis/ConStruct/outputs/checkpoint_testing/ring_count_0
 mkdir -p /home/rislek/ConStruct-Thesis/ConStruct/logs/checkpoint_testing
 
-# Run the experiment
+# Run the experiment with ring count ≤ 0 constraint
 cd ConStruct
 python main.py \
-    +experiment=checkpoint_testing/qm9_checkpoint_test_ring_count_0 \
-    general.resume=checkpoints/qm9_debug_ring_count_at_most_0/last.ckpt
+    +experiment=thesis/no_constraint/qm9_thesis_no_constraint \
+    general.test_only=checkpoints/qm9_thesis_no_constraint/epoch-94.ckpt \
+    general.name=test_ring_count_0 \
+    general.final_model_samples_to_generate=10000 \
+    model.rev_proj=ring_count_at_most \
+    model.max_rings=0 \
+    model.use_incremental=true \
+    general.wandb=online
 
-echo "Experiment completed at $(date)"
+
+echo "Ring Count ≤ 0 test completed at $(date)"
+echo "Results saved to: outputs/checkpoint_testing/ring_count_0/"

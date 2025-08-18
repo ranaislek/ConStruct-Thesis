@@ -1,27 +1,29 @@
 # Training settings
-n_epochs: 1000
+n_epochs: 1200                     # Paper-standard duration (was 1000)
 batch_size: 128                 # Optimized for thesis experiments (was 512)
 lr: 1e-4                       # Optimized for diffusion models (was 0.0002)
 reference_batch_size: 1         # Reference batch size for adaptive loading
-ema_decay: 0.999               # Exponential moving average decay for stable training
-clip_grad: null                # float, null to disable
+clip_grad: 1.0                 # Enable gradient clipping (was null)
 save_model: True
-num_workers: 0
+num_workers: 4                  # Better performance (was 0)
 progress_bar: false
 weight_decay: 1e-12
 optimizer: adamw               # adamw,nadamw,nadam => nadamw for large batches, see http://arxiv.org/abs/2102.06356 for the use of nesterov momentum with large batches
 seed: 0
 
-# NOTE: LR scheduler (ReduceLROnPlateau) not applied: no scheduler support detected in this repo.
+# Learning rate scheduler disabled for simplicity
+lr_scheduler:
+  enable: false
 
-# Early stopping settings (thesis-optimized)
+# Early stopping settings (paper-optimized)
 early_stopping:
-  enable: true                    # Enable early stopping for efficient training
-  monitor: "val/epoch_NLL"        # Monitor validation negative log-likelihood (validation loss)
-  patience: 10                    # ~50 epochs with val every 5
-  min_delta: 0.003               # Minimum change to qualify as an improvement
+  enable: true                   # Enable early stopping for efficient training
+  monitor: "val/epoch_NLL"       # Monitor negative log-likelihood (validation loss)
+  patience: 28                   # 28 val checks = ~140 epochs with val every 5 (was 20)
+  min_delta: 1e-4                # Filter noise, capture meaningful improvements (was 0.003)
   mode: "min"                    # Lower NLL is better
   check_finite: true             # Stop training if metric becomes NaN or infinite
   stopping_threshold: null       # No specific threshold
   divergence_threshold: 100.0    # Stop if NLL exceeds 100.0 (appropriate for QM9 dataset)
   check_on_train_epoch_end: false # Check early stopping criteria at end of validation epoch
+  min_epochs: 200                # Force minimum training time 

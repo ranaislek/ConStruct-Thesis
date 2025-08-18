@@ -274,12 +274,58 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
         return self.cfg.train.batch_size
 
     def configure_optimizers(self):
-        return torch.optim.AdamW(
+        optimizer = torch.optim.AdamW(
             self.parameters(),
             lr=self.cfg.train.lr,
             amsgrad=True,
             weight_decay=self.cfg.train.weight_decay,
         )
+        
+        # Add learning rate scheduler if enabled
+        if hasattr(self.cfg.train, 'lr_scheduler') and self.cfg.train.lr_scheduler.enable:
+            scheduler_type = self.cfg.train.lr_scheduler.type
+            
+            if scheduler_type == "cosine":
+                # Cosine annealing with warmup
+                from torch.optim.lr_scheduler import CosineAnnealingLR
+                scheduler = CosineAnnealingLR(
+                    optimizer,
+                    T_max=self.cfg.train.n_epochs,
+                    eta_min=self.cfg.train.lr_scheduler.min_lr
+                )
+            elif scheduler_type == "step":
+                # Step decay
+                from torch.optim.lr_scheduler import StepLR
+                scheduler = StepLR(
+                    optimizer,
+                    step_size=100,
+                    gamma=0.5
+                )
+            elif scheduler_type == "plateau":
+                # Reduce on plateau
+                from torch.optim.lr_scheduler import ReduceLROnPlateau
+                scheduler = ReduceLROnPlateau(
+                    optimizer,
+                    mode='min',
+                    factor=0.5,
+                    patience=10,
+                    min_lr=self.cfg.train.lr_scheduler.min_lr
+                )
+            else:
+                print(f"Warning: Unknown scheduler type '{scheduler_type}', using no scheduler")
+                return optimizer
+            
+            return {
+                "optimizer": optimizer,
+                "lr_scheduler": {
+                    "scheduler": scheduler,
+                    "monitor": "val/epoch_NLL" if scheduler_type == "plateau" else None,
+                    "interval": "epoch",
+                    "frequency": 1
+                }
+            }
+        
+        return optimizer
 
     def training_step(self, data, i):
         if data.edge_index.numel() == 0:

@@ -6,8 +6,9 @@
 #SBATCH --mem=16G  
 #SBATCH --gres=gpu:1
 #SBATCH --exclude=vgpu5-0
-#SBATCH --time=02:00:00
-#SBATCH --partition=debug
+#SBATCH --time=24:00:00
+#SBATCH --constraint=A6000|A5000
+#SBATCH --partition=allgroups,testing
 
 # Load environment
 cd /home/rislek/ConStruct-Thesis
@@ -30,11 +31,11 @@ export PYTHONUNBUFFERED=1
 export CUDA_VISIBLE_DEVICES=0
 
 # CUDA verification
-python -c 'import torch; print("torch version:", torch.__version__); print("CUDA available:", torch.cuda.is_available()); print("CUDA device:", torch.cuda.is_available()); print("CUDA device:", torch.cuda.get_device_name(0) if torch.cuda.is_available() else "None")'
+python -c 'import torch; print("torch version:", torch.__version__); print("CUDA available:", torch.cuda.is_available()); print("CUDA device:", torch.cuda.get_device_name(0) if torch.cuda.is_available() else "None")'
 
-echo "=== Running Checkpoint Test: Ring Length ≤ 3 ==="
-echo "Config: checkpoint_testing/qm9_checkpoint_test_ring_length_3"
-echo "Checkpoint: checkpoints/qm9_debug_ring_length_at_most_3/last.ckpt"
+echo "=== Testing Ring Length ≤ 3 Constraint ==="
+echo "Using No-Constraint Checkpoint: checkpoints/qm9_thesis_no_constraint/epoch-94.ckpt"
+echo "Constraint: Maximum ring size of 3 atoms"
 echo "Job ID: $SLURM_JOB_ID"
 echo "Node: $SLURM_NODELIST"
 echo "Time: $(date)"
@@ -43,11 +44,18 @@ echo "Time: $(date)"
 mkdir -p /home/rislek/ConStruct-Thesis/ConStruct/outputs/checkpoint_testing/ring_length_3
 mkdir -p /home/rislek/ConStruct-Thesis/ConStruct/logs/checkpoint_testing
 
-# Run the experiment
+# Run the experiment with ring length ≤ 3 constraint
+cd ConStruct
+echo "Results saved to: outputs/checkpoint_testing/ring_length_3/" # Run the experiment with ring length ≤ 3 constraint
 cd ConStruct
 python main.py \
-    +experiment=checkpoint_testing/qm9_checkpoint_test_ring_length_3 \
-    general.resume=checkpoints/qm9_debug_ring_length_at_most_3/last.ckpt \
-    general.test_only=checkpoints/qm9_debug_ring_length_at_most_3/last.ckpt
+    +experiment=thesis/no_constraint/qm9_thesis_no_constraint \
+    general.test_only=checkpoints/qm9_thesis_no_constraint/epoch-94.ckpt \
+    general.name=test_ring_length_3 \
+    general.final_model_samples_to_generate=10000 \
+    model.rev_proj=ring_length_at_most \
+    model.max_ring_length=3 \
+    model.use_incremental_length=true \
+    general.wandb=online
 
-echo "Experiment completed at $(date)"
+echo "Ring Length ≤ 3 test completed at $(date)"

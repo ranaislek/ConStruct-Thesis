@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=qm9_no_constraint_marginal_thesis
-#SBATCH --output=/home/rislek/ConStruct-Thesis/ConStruct/logs/thesis/qm9_no_constraint_thesis_%j.out
+#SBATCH --output=/home/rislek/ConStruct-Thesis/ConStruct/logs/thesis/qm9_no_constraint_thesis_marginal_%j.out
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=40G
@@ -40,7 +40,7 @@ export CUDA_VISIBLE_DEVICES=0
 python -c 'import torch; print("torch version:", torch.__version__); print("CUDA available:", torch.cuda.is_available()); print("CUDA device:", torch.cuda.get_device_name(0) if torch.cuda.is_available() else "None")'
 
 echo "=== Running Experiment: qm9_no_constraint_thesis ==="
-echo "Config: thesis/no_constraint/qm9_thesis_no_constraint"
+echo "Config: thesis/no_constraint/qm9_thesis_no_constraint_marginal"
 echo "Job ID: $SLURM_JOB_ID"
 echo "Node: $SLURM_NODELIST"
 echo "Time: $(date)"
