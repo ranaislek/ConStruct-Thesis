@@ -18,12 +18,12 @@ conda activate construct-env
 export LD_PRELOAD="$CONDA_PREFIX/lib/libgomp.so.1"
 
 # WandB fixes to prevent hanging
-export WANDB_TIMEOUT=300
+export WANDB_TIMEOUT=700
 export WANDB_START_METHOD=thread
 export WANDB_CONSOLE=wrap
 export WANDB_SILENT=false
-export WANDB_NETWORK_TIMEOUT=300
-export WANDB_HTTP_TIMEOUT=300
+export WANDB_NETWORK_TIMEOUT=700
+export WANDB_HTTP_TIMEOUT=700
 
 # CUDA optimizations
 export CUDA_LAUNCH_BLOCKING=1
@@ -45,8 +45,6 @@ mkdir -p /home/rislek/ConStruct-Thesis/ConStruct/outputs/checkpoint_testing/ring
 mkdir -p /home/rislek/ConStruct-Thesis/ConStruct/logs/checkpoint_testing
 
 # Run the experiment with ring length ≤ 5 constraint
-cd ConStruct
-echo "Results saved to: outputs/checkpoint_testing/ring_length_5/" # Run the experiment with ring length ≤ 5 constraint
 cd ConStruct
 python main.py \
     +experiment=thesis/no_constraint/qm9_thesis_no_constraint \

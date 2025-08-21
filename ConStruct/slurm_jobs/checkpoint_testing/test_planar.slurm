@@ -46,8 +46,6 @@ mkdir -p /home/rislek/ConStruct-Thesis/ConStruct/logs/checkpoint_testing
 
 # Run the experiment with planarity constraint
 cd ConStruct
-echo "Results saved to: outputs/checkpoint_testing/planar/" # Run the experiment with planarity constraint
-cd ConStruct
 python main.py \
     +experiment=thesis/no_constraint/qm9_thesis_no_constraint \
     general.test_only=checkpoints/qm9_thesis_no_constraint/epoch-94.ckpt \

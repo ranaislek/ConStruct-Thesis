@@ -45,9 +45,7 @@ mkdir -p /home/rislek/ConStruct-Thesis/ConStruct/outputs/checkpoint_testing/ring
 mkdir -p /home/rislek/ConStruct-Thesis/ConStruct/logs/checkpoint_testing
 
 # Run the experiment with ring count ≤ 3 constraint
-cd ConStruct
-echo "Results saved to: outputs/checkpoint_testing/ring_count_3/" # Run the experiment with ring count ≤ 3 constraint
-cd ConStruct
+cd ConStruct        
 python main.py \
     +experiment=thesis/no_constraint/qm9_thesis_no_constraint \
     general.test_only=checkpoints/qm9_thesis_no_constraint/epoch-94.ckpt \
