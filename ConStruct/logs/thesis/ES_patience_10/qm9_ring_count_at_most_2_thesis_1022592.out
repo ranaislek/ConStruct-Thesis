@@ -1,0 +1,1495 @@
+torch version: 2.0.1+cu118
+CUDA available: True
+CUDA device: NVIDIA RTX A5000
+=== Running Experiment: ring_count_at_most_2_thesis ===
+Config: thesis/edge_deletion/ring_count_at_most/qm9_thesis_ring_count_at_most_2
+Job ID: 1022592
+Node: vgpu1-0
+Time: Wed 13 Aug 2025 12:28:46 AM UTC
+<frozen importlib._bootstrap>:228: RuntimeWarning: to-Python converter for std::pair<double, double> already registered; second conversion method ignored.
+[rank: 0] Global seed set to 0
+Loading reference metrics.
+Edge-deletion transition model (for 'at most' constraints)
+[INFO] Early stopping enabled: monitoring 'val/epoch_NLL' with patience 10
+GPU available: True (cuda), used: True
+TPU available: False, using: 0 TPU cores
+IPU available: False, using: 0 IPUs
+HPU available: False, using: 0 HPUs
+[rank: 0] Global seed set to 0
+Initializing distributed: GLOBAL_RANK: 0, MEMBER: 1/1
+[2025-08-13 00:29:39,630][torch.distributed.distributed_c10d][INFO] - Added key: store_based_barrier_key:1 to store for rank: 0
+[2025-08-13 00:29:39,630][torch.distributed.distributed_c10d][INFO] - Rank 0: Completed store-based barrier for key:store_based_barrier_key:1 with 1 nodes.
+----------------------------------------------------------------------------------------------------
+distributed_backend=nccl
+All distributed processes registered. Starting with 1 processes
+----------------------------------------------------------------------------------------------------
+
+You are using a CUDA device ('NVIDIA RTX A5000') that has Tensor Cores. To properly utilize them, you should set `torch.set_float32_matmul_precision('medium' | 'high')` which will trade-off precision for performance. For more details, read https://pytorch.org/docs/stable/generated/torch.set_float32_matmul_precision.html#torch.set_float32_matmul_precision
+LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0]
+
+  | Name                  | Type                  | Params
+----------------------------------------------------------------
+0 | train_loss            | TrainLoss             | 0     
+1 | train_metrics         | TrainMolecularMetrics | 0     
+2 | val_metrics           | MetricCollection      | 0     
+3 | val_nll               | NLL                   | 0     
+4 | val_sampling_metrics  | SamplingMetrics       | 0     
+5 | test_metrics          | MetricCollection      | 0     
+6 | test_nll              | NLL                   | 0     
+7 | test_sampling_metrics | SamplingMetrics       | 0     
+8 | model                 | GraphTransformer      | 3.5 M 
+----------------------------------------------------------------
+3.5 M     Trainable params
+0         Non-trainable params
+3.5 M     Total params
+13.901    Total estimated model params size (MB)
+wandb: Currently logged in as: islekrana (islekrana-universit-di-padova). Use `wandb login --relogin` to force relogin
+wandb: wandb version 0.21.1 is available!  To upgrade, please run:
+wandb:  $ pip install wandb --upgrade
+wandb: Tracking run with wandb version 0.15.4
+wandb: Run data is saved locally in /extra/rislek/ConStruct-Thesis/ConStruct/wandb/run-20250813_002942-78zhu7lg
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run qm9_thesis_ring_count_at_most_2
+wandb: ⭐️ View project at https://wandb.ai/islekrana-universit-di-padova/ConStruct_qm9
+wandb: 🚀 View run at https://wandb.ai/islekrana-universit-di-padova/ConStruct_qm9/runs/78zhu7lg
+SLURM auto-requeueing enabled. Setting signal handlers.
+Epoch 0: val/epoch_NLL: 279.43 -- val/X_kl: 5.66 -- val/E_kl: 254.33 -- val/charges_kl: 14.77 
+Val loss: 279.4257 	 Best val loss:  279.4257
+
+Val epoch 0 ends
+Starting epoch 0
+[2025-08-13 00:29:51,120][torch.nn.parallel.distributed][INFO] - Reducer buckets have been rebuilt in this iteration.
+Train epoch 0 ends
+Epoch 0 finished: X: 0.53 -- charges: 0.10 -- E: 0.41 -- y: -1.00 -- 125.5s 
+Epoch 0: {'CarbonCE': 0.405, 'NitroCE': 0.244, 'OxyCE': 0.293, 'FluorCE': 0.015} -- {'NoBondCE': 0.345, 'SingleCE': 0.322, 'DoubleCE': 0.068, 'TripleCE': 0.027, 'AromaticCE': 0.004}
+Starting epoch 1
+Train epoch 1 ends
+Epoch 1 finished: X: 0.48 -- charges: 0.08 -- E: 0.39 -- y: -1.00 -- 109.1s 
+Epoch 1: {'CarbonCE': 0.373, 'NitroCE': 0.223, 'OxyCE': 0.268, 'FluorCE': 0.01} -- {'NoBondCE': 0.33, 'SingleCE': 0.309, 'DoubleCE': 0.061, 'TripleCE': 0.022, 'AromaticCE': 0.0}
+Starting epoch 2
+Train epoch 2 ends
+Epoch 2 finished: X: 0.48 -- charges: 0.08 -- E: 0.38 -- y: -1.00 -- 109.1s 
+Epoch 2: {'CarbonCE': 0.368, 'NitroCE': 0.22, 'OxyCE': 0.265, 'FluorCE': 0.01} -- {'NoBondCE': 0.328, 'SingleCE': 0.307, 'DoubleCE': 0.06, 'TripleCE': 0.022, 'AromaticCE': 0.0}
+Starting epoch 3
+Train epoch 3 ends
+Epoch 3 finished: X: 0.47 -- charges: 0.08 -- E: 0.38 -- y: -1.00 -- 110.2s 
+Epoch 3: {'CarbonCE': 0.365, 'NitroCE': 0.217, 'OxyCE': 0.263, 'FluorCE': 0.01} -- {'NoBondCE': 0.325, 'SingleCE': 0.304, 'DoubleCE': 0.059, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 4
+Epoch 4: val/epoch_NLL: 71.10 -- val/X_kl: 3.28 -- val/E_kl: 66.65 -- val/charges_kl: 0.60 
+Val loss: 71.0973 	 Best val loss:  71.0973
+
+Val epoch 4 ends
+Metric val/epoch_NLL improved. New best score: 71.097
+Train epoch 4 ends
+Epoch 4 finished: X: 0.47 -- charges: 0.08 -- E: 0.38 -- y: -1.00 -- 124.5s 
+Epoch 4: {'CarbonCE': 0.365, 'NitroCE': 0.217, 'OxyCE': 0.263, 'FluorCE': 0.009} -- {'NoBondCE': 0.324, 'SingleCE': 0.303, 'DoubleCE': 0.059, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 5
+Train epoch 5 ends
+Epoch 5 finished: X: 0.47 -- charges: 0.08 -- E: 0.38 -- y: -1.00 -- 109.6s 
+Epoch 5: {'CarbonCE': 0.363, 'NitroCE': 0.216, 'OxyCE': 0.261, 'FluorCE': 0.009} -- {'NoBondCE': 0.324, 'SingleCE': 0.303, 'DoubleCE': 0.059, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 6
+Train epoch 6 ends
+Epoch 6 finished: X: 0.47 -- charges: 0.08 -- E: 0.38 -- y: -1.00 -- 108.7s 
+Epoch 6: {'CarbonCE': 0.364, 'NitroCE': 0.216, 'OxyCE': 0.262, 'FluorCE': 0.009} -- {'NoBondCE': 0.324, 'SingleCE': 0.303, 'DoubleCE': 0.059, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 7
+Train epoch 7 ends
+Epoch 7 finished: X: 0.47 -- charges: 0.08 -- E: 0.38 -- y: -1.00 -- 109.3s 
+Epoch 7: {'CarbonCE': 0.362, 'NitroCE': 0.216, 'OxyCE': 0.261, 'FluorCE': 0.009} -- {'NoBondCE': 0.323, 'SingleCE': 0.303, 'DoubleCE': 0.059, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 8
+Train epoch 8 ends
+Epoch 8 finished: X: 0.47 -- charges: 0.08 -- E: 0.38 -- y: -1.00 -- 109.5s 
+Epoch 8: {'CarbonCE': 0.361, 'NitroCE': 0.214, 'OxyCE': 0.26, 'FluorCE': 0.009} -- {'NoBondCE': 0.322, 'SingleCE': 0.301, 'DoubleCE': 0.059, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 9
+Epoch 9: val/epoch_NLL: 68.94 -- val/X_kl: 3.18 -- val/E_kl: 64.61 -- val/charges_kl: 0.59 
+Val loss: 68.9402 	 Best val loss:  68.9402
+
+Val epoch 9 ends
+Metric val/epoch_NLL improved by 2.157 >= min_delta = 0.003. New best score: 68.940
+Train epoch 9 ends
+Epoch 9 finished: X: 0.47 -- charges: 0.08 -- E: 0.38 -- y: -1.00 -- 122.7s 
+Epoch 9: {'CarbonCE': 0.359, 'NitroCE': 0.213, 'OxyCE': 0.26, 'FluorCE': 0.009} -- {'NoBondCE': 0.322, 'SingleCE': 0.301, 'DoubleCE': 0.059, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 10
+Train epoch 10 ends
+Epoch 10 finished: X: 0.47 -- charges: 0.08 -- E: 0.38 -- y: -1.00 -- 109.6s 
+Epoch 10: {'CarbonCE': 0.36, 'NitroCE': 0.214, 'OxyCE': 0.26, 'FluorCE': 0.009} -- {'NoBondCE': 0.322, 'SingleCE': 0.301, 'DoubleCE': 0.059, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 11
+Train epoch 11 ends
+Epoch 11 finished: X: 0.47 -- charges: 0.08 -- E: 0.38 -- y: -1.00 -- 110.5s 
+Epoch 11: {'CarbonCE': 0.36, 'NitroCE': 0.215, 'OxyCE': 0.26, 'FluorCE': 0.009} -- {'NoBondCE': 0.322, 'SingleCE': 0.301, 'DoubleCE': 0.059, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 12
+Train epoch 12 ends
+Epoch 12 finished: X: 0.46 -- charges: 0.08 -- E: 0.38 -- y: -1.00 -- 109.0s 
+Epoch 12: {'CarbonCE': 0.359, 'NitroCE': 0.213, 'OxyCE': 0.259, 'FluorCE': 0.009} -- {'NoBondCE': 0.321, 'SingleCE': 0.301, 'DoubleCE': 0.059, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 13
+Train epoch 13 ends
+Epoch 13 finished: X: 0.46 -- charges: 0.08 -- E: 0.38 -- y: -1.00 -- 108.8s 
+Epoch 13: {'CarbonCE': 0.358, 'NitroCE': 0.213, 'OxyCE': 0.259, 'FluorCE': 0.009} -- {'NoBondCE': 0.321, 'SingleCE': 0.301, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 14
+Epoch 14: val/epoch_NLL: 70.07 -- val/X_kl: 3.17 -- val/E_kl: 65.74 -- val/charges_kl: 0.61 
+Val loss: 70.0687 	 Best val loss:  68.9402
+
+Sampling start
+Sampling a batch with 50 graphs on local rank 0. Saving 50 visualization and 10 full chains.
+[2025-08-13 00:58:13,899][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0040s, mode=INCREMENTAL
+[2025-08-13 00:58:18,934][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0040s, mode=INCREMENTAL
+[2025-08-13 00:58:23,988][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0038s, mode=INCREMENTAL
+[2025-08-13 00:58:29,037][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0038s, mode=INCREMENTAL
+[2025-08-13 00:58:34,091][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0045s, mode=INCREMENTAL
+Batch sampled. Visualizing chains starts!
+1/10 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch14/batch50_GR0/molecule_50_0.gif to wandb
+2/10 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch14/batch50_GR0/molecule_51_0.gif to wandb
+3/10 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch14/batch50_GR0/molecule_52_0.gif to wandb
+4/10 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch14/batch50_GR0/molecule_53_0.gif to wandb
+5/10 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch14/batch50_GR0/molecule_54_0.gif to wandb
+6/10 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch14/batch50_GR0/molecule_55_0.gif to wandb
+7/10 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch14/batch50_GR0/molecule_56_0.gif to wandb
+8/10 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch14/batch50_GR0/molecule_57_0.gif to wandb
+9/10 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch14/batch50_GR0/molecule_58_0.gif to wandb
+10/10 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch14/batch50_GR0/molecule_59_0.gif to wandb
+Visualizing 50 graphs out of 50
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/qm9_thesis_ring_count_at_most_2/epoch14_b50/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/qm9_thesis_ring_count_at_most_2/epoch14_b50/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/qm9_thesis_ring_count_at_most_2/epoch14_b50/graph_2.png to wandb
+Done.
+Sampling a batch with 150 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-13 01:01:02,379][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0115s, mode=INCREMENTAL
+[2025-08-13 01:01:09,037][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0113s, mode=INCREMENTAL
+[2025-08-13 01:01:15,682][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0112s, mode=INCREMENTAL
+[2025-08-13 01:01:22,343][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0114s, mode=INCREMENTAL
+[2025-08-13 01:01:29,023][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0144s, mode=INCREMENTAL
+Done.
+Sampled 2 batches on local rank 0. Sampling took 200.25 seconds
+
+Computing sampling metrics on 0...
+Error messages: AtomValence 4, Kekulize 0, other 0,  -- No error 196
+[rank: 0] Received SIGTERM: 15
+Bypassing SIGTERM: 15
+Some generated smiles: CC1(F)COC(C#N)C1 Oc1nonnnc[nH]1 error CC1=CCCCC1F OCC1C2CC(O)C1O2 CC12CC1C(C=O)CN2 Nc1c2ccnc1N=C2 CC=CCC1OCC1O O=CC(C=O)C1COC1 COC(C=O)OC1CC1
+
+================================================================================
+📊 CONSTRAINT SATISFACTION RESULTS
+================================================================================
+
+📋 **Definitions**:
+• **FCD** — Fréchet ChemNet Distance computed on valid canonical SMILES; lower is better
+• **Unique/Novel/Valid** — proportions computed over all generated molecules (not only valid)
+• **Disconnected** — share of graphs with >1 connected component
+• **Property satisfied** — share of generated graphs meeting the enforced structural constraint
+• **V.U.N.** — product of Valid × Unique × Novel (in [0,100]%)
+
+🔍 **LOGGING TO WANDB**:
+============================================================
+  val_sampling/NumNodesW1: 0.027414437383413315
+  val_sampling/NodeTypesTV: 0.032176073640584946
+  val_sampling/EdgeTypesTV: 0.07233273983001709
+  val_sampling/Disconnected: 3.999999910593033
+  val_sampling/MeanComponents: 1.0399999618530273
+  val_sampling/MaxComponents: 2.0
+  val_sampling/planarity: 1.0
+  val_sampling/no_cycles: 0.09000000357627869
+  val_sampling/lobster_components: 0.09000000357627869
+  val_sampling/generated_deg_hist: <wandb.sdk.data_types.histogram.Histogram object at 0x7fa65515bb50>
+  val_sampling/diff_deg_hist: <wandb.sdk.data_types.histogram.Histogram object at 0x7fa67c189f40>
+  val_sampling/abs_diff_deg_hist: <wandb.sdk.data_types.histogram.Histogram object at 0x7fa6545f7c70>
+  val_sampling/ring_count_satisfaction: 1.0
+  val_sampling/cycle_rank_satisfaction: 1.0
+  val_sampling/ring_count_violation: 0.0
+  val_sampling/Validity: 98.00000190734863
+  val_sampling/Uniqueness: 100.0
+  val_sampling/Novelty: 97.44898080825806
+  val_sampling/fcd score: 3.227679783675814
+============================================================
+
+
+🎯 CORE METRICS:
+================================================================================
+qm9_thesis_ring_count_at_most_2 — VAL — QM9
+Constraint: Cycle rank ≤ 2 · N=200 · diffusion_steps=500 · sampler=reverse
+
++-------------------------+--------------------+
+| Metric                  | Value                |
++-------------------------+--------------------+
+| Molecules generated (N) | 200                  |
+| FCD                     | 3.228                |
+| Unique (%)              | 100.00%              |
+| Novel (%)               | 97.45%               |
+| Valid (%)               | 98.00%               |
+| Disconnected (%)        | 4.00%                |
+| Property satisfied (%)  | 100.00%              |
+| V.U.N. (%)              | 95.50%               |
++-------------------------+--------------------+
+
+
+🏗️ STRUCTURAL CONSTRAINT SATISFACTION:
+================================================================================
+qm9_thesis_ring_count_at_most_2 — VAL — QM9 — Structural
+Constraint: Cycle rank ≤ 2 · N=200 · diffusion_steps=500 · sampler=reverse
+
++--------------------------+--------------------+
+| Metric                   | Value                |
++--------------------------+--------------------+
+| Ring count satisfied (%) | 100.00%              |
+| Cycle rank 0 (%)         | 9.0%                 |
+| Cycle rank 1 (%)         | 33.0%                |
+| Cycle rank 2 (%)         | 58.0%                |
+| Cycle rank >2 (%)        | 0.0%                 |
++--------------------------+--------------------+
+
+
+⏱️ TIMING METRICS:
+================================================================================
+qm9_thesis_ring_count_at_most_2 — VAL — QM9 — Timing
+Constraint: Cycle rank ≤ 2 · N=200 · diffusion_steps=500 · sampler=reverse
+
++---------------------------------+--------------------------------------------------+
+| Metric                          | Value                                              |
++---------------------------------+--------------------------------------------------+
+| Sampling time (s) for N         | 200.22 for N=200                                   |
+| Per-graph sampling time (ms)    | 1001.1                                             |
+| Sampling batches                | 2.00                                               |
+| Projector mean time (ms)        | 7.9                                                |
+| Projector share of sampling (%) | 3.9                                                |
+| Wall-clock (h:mm)               | 00:32                                              |
+| Environment                     | gpu=NVIDIA RTX A5000, torch=2.0.1+cu118, cuda=...  |
++---------------------------------+--------------------------------------------------+
+
+
+🧪 CHEMISTRY METRICS:
+================================================================================
+qm9_thesis_ring_count_at_most_2 — VAL — QM9 — Chemistry
+Constraint: Cycle rank ≤ 2 · N=200 · diffusion_steps=500 · sampler=reverse
+
++---------------------------------+--------------------+
+| Metric                          | Value                |
++---------------------------------+--------------------+
+| Valid molecules used (chem)     | 196                  |
+| Molecular weight (Da) mean ± sd | 122.8 ± 9.2          |
+| Heavy atoms mean ± sd           | 8.8 ± 0.6            |
+| Atom composition % (C/N/O/F)    | 71.0/13.0/15.7/0.3   |
++---------------------------------+--------------------+
+
+Val epoch 14 ends
+Train epoch 14 ends
+Epoch 14 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 326.0s 
+Epoch 14: {'CarbonCE': 0.358, 'NitroCE': 0.212, 'OxyCE': 0.259, 'FluorCE': 0.009} -- {'NoBondCE': 0.321, 'SingleCE': 0.3, 'DoubleCE': 0.059, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 15
+Train epoch 15 ends
+Epoch 15 finished: X: 0.46 -- charges: 0.08 -- E: 0.38 -- y: -1.00 -- 111.6s 
+Epoch 15: {'CarbonCE': 0.359, 'NitroCE': 0.213, 'OxyCE': 0.259, 'FluorCE': 0.008} -- {'NoBondCE': 0.321, 'SingleCE': 0.3, 'DoubleCE': 0.059, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 16
+Train epoch 16 ends
+Epoch 16 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 112.4s 
+Epoch 16: {'CarbonCE': 0.357, 'NitroCE': 0.212, 'OxyCE': 0.258, 'FluorCE': 0.009} -- {'NoBondCE': 0.32, 'SingleCE': 0.3, 'DoubleCE': 0.059, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 17
+Train epoch 17 ends
+Epoch 17 finished: X: 0.46 -- charges: 0.08 -- E: 0.38 -- y: -1.00 -- 113.1s 
+Epoch 17: {'CarbonCE': 0.358, 'NitroCE': 0.213, 'OxyCE': 0.259, 'FluorCE': 0.009} -- {'NoBondCE': 0.321, 'SingleCE': 0.3, 'DoubleCE': 0.059, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 18
+Train epoch 18 ends
+Epoch 18 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 111.9s 
+Epoch 18: {'CarbonCE': 0.359, 'NitroCE': 0.213, 'OxyCE': 0.259, 'FluorCE': 0.009} -- {'NoBondCE': 0.321, 'SingleCE': 0.3, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 19
+Epoch 19: val/epoch_NLL: 70.66 -- val/X_kl: 3.11 -- val/E_kl: 66.40 -- val/charges_kl: 0.60 
+Val loss: 70.6627 	 Best val loss:  68.9402
+
+Val epoch 19 ends
+Train epoch 19 ends
+Epoch 19 finished: X: 0.47 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 124.7s 
+Epoch 19: {'CarbonCE': 0.358, 'NitroCE': 0.214, 'OxyCE': 0.259, 'FluorCE': 0.009} -- {'NoBondCE': 0.321, 'SingleCE': 0.3, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 20
+Train epoch 20 ends
+Epoch 20 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 111.9s 
+Epoch 20: {'CarbonCE': 0.357, 'NitroCE': 0.213, 'OxyCE': 0.258, 'FluorCE': 0.009} -- {'NoBondCE': 0.32, 'SingleCE': 0.299, 'DoubleCE': 0.059, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 21
+Train epoch 21 ends
+Epoch 21 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 111.3s 
+Epoch 21: {'CarbonCE': 0.357, 'NitroCE': 0.212, 'OxyCE': 0.258, 'FluorCE': 0.009} -- {'NoBondCE': 0.319, 'SingleCE': 0.299, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 22
+Train epoch 22 ends
+Epoch 22 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 111.4s 
+Epoch 22: {'CarbonCE': 0.358, 'NitroCE': 0.213, 'OxyCE': 0.259, 'FluorCE': 0.009} -- {'NoBondCE': 0.32, 'SingleCE': 0.3, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 23
+Train epoch 23 ends
+Epoch 23 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 111.9s 
+Epoch 23: {'CarbonCE': 0.357, 'NitroCE': 0.212, 'OxyCE': 0.258, 'FluorCE': 0.009} -- {'NoBondCE': 0.319, 'SingleCE': 0.298, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 24
+Epoch 24: val/epoch_NLL: 67.96 -- val/X_kl: 3.17 -- val/E_kl: 63.64 -- val/charges_kl: 0.60 
+Val loss: 67.9603 	 Best val loss:  67.9603
+
+Val epoch 24 ends
+Metric val/epoch_NLL improved by 0.980 >= min_delta = 0.003. New best score: 67.960
+Train epoch 24 ends
+Epoch 24 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 124.6s 
+Epoch 24: {'CarbonCE': 0.357, 'NitroCE': 0.213, 'OxyCE': 0.259, 'FluorCE': 0.009} -- {'NoBondCE': 0.32, 'SingleCE': 0.3, 'DoubleCE': 0.059, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 25
+Train epoch 25 ends
+Epoch 25 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 111.4s 
+Epoch 25: {'CarbonCE': 0.357, 'NitroCE': 0.212, 'OxyCE': 0.258, 'FluorCE': 0.009} -- {'NoBondCE': 0.319, 'SingleCE': 0.299, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 26
+Train epoch 26 ends
+Epoch 26 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 111.3s 
+Epoch 26: {'CarbonCE': 0.358, 'NitroCE': 0.213, 'OxyCE': 0.259, 'FluorCE': 0.009} -- {'NoBondCE': 0.32, 'SingleCE': 0.3, 'DoubleCE': 0.059, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 27
+Train epoch 27 ends
+Epoch 27 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 111.4s 
+Epoch 27: {'CarbonCE': 0.355, 'NitroCE': 0.212, 'OxyCE': 0.257, 'FluorCE': 0.009} -- {'NoBondCE': 0.319, 'SingleCE': 0.298, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 28
+Train epoch 28 ends
+Epoch 28 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 111.5s 
+Epoch 28: {'CarbonCE': 0.358, 'NitroCE': 0.213, 'OxyCE': 0.259, 'FluorCE': 0.009} -- {'NoBondCE': 0.32, 'SingleCE': 0.3, 'DoubleCE': 0.059, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 29
+Epoch 29: val/epoch_NLL: 70.94 -- val/X_kl: 3.10 -- val/E_kl: 66.70 -- val/charges_kl: 0.60 
+Val loss: 70.9431 	 Best val loss:  67.9603
+
+Val epoch 29 ends
+Train epoch 29 ends
+Epoch 29 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 124.7s 
+Epoch 29: {'CarbonCE': 0.355, 'NitroCE': 0.212, 'OxyCE': 0.257, 'FluorCE': 0.009} -- {'NoBondCE': 0.318, 'SingleCE': 0.298, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 30
+Train epoch 30 ends
+Epoch 30 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 110.5s 
+Epoch 30: {'CarbonCE': 0.356, 'NitroCE': 0.212, 'OxyCE': 0.258, 'FluorCE': 0.009} -- {'NoBondCE': 0.319, 'SingleCE': 0.299, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 31
+Train epoch 31 ends
+Epoch 31 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 112.1s 
+Epoch 31: {'CarbonCE': 0.357, 'NitroCE': 0.213, 'OxyCE': 0.258, 'FluorCE': 0.009} -- {'NoBondCE': 0.319, 'SingleCE': 0.299, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 32
+Train epoch 32 ends
+Epoch 32 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 111.7s 
+Epoch 32: {'CarbonCE': 0.358, 'NitroCE': 0.213, 'OxyCE': 0.259, 'FluorCE': 0.009} -- {'NoBondCE': 0.32, 'SingleCE': 0.3, 'DoubleCE': 0.059, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 33
+Train epoch 33 ends
+Epoch 33 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 111.0s 
+Epoch 33: {'CarbonCE': 0.357, 'NitroCE': 0.212, 'OxyCE': 0.259, 'FluorCE': 0.008} -- {'NoBondCE': 0.319, 'SingleCE': 0.299, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 34
+Epoch 34: val/epoch_NLL: 69.49 -- val/X_kl: 3.06 -- val/E_kl: 65.28 -- val/charges_kl: 0.59 
+Val loss: 69.4854 	 Best val loss:  67.9603
+
+Sampling start
+Sampling a batch with 50 graphs on local rank 0. Saving 50 visualization and 10 full chains.
+[2025-08-13 01:39:43,006][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0038s, mode=INCREMENTAL
+[2025-08-13 01:39:48,050][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0040s, mode=INCREMENTAL
+[2025-08-13 01:39:53,080][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0040s, mode=INCREMENTAL
+[2025-08-13 01:39:58,115][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0038s, mode=INCREMENTAL
+[2025-08-13 01:40:03,143][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0043s, mode=INCREMENTAL
+Batch sampled. Visualizing chains starts!
+1/10 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch34/batch50_GR0/molecule_50_0.gif to wandb
+2/10 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch34/batch50_GR0/molecule_51_0.gif to wandb
+3/10 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch34/batch50_GR0/molecule_52_0.gif to wandb
+4/10 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch34/batch50_GR0/molecule_53_0.gif to wandb
+5/10 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch34/batch50_GR0/molecule_54_0.gif to wandb
+6/10 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch34/batch50_GR0/molecule_55_0.gif to wandb
+7/10 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch34/batch50_GR0/molecule_56_0.gif to wandb
+8/10 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch34/batch50_GR0/molecule_57_0.gif to wandb
+9/10 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch34/batch50_GR0/molecule_58_0.gif to wandb
+10/10 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch34/batch50_GR0/molecule_59_0.gif to wandb
+Visualizing 50 graphs out of 50
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/qm9_thesis_ring_count_at_most_2/epoch34_b50/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/qm9_thesis_ring_count_at_most_2/epoch34_b50/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/qm9_thesis_ring_count_at_most_2/epoch34_b50/graph_2.png to wandb
+Done.
+Sampling a batch with 150 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-13 01:40:56,612][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0122s, mode=INCREMENTAL
+[2025-08-13 01:41:03,250][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0114s, mode=INCREMENTAL
+[2025-08-13 01:41:09,937][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0122s, mode=INCREMENTAL
+[2025-08-13 01:41:16,746][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0122s, mode=INCREMENTAL
+[2025-08-13 01:41:23,544][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0126s, mode=INCREMENTAL
+Done.
+Sampled 2 batches on local rank 0. Sampling took 105.63 seconds
+
+Computing sampling metrics on 0...
+Error messages: AtomValence 4, Kekulize 0, other 0,  -- No error 196
+[rank: 0] Received SIGTERM: 15
+[rank: 0] Received SIGTERM: 15
+[rank: 0] Received SIGTERM: 15
+[rank: 0] Received SIGTERM: 15
+Bypassing SIGTERM: 15
+Bypassing SIGTERM: 15
+Bypassing SIGTERM: 15
+Bypassing SIGTERM: 15
+Some generated smiles: C[NH+]1CC1C1(C)C[NH+]1C C#CC#CC(=O)C1CO1 CC1=C(C)C(O)C=CN1 CCN(C=O)C1CO1 CC1CC12OCC2O COC1(C)COC1C=O OC1CC2CCC1C2O CCOC(C)=O CC1=CCCOC(=O)C1 CC1CC2CCC(O)C12
+
+================================================================================
+📊 CONSTRAINT SATISFACTION RESULTS
+================================================================================
+
+📋 **Definitions**:
+• **FCD** — Fréchet ChemNet Distance computed on valid canonical SMILES; lower is better
+• **Unique/Novel/Valid** — proportions computed over all generated molecules (not only valid)
+• **Disconnected** — share of graphs with >1 connected component
+• **Property satisfied** — share of generated graphs meeting the enforced structural constraint
+• **V.U.N.** — product of Valid × Unique × Novel (in [0,100]%)
+
+🔍 **LOGGING TO WANDB**:
+============================================================
+  val_sampling/NumNodesW1: 0.022414427250623703
+  val_sampling/NodeTypesTV: 0.03346908837556839
+  val_sampling/EdgeTypesTV: 0.07438123971223831
+  val_sampling/Disconnected: 0.4999999888241291
+  val_sampling/MeanComponents: 1.0049999952316284
+  val_sampling/MaxComponents: 2.0
+  val_sampling/planarity: 1.0
+  val_sampling/no_cycles: 0.11500000208616257
+  val_sampling/lobster_components: 0.11500000208616257
+  val_sampling/generated_deg_hist: <wandb.sdk.data_types.histogram.Histogram object at 0x7fa66e551040>
+  val_sampling/diff_deg_hist: <wandb.sdk.data_types.histogram.Histogram object at 0x7fa6541fd550>
+  val_sampling/abs_diff_deg_hist: <wandb.sdk.data_types.histogram.Histogram object at 0x7fa6541fd8b0>
+  val_sampling/ring_count_satisfaction: 1.0
+  val_sampling/cycle_rank_satisfaction: 1.0
+  val_sampling/ring_count_violation: 0.0
+  val_sampling/Validity: 98.00000190734863
+  val_sampling/Uniqueness: 100.0
+  val_sampling/Novelty: 92.85714030265808
+  val_sampling/fcd score: 2.8247695997454407
+============================================================
+
+
+🎯 CORE METRICS:
+================================================================================
+qm9_thesis_ring_count_at_most_2 — VAL — QM9
+Constraint: Cycle rank ≤ 2 · N=200 · diffusion_steps=500 · sampler=reverse
+
++-------------------------+--------------------+
+| Metric                  | Value                |
++-------------------------+--------------------+
+| Molecules generated (N) | 200                  |
+| FCD                     | 2.825                |
+| Unique (%)              | 100.00%              |
+| Novel (%)               | 92.86%               |
+| Valid (%)               | 98.00%               |
+| Disconnected (%)        | 50.00%               |
+| Property satisfied (%)  | 100.00%              |
+| V.U.N. (%)              | 91.00%               |
++-------------------------+--------------------+
+
+
+🏗️ STRUCTURAL CONSTRAINT SATISFACTION:
+================================================================================
+qm9_thesis_ring_count_at_most_2 — VAL — QM9 — Structural
+Constraint: Cycle rank ≤ 2 · N=200 · diffusion_steps=500 · sampler=reverse
+
++--------------------------+--------------------+
+| Metric                   | Value                |
++--------------------------+--------------------+
+| Ring count satisfied (%) | 100.00%              |
+| Cycle rank 0 (%)         | 11.5%                |
+| Cycle rank 1 (%)         | 36.0%                |
+| Cycle rank 2 (%)         | 52.5%                |
+| Cycle rank >2 (%)        | 0.0%                 |
++--------------------------+--------------------+
+
+
+⏱️ TIMING METRICS:
+================================================================================
+qm9_thesis_ring_count_at_most_2 — VAL — QM9 — Timing
+Constraint: Cycle rank ≤ 2 · N=200 · diffusion_steps=500 · sampler=reverse
+
++---------------------------------+--------------------------------------------------+
+| Metric                          | Value                                              |
++---------------------------------+--------------------------------------------------+
+| Sampling time (s) for N         | 305.81 for N=200                                   |
+| Per-graph sampling time (ms)    | 1529.1                                             |
+| Sampling batches                | 4.00                                               |
+| Projector mean time (ms)        | 7.9                                                |
+| Projector share of sampling (%) | 5.1                                                |
+| Wall-clock (h:mm)               | 01:12                                              |
+| Environment                     | gpu=NVIDIA RTX A5000, torch=2.0.1+cu118, cuda=...  |
++---------------------------------+--------------------------------------------------+
+
+
+🧪 CHEMISTRY METRICS:
+================================================================================
+qm9_thesis_ring_count_at_most_2 — VAL — QM9 — Chemistry
+Constraint: Cycle rank ≤ 2 · N=200 · diffusion_steps=500 · sampler=reverse
+
++---------------------------------+--------------------+
+| Metric                          | Value                |
++---------------------------------+--------------------+
+| Valid molecules used (chem)     | 196                  |
+| Molecular weight (Da) mean ± sd | 123.4 ± 8.3          |
+| Heavy atoms mean ± sd           | 8.8 ± 0.6            |
+| Atom composition % (C/N/O/F)    | 73.7/10.2/16.1/0.1   |
++---------------------------------+--------------------+
+
+Val epoch 34 ends
+Train epoch 34 ends
+Epoch 34 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 233.0s 
+Epoch 34: {'CarbonCE': 0.357, 'NitroCE': 0.212, 'OxyCE': 0.258, 'FluorCE': 0.009} -- {'NoBondCE': 0.318, 'SingleCE': 0.298, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 35
+Train epoch 35 ends
+Epoch 35 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 113.7s 
+Epoch 35: {'CarbonCE': 0.355, 'NitroCE': 0.212, 'OxyCE': 0.257, 'FluorCE': 0.009} -- {'NoBondCE': 0.317, 'SingleCE': 0.297, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 36
+Train epoch 36 ends
+Epoch 36 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 109.7s 
+Epoch 36: {'CarbonCE': 0.356, 'NitroCE': 0.211, 'OxyCE': 0.258, 'FluorCE': 0.009} -- {'NoBondCE': 0.318, 'SingleCE': 0.298, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 37
+Train epoch 37 ends
+Epoch 37 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 110.2s 
+Epoch 37: {'CarbonCE': 0.355, 'NitroCE': 0.211, 'OxyCE': 0.257, 'FluorCE': 0.009} -- {'NoBondCE': 0.318, 'SingleCE': 0.298, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 38
+Train epoch 38 ends
+Epoch 38 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 109.8s 
+Epoch 38: {'CarbonCE': 0.355, 'NitroCE': 0.212, 'OxyCE': 0.257, 'FluorCE': 0.009} -- {'NoBondCE': 0.318, 'SingleCE': 0.298, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 39
+Epoch 39: val/epoch_NLL: 69.08 -- val/X_kl: 3.09 -- val/E_kl: 64.85 -- val/charges_kl: 0.62 
+Val loss: 69.0766 	 Best val loss:  67.9603
+
+Val epoch 39 ends
+Train epoch 39 ends
+Epoch 39 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 122.4s 
+Epoch 39: {'CarbonCE': 0.356, 'NitroCE': 0.212, 'OxyCE': 0.258, 'FluorCE': 0.009} -- {'NoBondCE': 0.318, 'SingleCE': 0.298, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 40
+Train epoch 40 ends
+Epoch 40 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 110.3s 
+Epoch 40: {'CarbonCE': 0.356, 'NitroCE': 0.212, 'OxyCE': 0.257, 'FluorCE': 0.009} -- {'NoBondCE': 0.318, 'SingleCE': 0.298, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 41
+Train epoch 41 ends
+Epoch 41 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 110.2s 
+Epoch 41: {'CarbonCE': 0.357, 'NitroCE': 0.212, 'OxyCE': 0.259, 'FluorCE': 0.008} -- {'NoBondCE': 0.319, 'SingleCE': 0.298, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 42
+Train epoch 42 ends
+Epoch 42 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 109.6s 
+Epoch 42: {'CarbonCE': 0.355, 'NitroCE': 0.211, 'OxyCE': 0.257, 'FluorCE': 0.009} -- {'NoBondCE': 0.318, 'SingleCE': 0.298, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 43
+Train epoch 43 ends
+Epoch 43 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 110.1s 
+Epoch 43: {'CarbonCE': 0.355, 'NitroCE': 0.211, 'OxyCE': 0.257, 'FluorCE': 0.008} -- {'NoBondCE': 0.317, 'SingleCE': 0.297, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 44
+Epoch 44: val/epoch_NLL: 69.87 -- val/X_kl: 3.06 -- val/E_kl: 65.70 -- val/charges_kl: 0.57 
+Val loss: 69.8652 	 Best val loss:  67.9603
+
+Val epoch 44 ends
+Train epoch 44 ends
+Epoch 44 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 124.1s 
+Epoch 44: {'CarbonCE': 0.355, 'NitroCE': 0.212, 'OxyCE': 0.257, 'FluorCE': 0.009} -- {'NoBondCE': 0.318, 'SingleCE': 0.297, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 45
+Train epoch 45 ends
+Epoch 45 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 110.2s 
+Epoch 45: {'CarbonCE': 0.356, 'NitroCE': 0.211, 'OxyCE': 0.258, 'FluorCE': 0.009} -- {'NoBondCE': 0.319, 'SingleCE': 0.299, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 46
+Train epoch 46 ends
+Epoch 46 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 109.7s 
+Epoch 46: {'CarbonCE': 0.355, 'NitroCE': 0.211, 'OxyCE': 0.257, 'FluorCE': 0.008} -- {'NoBondCE': 0.318, 'SingleCE': 0.297, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 47
+Train epoch 47 ends
+Epoch 47 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 110.6s 
+Epoch 47: {'CarbonCE': 0.355, 'NitroCE': 0.211, 'OxyCE': 0.257, 'FluorCE': 0.009} -- {'NoBondCE': 0.317, 'SingleCE': 0.297, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 48
+Train epoch 48 ends
+Epoch 48 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 109.4s 
+Epoch 48: {'CarbonCE': 0.355, 'NitroCE': 0.212, 'OxyCE': 0.257, 'FluorCE': 0.009} -- {'NoBondCE': 0.317, 'SingleCE': 0.297, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 49
+Epoch 49: val/epoch_NLL: 70.60 -- val/X_kl: 3.04 -- val/E_kl: 66.40 -- val/charges_kl: 0.59 
+Val loss: 70.6014 	 Best val loss:  67.9603
+
+Val epoch 49 ends
+Train epoch 49 ends
+Epoch 49 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 122.4s 
+Epoch 49: {'CarbonCE': 0.354, 'NitroCE': 0.21, 'OxyCE': 0.257, 'FluorCE': 0.009} -- {'NoBondCE': 0.317, 'SingleCE': 0.297, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 50
+Train epoch 50 ends
+Epoch 50 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 110.3s 
+Epoch 50: {'CarbonCE': 0.355, 'NitroCE': 0.211, 'OxyCE': 0.256, 'FluorCE': 0.009} -- {'NoBondCE': 0.317, 'SingleCE': 0.297, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 51
+Train epoch 51 ends
+Epoch 51 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 111.0s 
+Epoch 51: {'CarbonCE': 0.355, 'NitroCE': 0.211, 'OxyCE': 0.256, 'FluorCE': 0.009} -- {'NoBondCE': 0.317, 'SingleCE': 0.297, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 52
+Train epoch 52 ends
+Epoch 52 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 110.5s 
+Epoch 52: {'CarbonCE': 0.355, 'NitroCE': 0.212, 'OxyCE': 0.257, 'FluorCE': 0.009} -- {'NoBondCE': 0.317, 'SingleCE': 0.297, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 53
+Train epoch 53 ends
+Epoch 53 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 110.8s 
+Epoch 53: {'CarbonCE': 0.354, 'NitroCE': 0.21, 'OxyCE': 0.257, 'FluorCE': 0.009} -- {'NoBondCE': 0.318, 'SingleCE': 0.298, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 54
+Epoch 54: val/epoch_NLL: 71.52 -- val/X_kl: 3.16 -- val/E_kl: 67.21 -- val/charges_kl: 0.61 
+Val loss: 71.5183 	 Best val loss:  67.9603
+
+Sampling start
+Sampling a batch with 50 graphs on local rank 0. Saving 50 visualization and 10 full chains.
+[2025-08-13 02:19:09,390][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0038s, mode=INCREMENTAL
+[2025-08-13 02:19:14,398][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0040s, mode=INCREMENTAL
+[2025-08-13 02:19:19,418][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0040s, mode=INCREMENTAL
+[2025-08-13 02:19:24,429][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0043s, mode=INCREMENTAL
+[2025-08-13 02:19:29,449][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0048s, mode=INCREMENTAL
+Batch sampled. Visualizing chains starts!
+1/10 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch54/batch50_GR0/molecule_50_0.gif to wandb
+2/10 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch54/batch50_GR0/molecule_51_0.gif to wandb
+3/10 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch54/batch50_GR0/molecule_52_0.gif to wandb
+4/10 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch54/batch50_GR0/molecule_53_0.gif to wandb
+5/10 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch54/batch50_GR0/molecule_54_0.gif to wandb
+6/10 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch54/batch50_GR0/molecule_55_0.gif to wandb
+7/10 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch54/batch50_GR0/molecule_56_0.gif to wandb
+8/10 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch54/batch50_GR0/molecule_57_0.gif to wandb
+9/10 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch54/batch50_GR0/molecule_58_0.gif to wandb
+10/10 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch54/batch50_GR0/molecule_59_0.gif to wandb
+Visualizing 50 graphs out of 50
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/qm9_thesis_ring_count_at_most_2/epoch54_b50/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/qm9_thesis_ring_count_at_most_2/epoch54_b50/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/qm9_thesis_ring_count_at_most_2/epoch54_b50/graph_2.png to wandb
+Done.
+Sampling a batch with 150 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-13 02:20:23,915][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0120s, mode=INCREMENTAL
+[2025-08-13 02:20:30,595][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0111s, mode=INCREMENTAL
+[2025-08-13 02:20:37,271][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0110s, mode=INCREMENTAL
+[2025-08-13 02:20:43,963][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0113s, mode=INCREMENTAL
+[2025-08-13 02:20:50,678][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0149s, mode=INCREMENTAL
+Done.
+Sampled 2 batches on local rank 0. Sampling took 106.35 seconds
+
+Computing sampling metrics on 0...
+Error messages: AtomValence 3, Kekulize 0, other 0,  -- No error 197
+[rank: 0] Received SIGTERM: 15
+[rank: 0] Received SIGTERM: 15
+[rank: 0] Received SIGTERM: 15
+Bypassing SIGTERM: 15
+Bypassing SIGTERM: 15
+Bypassing SIGTERM: 15
+Some generated smiles: CCc1ocnc1NC CC(CO)C(O)C=O N#CC12CN1CC=C2O CC1(N)CNCC12CO2 NC12CC1[NH+](CC=O)C2 C#CC(O)CC(C)(C)C CC1(C#N)NC1C1CC1 CC1(C2CN2)C(=O)C1O CC#CC1=NC=CC1=O O=c1cc(F)oc(=O)[nH]1
+
+================================================================================
+📊 CONSTRAINT SATISFACTION RESULTS
+================================================================================
+
+📋 **Definitions**:
+• **FCD** — Fréchet ChemNet Distance computed on valid canonical SMILES; lower is better
+• **Unique/Novel/Valid** — proportions computed over all generated molecules (not only valid)
+• **Disconnected** — share of graphs with >1 connected component
+• **Property satisfied** — share of generated graphs meeting the enforced structural constraint
+• **V.U.N.** — product of Valid × Unique × Novel (in [0,100]%)
+
+🔍 **LOGGING TO WANDB**:
+============================================================
+  val_sampling/NumNodesW1: 0.07241442799568176
+  val_sampling/NodeTypesTV: 0.009833123534917831
+  val_sampling/EdgeTypesTV: 0.07296567410230637
+  val_sampling/Disconnected: 1.4999999664723873
+  val_sampling/MeanComponents: 1.0149999856948853
+  val_sampling/MaxComponents: 2.0
+  val_sampling/planarity: 1.0
+  val_sampling/no_cycles: 0.08500000089406967
+  val_sampling/lobster_components: 0.08500000089406967
+  val_sampling/generated_deg_hist: <wandb.sdk.data_types.histogram.Histogram object at 0x7fa6541c8130>
+  val_sampling/diff_deg_hist: <wandb.sdk.data_types.histogram.Histogram object at 0x7fa654290fd0>
+  val_sampling/abs_diff_deg_hist: <wandb.sdk.data_types.histogram.Histogram object at 0x7fa654358880>
+  val_sampling/ring_count_satisfaction: 1.0
+  val_sampling/cycle_rank_satisfaction: 1.0
+  val_sampling/ring_count_violation: 0.0
+  val_sampling/Validity: 98.50000143051147
+  val_sampling/Uniqueness: 100.0
+  val_sampling/Novelty: 94.92385983467102
+  val_sampling/fcd score: 3.081580847714065
+============================================================
+
+
+🎯 CORE METRICS:
+================================================================================
+qm9_thesis_ring_count_at_most_2 — VAL — QM9
+Constraint: Cycle rank ≤ 2 · N=200 · diffusion_steps=500 · sampler=reverse
+
++-------------------------+--------------------+
+| Metric                  | Value                |
++-------------------------+--------------------+
+| Molecules generated (N) | 200                  |
+| FCD                     | 3.082                |
+| Unique (%)              | 100.00%              |
+| Novel (%)               | 94.92%               |
+| Valid (%)               | 98.50%               |
+| Disconnected (%)        | 1.50%                |
+| Property satisfied (%)  | 100.00%              |
+| V.U.N. (%)              | 93.50%               |
++-------------------------+--------------------+
+
+
+🏗️ STRUCTURAL CONSTRAINT SATISFACTION:
+================================================================================
+qm9_thesis_ring_count_at_most_2 — VAL — QM9 — Structural
+Constraint: Cycle rank ≤ 2 · N=200 · diffusion_steps=500 · sampler=reverse
+
++--------------------------+--------------------+
+| Metric                   | Value                |
++--------------------------+--------------------+
+| Ring count satisfied (%) | 100.00%              |
+| Cycle rank 0 (%)         | 8.5%                 |
+| Cycle rank 1 (%)         | 30.0%                |
+| Cycle rank 2 (%)         | 61.5%                |
+| Cycle rank >2 (%)        | 0.0%                 |
++--------------------------+--------------------+
+
+
+⏱️ TIMING METRICS:
+================================================================================
+qm9_thesis_ring_count_at_most_2 — VAL — QM9 — Timing
+Constraint: Cycle rank ≤ 2 · N=200 · diffusion_steps=500 · sampler=reverse
+
++---------------------------------+--------------------------------------------------+
+| Metric                          | Value                                              |
++---------------------------------+--------------------------------------------------+
+| Sampling time (s) for N         | 412.11 for N=200                                   |
+| Per-graph sampling time (ms)    | 2060.6                                             |
+| Sampling batches                | 6.00                                               |
+| Projector mean time (ms)        | 7.9                                                |
+| Projector share of sampling (%) | 5.7                                                |
+| Wall-clock (h:mm)               | 01:51                                              |
+| Environment                     | gpu=NVIDIA RTX A5000, torch=2.0.1+cu118, cuda=...  |
++---------------------------------+--------------------------------------------------+
+
+
+🧪 CHEMISTRY METRICS:
+================================================================================
+qm9_thesis_ring_count_at_most_2 — VAL — QM9 — Chemistry
+Constraint: Cycle rank ≤ 2 · N=200 · diffusion_steps=500 · sampler=reverse
+
++---------------------------------+--------------------+
+| Metric                          | Value                |
++---------------------------------+--------------------+
+| Valid molecules used (chem)     | 197                  |
+| Molecular weight (Da) mean ± sd | 123.6 ± 6.9          |
+| Heavy atoms mean ± sd           | 8.8 ± 0.4            |
+| Atom composition % (C/N/O/F)    | 72.3/12.1/15.6/0.1   |
++---------------------------------+--------------------+
+
+Val epoch 54 ends
+Train epoch 54 ends
+Epoch 54 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 230.9s 
+Epoch 54: {'CarbonCE': 0.356, 'NitroCE': 0.213, 'OxyCE': 0.257, 'FluorCE': 0.009} -- {'NoBondCE': 0.318, 'SingleCE': 0.298, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 55
+Train epoch 55 ends
+Epoch 55 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 111.4s 
+Epoch 55: {'CarbonCE': 0.355, 'NitroCE': 0.211, 'OxyCE': 0.256, 'FluorCE': 0.008} -- {'NoBondCE': 0.318, 'SingleCE': 0.298, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 56
+Train epoch 56 ends
+Epoch 56 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 111.1s 
+Epoch 56: {'CarbonCE': 0.354, 'NitroCE': 0.211, 'OxyCE': 0.256, 'FluorCE': 0.008} -- {'NoBondCE': 0.317, 'SingleCE': 0.297, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 57
+Train epoch 57 ends
+Epoch 57 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 110.7s 
+Epoch 57: {'CarbonCE': 0.355, 'NitroCE': 0.211, 'OxyCE': 0.257, 'FluorCE': 0.009} -- {'NoBondCE': 0.317, 'SingleCE': 0.297, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 58
+Train epoch 58 ends
+Epoch 58 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 110.6s 
+Epoch 58: {'CarbonCE': 0.355, 'NitroCE': 0.212, 'OxyCE': 0.257, 'FluorCE': 0.009} -- {'NoBondCE': 0.317, 'SingleCE': 0.297, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 59
+Epoch 59: val/epoch_NLL: 70.62 -- val/X_kl: 3.06 -- val/E_kl: 66.40 -- val/charges_kl: 0.60 
+Val loss: 70.6174 	 Best val loss:  67.9603
+
+Val epoch 59 ends
+Train epoch 59 ends
+Epoch 59 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 122.9s 
+Epoch 59: {'CarbonCE': 0.356, 'NitroCE': 0.212, 'OxyCE': 0.258, 'FluorCE': 0.009} -- {'NoBondCE': 0.318, 'SingleCE': 0.298, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 60
+Train epoch 60 ends
+Epoch 60 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 109.3s 
+Epoch 60: {'CarbonCE': 0.355, 'NitroCE': 0.211, 'OxyCE': 0.257, 'FluorCE': 0.009} -- {'NoBondCE': 0.318, 'SingleCE': 0.298, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 61
+Train epoch 61 ends
+Epoch 61 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 110.0s 
+Epoch 61: {'CarbonCE': 0.355, 'NitroCE': 0.211, 'OxyCE': 0.257, 'FluorCE': 0.008} -- {'NoBondCE': 0.318, 'SingleCE': 0.298, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 62
+Train epoch 62 ends
+Epoch 62 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 109.5s 
+Epoch 62: {'CarbonCE': 0.355, 'NitroCE': 0.212, 'OxyCE': 0.257, 'FluorCE': 0.009} -- {'NoBondCE': 0.317, 'SingleCE': 0.297, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 63
+Train epoch 63 ends
+Epoch 63 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 109.5s 
+Epoch 63: {'CarbonCE': 0.354, 'NitroCE': 0.211, 'OxyCE': 0.256, 'FluorCE': 0.009} -- {'NoBondCE': 0.317, 'SingleCE': 0.297, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 64
+Epoch 64: val/epoch_NLL: 69.34 -- val/X_kl: 3.12 -- val/E_kl: 65.08 -- val/charges_kl: 0.58 
+Val loss: 69.3416 	 Best val loss:  67.9603
+
+Val epoch 64 ends
+Train epoch 64 ends
+Epoch 64 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 122.3s 
+Epoch 64: {'CarbonCE': 0.354, 'NitroCE': 0.211, 'OxyCE': 0.256, 'FluorCE': 0.009} -- {'NoBondCE': 0.317, 'SingleCE': 0.297, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 65
+Train epoch 65 ends
+Epoch 65 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 111.6s 
+Epoch 65: {'CarbonCE': 0.355, 'NitroCE': 0.211, 'OxyCE': 0.257, 'FluorCE': 0.009} -- {'NoBondCE': 0.317, 'SingleCE': 0.297, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 66
+Train epoch 66 ends
+Epoch 66 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 110.9s 
+Epoch 66: {'CarbonCE': 0.354, 'NitroCE': 0.21, 'OxyCE': 0.256, 'FluorCE': 0.008} -- {'NoBondCE': 0.316, 'SingleCE': 0.296, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 67
+Train epoch 67 ends
+Epoch 67 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 109.4s 
+Epoch 67: {'CarbonCE': 0.355, 'NitroCE': 0.211, 'OxyCE': 0.257, 'FluorCE': 0.009} -- {'NoBondCE': 0.317, 'SingleCE': 0.297, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 68
+Train epoch 68 ends
+Epoch 68 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 109.9s 
+Epoch 68: {'CarbonCE': 0.355, 'NitroCE': 0.211, 'OxyCE': 0.256, 'FluorCE': 0.008} -- {'NoBondCE': 0.317, 'SingleCE': 0.297, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 69
+Epoch 69: val/epoch_NLL: 71.37 -- val/X_kl: 3.07 -- val/E_kl: 67.14 -- val/charges_kl: 0.62 
+Val loss: 71.3677 	 Best val loss:  67.9603
+
+Val epoch 69 ends
+Train epoch 69 ends
+Epoch 69 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 123.0s 
+Epoch 69: {'CarbonCE': 0.354, 'NitroCE': 0.211, 'OxyCE': 0.257, 'FluorCE': 0.008} -- {'NoBondCE': 0.317, 'SingleCE': 0.297, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 70
+Train epoch 70 ends
+Epoch 70 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 110.5s 
+Epoch 70: {'CarbonCE': 0.356, 'NitroCE': 0.212, 'OxyCE': 0.257, 'FluorCE': 0.009} -- {'NoBondCE': 0.317, 'SingleCE': 0.297, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 71
+Train epoch 71 ends
+Epoch 71 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 111.7s 
+Epoch 71: {'CarbonCE': 0.354, 'NitroCE': 0.211, 'OxyCE': 0.256, 'FluorCE': 0.009} -- {'NoBondCE': 0.317, 'SingleCE': 0.296, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 72
+Train epoch 72 ends
+Epoch 72 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 111.0s 
+Epoch 72: {'CarbonCE': 0.355, 'NitroCE': 0.211, 'OxyCE': 0.257, 'FluorCE': 0.008} -- {'NoBondCE': 0.317, 'SingleCE': 0.297, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 73
+Train epoch 73 ends
+Epoch 73 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 109.8s 
+Epoch 73: {'CarbonCE': 0.354, 'NitroCE': 0.21, 'OxyCE': 0.256, 'FluorCE': 0.008} -- {'NoBondCE': 0.316, 'SingleCE': 0.296, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+Starting epoch 74
+Epoch 74: val/epoch_NLL: 69.59 -- val/X_kl: 3.05 -- val/E_kl: 65.38 -- val/charges_kl: 0.60 
+Val loss: 69.5872 	 Best val loss:  67.9603
+
+Sampling start
+Sampling a batch with 50 graphs on local rank 0. Saving 50 visualization and 10 full chains.
+[2025-08-13 02:58:35,568][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0040s, mode=INCREMENTAL
+[2025-08-13 02:58:40,573][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0042s, mode=INCREMENTAL
+[2025-08-13 02:58:45,575][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0044s, mode=INCREMENTAL
+[2025-08-13 02:58:50,578][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0040s, mode=INCREMENTAL
+[2025-08-13 02:58:55,585][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0048s, mode=INCREMENTAL
+Batch sampled. Visualizing chains starts!
+1/10 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch74/batch50_GR0/molecule_50_0.gif to wandb
+2/10 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch74/batch50_GR0/molecule_51_0.gif to wandb
+3/10 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch74/batch50_GR0/molecule_52_0.gif to wandb
+4/10 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch74/batch50_GR0/molecule_53_0.gif to wandb
+5/10 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch74/batch50_GR0/molecule_54_0.gif to wandb
+6/10 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch74/batch50_GR0/molecule_55_0.gif to wandb
+7/10 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch74/batch50_GR0/molecule_56_0.gif to wandb
+8/10 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch74/batch50_GR0/molecule_57_0.gif to wandb
+9/10 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch74/batch50_GR0/molecule_58_0.gif to wandb
+10/10 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch74/batch50_GR0/molecule_59_0.gif to wandb
+Visualizing 50 graphs out of 50
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/qm9_thesis_ring_count_at_most_2/epoch74_b50/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/qm9_thesis_ring_count_at_most_2/epoch74_b50/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/qm9_thesis_ring_count_at_most_2/epoch74_b50/graph_2.png to wandb
+Done.
+Sampling a batch with 150 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-13 02:59:49,691][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0114s, mode=INCREMENTAL
+[2025-08-13 02:59:56,311][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0112s, mode=INCREMENTAL
+[2025-08-13 03:00:02,938][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0116s, mode=INCREMENTAL
+[2025-08-13 03:00:09,570][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0112s, mode=INCREMENTAL
+[2025-08-13 03:00:16,219][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0128s, mode=INCREMENTAL
+Done.
+Sampled 2 batches on local rank 0. Sampling took 105.71 seconds
+
+Computing sampling metrics on 0...
+Error messages: AtomValence 2, Kekulize 0, other 0,  -- No error 198
+[rank: 0] Received SIGTERM: 15
+[rank: 0] Received SIGTERM: 15
+[rank: 0] Received SIGTERM: 15
+Bypassing SIGTERM: 15
+Bypassing SIGTERM: 15
+Bypassing SIGTERM: 15
+Some generated smiles: O=C1C[NH+]2CCOC1C2 CC1=CCC(=O)CC1=O C#CCC#CC(=O)CC CC(=O)C=C(C)CCO Nc1c[nH]cc1NC=O N#CC1(C2CC2O)CO1 CC1=C(O)C(=O)C=C1 CC(=O)C12NC1CC2C COCC12C[NH+]1CC2=O CCOC(=N)OC([NH-])=O
+
+================================================================================
+📊 CONSTRAINT SATISFACTION RESULTS
+================================================================================
+
+📋 **Definitions**:
+• **FCD** — Fréchet ChemNet Distance computed on valid canonical SMILES; lower is better
+• **Unique/Novel/Valid** — proportions computed over all generated molecules (not only valid)
+• **Disconnected** — share of graphs with >1 connected component
+• **Property satisfied** — share of generated graphs meeting the enforced structural constraint
+• **V.U.N.** — product of Valid × Unique × Novel (in [0,100]%)
+
+🔍 **LOGGING TO WANDB**:
+============================================================
+  val_sampling/NumNodesW1: 0.06265392899513245
+  val_sampling/NodeTypesTV: 0.016365421935915947
+  val_sampling/EdgeTypesTV: 0.07175564020872116
+  val_sampling/Disconnected: 2.9999999329447746
+  val_sampling/MeanComponents: 1.0299999713897705
+  val_sampling/MaxComponents: 2.0
+  val_sampling/planarity: 1.0
+  val_sampling/no_cycles: 0.11500000208616257
+  val_sampling/lobster_components: 0.11500000208616257
+  val_sampling/generated_deg_hist: <wandb.sdk.data_types.histogram.Histogram object at 0x7fa66e57ad90>
+  val_sampling/diff_deg_hist: <wandb.sdk.data_types.histogram.Histogram object at 0x7fa6546f8b20>
+  val_sampling/abs_diff_deg_hist: <wandb.sdk.data_types.histogram.Histogram object at 0x7fa6542daa00>
+  val_sampling/ring_count_satisfaction: 1.0
+  val_sampling/cycle_rank_satisfaction: 1.0
+  val_sampling/ring_count_violation: 0.0
+  val_sampling/Validity: 99.00000095367432
+  val_sampling/Uniqueness: 100.0
+  val_sampling/Novelty: 87.37373948097229
+  val_sampling/fcd score: 3.010308557178014
+============================================================
+
+
+🎯 CORE METRICS:
+================================================================================
+qm9_thesis_ring_count_at_most_2 — VAL — QM9
+Constraint: Cycle rank ≤ 2 · N=200 · diffusion_steps=500 · sampler=reverse
+
++-------------------------+--------------------+
+| Metric                  | Value                |
++-------------------------+--------------------+
+| Molecules generated (N) | 200                  |
+| FCD                     | 3.010                |
+| Unique (%)              | 100.00%              |
+| Novel (%)               | 87.37%               |
+| Valid (%)               | 99.00%               |
+| Disconnected (%)        | 3.00%                |
+| Property satisfied (%)  | 100.00%              |
+| V.U.N. (%)              | 86.50%               |
++-------------------------+--------------------+
+
+
+🏗️ STRUCTURAL CONSTRAINT SATISFACTION:
+================================================================================
+qm9_thesis_ring_count_at_most_2 — VAL — QM9 — Structural
+Constraint: Cycle rank ≤ 2 · N=200 · diffusion_steps=500 · sampler=reverse
+
++--------------------------+--------------------+
+| Metric                   | Value                |
++--------------------------+--------------------+
+| Ring count satisfied (%) | 100.00%              |
+| Cycle rank 0 (%)         | 11.5%                |
+| Cycle rank 1 (%)         | 35.5%                |
+| Cycle rank 2 (%)         | 53.0%                |
+| Cycle rank >2 (%)        | 0.0%                 |
++--------------------------+--------------------+
+
+
+⏱️ TIMING METRICS:
+================================================================================
+qm9_thesis_ring_count_at_most_2 — VAL — QM9 — Timing
+Constraint: Cycle rank ≤ 2 · N=200 · diffusion_steps=500 · sampler=reverse
+
++---------------------------------+--------------------------------------------------+
+| Metric                          | Value                                              |
++---------------------------------+--------------------------------------------------+
+| Sampling time (s) for N         | 517.80 for N=200                                   |
+| Per-graph sampling time (ms)    | 2589.0                                             |
+| Sampling batches                | 8.00                                               |
+| Projector mean time (ms)        | 7.9                                                |
+| Projector share of sampling (%) | 6.1                                                |
+| Wall-clock (h:mm)               | 02:31                                              |
+| Environment                     | gpu=NVIDIA RTX A5000, torch=2.0.1+cu118, cuda=...  |
++---------------------------------+--------------------------------------------------+
+
+
+🧪 CHEMISTRY METRICS:
+================================================================================
+qm9_thesis_ring_count_at_most_2 — VAL — QM9 — Chemistry
+Constraint: Cycle rank ≤ 2 · N=200 · diffusion_steps=500 · sampler=reverse
+
++---------------------------------+--------------------+
+| Metric                          | Value                |
++---------------------------------+--------------------+
+| Valid molecules used (chem)     | 198                  |
+| Molecular weight (Da) mean ± sd | 122.1 ± 10.5         |
+| Heavy atoms mean ± sd           | 8.7 ± 0.7            |
+| Atom composition % (C/N/O/F)    | 71.5/11.5/16.8/0.2   |
++---------------------------------+--------------------+
+
+Val epoch 74 ends
+Monitored metric val/epoch_NLL did not improve in the last 10 records. Best score: 67.960. Signaling Trainer to stop.
+Train epoch 74 ends
+Epoch 74 finished: X: 0.46 -- charges: 0.08 -- E: 0.37 -- y: -1.00 -- 230.1s 
+Epoch 74: {'CarbonCE': 0.355, 'NitroCE': 0.211, 'OxyCE': 0.257, 'FluorCE': 0.008} -- {'NoBondCE': 0.317, 'SingleCE': 0.297, 'DoubleCE': 0.058, 'TripleCE': 0.021, 'AromaticCE': 0.0}
+[rank: 0] Global seed set to 0
+You are using a CUDA device ('NVIDIA RTX A5000') that has Tensor Cores. To properly utilize them, you should set `torch.set_float32_matmul_precision('medium' | 'high')` which will trade-off precision for performance. For more details, read https://pytorch.org/docs/stable/generated/torch.set_float32_matmul_precision.html#torch.set_float32_matmul_precision
+LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0]
+SLURM auto-requeueing enabled. Setting signal handlers.
+wandb: Waiting for W&B process to finish... (success).
+wandb: - 27.004 MB of 27.004 MB uploaded (0.000 MB deduped)wandb: \ 27.004 MB of 27.076 MB uploaded (0.000 MB deduped)wandb: | 27.007 MB of 27.076 MB uploaded (0.000 MB deduped)wandb: / 27.007 MB of 27.076 MB uploaded (0.000 MB deduped)wandb: 
+wandb: Run history:
+wandb:                                epoch ▁▁▁▁▂▂▂▂▂▃▃▃▃▃▃▄▄▄▄▄▅▅▅▅▅▅▆▆▆▆▆▆▇▇▇▇▇███
+wandb:                     train/AromaticCE █▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:                       train/CarbonCE █▄▂▂▂▂▂▂▂▂▂▁▂▁▂▂▁▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:                       train/DoubleCE █▄▂▂▂▂▂▂▂▂▂▂▁▂▂▂▁▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:                        train/FluorCE █▃▃▂▂▂▂▂▁▂▁▂▂▁▂▂▂▂▂▂▂▂▁▁▂▂▁▂▁▁▁▂▂▁▁▁▁▁▁▁
+wandb:                        train/NitroCE █▄▂▂▂▂▂▂▂▂▂▂▂▂▂▂▁▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:                       train/NoBondCE █▄▃▃▃▂▂▂▂▂▂▂▂▂▂▂▂▂▁▁▁▂▂▁▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:                          train/OxyCE █▃▂▂▂▂▂▁▂▁▂▁▂▁▂▂▁▂▁▁▁▁▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:                       train/SingleCE █▄▃▃▃▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▁▂▂▁▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:                       train/TripleCE █▃▂▁▂▁▂▁▂▁▁▁▂▁▁▁▁▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:                     train_epoch/E_CE █▄▃▂▂▂▂▂▂▂▂▂▂▂▂▂▁▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:               train_epoch/charges_CE █▃▂▂▂▂▂▂▂▂▁▁▁▂▂▂▁▁▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:          train_epoch/epochAromaticCE █▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:            train_epoch/epochCarbonCE █▄▂▂▂▂▂▂▂▂▂▁▂▁▂▂▁▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:            train_epoch/epochDoubleCE █▄▂▂▂▂▂▂▂▂▂▂▂▂▂▂▁▂▁▁▁▁▁▁▁▁▁▁▁▁▁▂▁▁▁▁▁▁▁▁
+wandb:             train_epoch/epochFluorCE █▃▃▂▂▂▂▂▁▂▂▂▂▁▂▂▂▂▁▂▁▂▁▁▂▂▁▂▁▁▁▂▁▁▁▁▁▁▁▁
+wandb:             train_epoch/epochNitroCE █▄▃▂▂▂▂▂▂▂▂▂▂▂▂▂▁▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:            train_epoch/epochNoBondCE █▄▃▃▃▂▂▂▂▂▂▂▂▂▂▂▂▂▁▂▁▂▂▁▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:               train_epoch/epochOxyCE █▃▂▂▂▂▂▁▂▁▂▁▂▁▂▂▁▂▁▁▁▁▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:            train_epoch/epochSingleCE █▄▃▃▃▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▁▂▂▁▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:            train_epoch/epochTripleCE █▃▂▁▂▁▂▁▂▁▁▁▂▁▂▁▁▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:                     train_epoch/x_CE █▃▂▂▂▂▂▂▂▂▂▁▂▁▂▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:                     train_epoch/y_CE ▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:                      train_loss/E_CE █▄▃▂▂▂▂▂▂▂▂▂▂▂▂▂▁▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:                      train_loss/X_CE █▃▂▂▂▂▂▁▂▁▂▁▂▁▂▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:                train_loss/batch_loss ▆█▆▆▄▂▃▆▅▃▅▅▄▆▇▅▅▃▆▂▇▃▁▄▅▄▂▄▄▁▄▆▅▃▁▇▅▆▅▃
+wandb:                train_loss/charges_CE █▃▂▂▂▂▂▂▂▁▁▁▁▂▂▂▁▁▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:                      train_loss/y_CE ▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:                             val/E_kl █▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:                             val/X_kl █▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:                       val/charges_kl █▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:                        val/epoch_NLL █▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:                    val_ratio/average █▁▅▄
+wandb:                  val_ratio/fcd score █▁▅▄
+wandb:                val_sampling/ChargeW1 █▁▅█
+wandb:            val_sampling/Disconnected █▁▃▆
+wandb:             val_sampling/EdgeTypesTV ▃█▄▁
+wandb:           val_sampling/MaxComponents ▁▁▁▁
+wandb:          val_sampling/MeanComponents █▁▃▆
+wandb:             val_sampling/NodeTypesTV ██▁▃
+wandb:                 val_sampling/Novelty █▅▆▁
+wandb:              val_sampling/NumNodesW1 ▂▁█▇
+wandb:              val_sampling/Uniqueness ▁▁▁▁
+wandb:               val_sampling/ValencyW1 ▄█▁▇
+wandb:                val_sampling/Validity ▁▁▅█
+wandb: val_sampling/cycle_rank_satisfaction ▁▁▁▁
+wandb:               val_sampling/fcd score █▁▅▄
+wandb:      val_sampling/lobster_components ▂█▁█
+wandb:               val_sampling/no_cycles ▂█▁█
+wandb:               val_sampling/planarity ▁▁▁▁
+wandb: val_sampling/ring_count_satisfaction ▁▁▁▁
+wandb:    val_sampling/ring_count_violation ▁▁▁▁
+wandb: 
+wandb: Run summary:
+wandb:                                epoch 74
+wandb:                     train/AromaticCE 0.0
+wandb:                       train/CarbonCE 0.35493
+wandb:                       train/DoubleCE 0.05769
+wandb:                        train/FluorCE 0.00838
+wandb:                        train/NitroCE 0.21138
+wandb:                       train/NoBondCE 0.31671
+wandb:                          train/OxyCE 0.25684
+wandb:                       train/SingleCE 0.29684
+wandb:                       train/TripleCE 0.02092
+wandb:                     train_epoch/E_CE 0.37049
+wandb:               train_epoch/charges_CE 0.07928
+wandb:          train_epoch/epochAromaticCE 0.0
+wandb:            train_epoch/epochCarbonCE 0.35486
+wandb:            train_epoch/epochDoubleCE 0.05765
+wandb:             train_epoch/epochFluorCE 0.00839
+wandb:             train_epoch/epochNitroCE 0.21129
+wandb:            train_epoch/epochNoBondCE 0.31666
+wandb:               train_epoch/epochOxyCE 0.25687
+wandb:            train_epoch/epochSingleCE 0.29681
+wandb:            train_epoch/epochTripleCE 0.02091
+wandb:                     train_epoch/x_CE 0.4598
+wandb:                     train_epoch/y_CE -1.0
+wandb:                      train_loss/E_CE 1.85281
+wandb:                      train_loss/X_CE 0.45987
+wandb:                train_loss/batch_loss 2.40254
+wandb:                train_loss/charges_CE 0.15887
+wandb:                      train_loss/y_CE -1.0
+wandb:                             val/E_kl 65.37858
+wandb:                             val/X_kl 3.04542
+wandb:                       val/charges_kl 0.60217
+wandb:                        val/epoch_NLL 69.5872
+wandb:                    val_ratio/average 3.48861
+wandb:                  val_ratio/fcd score 3.48861
+wandb:                val_sampling/ChargeW1 0.00706
+wandb:            val_sampling/Disconnected 3.0
+wandb:             val_sampling/EdgeTypesTV 0.07176
+wandb:           val_sampling/MaxComponents 2.0
+wandb:          val_sampling/MeanComponents 1.03
+wandb:             val_sampling/NodeTypesTV 0.01637
+wandb:                 val_sampling/Novelty 87.37374
+wandb:              val_sampling/NumNodesW1 0.06265
+wandb:              val_sampling/Uniqueness 100.0
+wandb:               val_sampling/ValencyW1 0.0795
+wandb:                val_sampling/Validity 99.0
+wandb: val_sampling/cycle_rank_satisfaction 1.0
+wandb:               val_sampling/fcd score 3.01031
+wandb:      val_sampling/lobster_components 0.115
+wandb:               val_sampling/no_cycles 0.115
+wandb:               val_sampling/planarity 1.0
+wandb: val_sampling/ring_count_satisfaction 1.0
+wandb:    val_sampling/ring_count_violation 0.0
+wandb: 
+wandb: 🚀 View run qm9_thesis_ring_count_at_most_2 at: https://wandb.ai/islekrana-universit-di-padova/ConStruct_qm9/runs/78zhu7lg
+wandb: Synced 6 W&B file(s), 280 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20250813_002942-78zhu7lg/logs
+wandb: - Waiting for wandb.init()...wandb: \ Waiting for wandb.init()...wandb: wandb version 0.21.1 is available!  To upgrade, please run:
+wandb:  $ pip install wandb --upgrade
+wandb: Tracking run with wandb version 0.15.4
+wandb: Run data is saved locally in /extra/rislek/ConStruct-Thesis/ConStruct/wandb/run-20250813_030019-kk0kg6ik
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run qm9_thesis_ring_count_at_most_2
+wandb: ⭐️ View project at https://wandb.ai/islekrana-universit-di-padova/ConStruct_qm9
+wandb: 🚀 View run at https://wandb.ai/islekrana-universit-di-padova/ConStruct_qm9/runs/kk0kg6ik
+Test loss: 69.3689
+Epoch 75: test/epoch_NLL: 69.3689 -- test/X_kl: 3.1678 -- test/E_kl: 65.0975 -- test/charges_kl: 0.5483 
+Sampling start on GR0
+Samples to generate: 2000 for each of the 1 devices
+Samples to save: 500
+Sampling a batch with 230 graphs on local rank 0. Saving 230 visualization and 100 full chains.
+[2025-08-13 03:00:50,434][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0154s, mode=INCREMENTAL
+[2025-08-13 03:00:57,595][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0146s, mode=INCREMENTAL
+[2025-08-13 03:01:04,748][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0152s, mode=INCREMENTAL
+[2025-08-13 03:01:11,921][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0152s, mode=INCREMENTAL
+[2025-08-13 03:01:19,119][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0175s, mode=INCREMENTAL
+Batch sampled. Visualizing chains starts!
+1/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_230_0.gif to wandb
+2/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_231_0.gif to wandb
+3/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_232_0.gif to wandb
+4/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_233_0.gif to wandb
+5/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_234_0.gif to wandb
+6/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_235_0.gif to wandb
+7/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_236_0.gif to wandb
+8/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_237_0.gif to wandb
+9/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_238_0.gif to wandb
+10/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_239_0.gif to wandb
+11/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_240_0.gif to wandb
+12/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_241_0.gif to wandb
+13/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_242_0.gif to wandb
+14/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_243_0.gif to wandb
+15/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_244_0.gif to wandb
+16/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_245_0.gif to wandb
+17/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_246_0.gif to wandb
+18/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_247_0.gif to wandb
+19/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_248_0.gif to wandb
+20/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_249_0.gif to wandb
+21/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_250_0.gif to wandb
+22/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_251_0.gif to wandb
+23/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_252_0.gif to wandb
+24/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_253_0.gif to wandb
+25/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_254_0.gif to wandb
+26/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_255_0.gif to wandb
+27/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_256_0.gif to wandb
+28/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_257_0.gif to wandb
+29/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_258_0.gif to wandb
+30/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_259_0.gif to wandb
+31/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_260_0.gif to wandb
+32/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_261_0.gif to wandb
+33/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_262_0.gif to wandb
+34/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_263_0.gif to wandb
+35/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_264_0.gif to wandb
+36/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_265_0.gif to wandb
+37/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_266_0.gif to wandb
+38/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_267_0.gif to wandb
+39/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_268_0.gif to wandb
+40/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_269_0.gif to wandb
+41/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_270_0.gif to wandb
+42/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_271_0.gif to wandb
+43/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_272_0.gif to wandb
+44/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_273_0.gif to wandb
+45/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_274_0.gif to wandb
+46/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_275_0.gif to wandb
+47/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_276_0.gif to wandb
+48/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_277_0.gif to wandb
+49/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_278_0.gif to wandb
+50/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_279_0.gif to wandb
+51/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_280_0.gif to wandb
+52/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_281_0.gif to wandb
+53/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_282_0.gif to wandb
+54/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_283_0.gif to wandb
+55/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_284_0.gif to wandb
+56/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_285_0.gif to wandb
+57/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_286_0.gif to wandb
+58/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_287_0.gif to wandb
+59/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_288_0.gif to wandb
+60/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_289_0.gif to wandb
+61/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_290_0.gif to wandb
+62/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_291_0.gif to wandb
+63/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_292_0.gif to wandb
+64/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_293_0.gif to wandb
+65/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_294_0.gif to wandb
+66/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_295_0.gif to wandb
+67/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_296_0.gif to wandb
+68/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_297_0.gif to wandb
+69/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_298_0.gif to wandb
+70/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_299_0.gif to wandb
+71/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_300_0.gif to wandb
+72/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_301_0.gif to wandb
+73/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_302_0.gif to wandb
+74/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_303_0.gif to wandb
+75/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_304_0.gif to wandb
+76/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_305_0.gif to wandb
+77/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_306_0.gif to wandb
+78/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_307_0.gif to wandb
+79/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_308_0.gif to wandb
+80/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_309_0.gif to wandb
+81/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_310_0.gif to wandb
+82/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_311_0.gif to wandb
+83/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_312_0.gif to wandb
+84/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_313_0.gif to wandb
+85/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_314_0.gif to wandb
+86/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_315_0.gif to wandb
+87/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_316_0.gif to wandb
+88/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_317_0.gif to wandb
+89/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_318_0.gif to wandb
+90/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_319_0.gif to wandb
+91/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_320_0.gif to wandb
+92/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_321_0.gif to wandb
+93/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_322_0.gif to wandb
+94/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_323_0.gif to wandb
+95/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_324_0.gif to wandb
+96/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_325_0.gif to wandb
+97/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_326_0.gif to wandb
+98/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_327_0.gif to wandb
+99/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_328_0.gif to wandb
+100/100 chains saved on local rank 0.Saving /extra/rislek/ConStruct-Thesis/ConStruct/chains/epoch75/batch230_GR0/molecule_329_0.gif to wandb
+Visualizing 230 graphs out of 230
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/qm9_thesis_ring_count_at_most_2/epoch75_b230/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/qm9_thesis_ring_count_at_most_2/epoch75_b230/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/qm9_thesis_ring_count_at_most_2/epoch75_b230/graph_2.png to wandb
+Done.
+Sampling a batch with 230 graphs on local rank 0. Saving 230 visualization and 0 full chains.
+[2025-08-13 03:09:01,829][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0157s, mode=INCREMENTAL
+[2025-08-13 03:09:09,058][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0154s, mode=INCREMENTAL
+[2025-08-13 03:09:16,307][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0154s, mode=INCREMENTAL
+[2025-08-13 03:09:23,562][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0151s, mode=INCREMENTAL
+[2025-08-13 03:09:30,813][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0191s, mode=INCREMENTAL
+Visualizing 230 graphs out of 230
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/qm9_thesis_ring_count_at_most_2/epoch75_b460/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/qm9_thesis_ring_count_at_most_2/epoch75_b460/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/qm9_thesis_ring_count_at_most_2/epoch75_b460/graph_2.png to wandb
+Done.
+Sampling a batch with 40 graphs on local rank 0. Saving 40 visualization and 0 full chains.
+[2025-08-13 03:09:47,040][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0028s, mode=INCREMENTAL
+[2025-08-13 03:09:51,429][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0028s, mode=INCREMENTAL
+[2025-08-13 03:09:55,797][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0028s, mode=INCREMENTAL
+[2025-08-13 03:10:00,182][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0030s, mode=INCREMENTAL
+[2025-08-13 03:10:04,581][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0030s, mode=INCREMENTAL
+Visualizing 40 graphs out of 40
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/qm9_thesis_ring_count_at_most_2/epoch75_b500/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/qm9_thesis_ring_count_at_most_2/epoch75_b500/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/qm9_thesis_ring_count_at_most_2/epoch75_b500/graph_2.png to wandb
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-13 03:10:14,081][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0158s, mode=INCREMENTAL
+[2025-08-13 03:10:21,243][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0153s, mode=INCREMENTAL
+[2025-08-13 03:10:28,379][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0154s, mode=INCREMENTAL
+[2025-08-13 03:10:35,543][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0150s, mode=INCREMENTAL
+[2025-08-13 03:10:42,714][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0174s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-13 03:10:50,062][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0155s, mode=INCREMENTAL
+[2025-08-13 03:10:57,240][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0151s, mode=INCREMENTAL
+[2025-08-13 03:11:04,450][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0160s, mode=INCREMENTAL
+[2025-08-13 03:11:11,669][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0158s, mode=INCREMENTAL
+[2025-08-13 03:11:18,905][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0174s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-13 03:11:26,211][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0154s, mode=INCREMENTAL
+[2025-08-13 03:11:33,391][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0155s, mode=INCREMENTAL
+[2025-08-13 03:11:40,614][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0155s, mode=INCREMENTAL
+[2025-08-13 03:11:47,826][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0156s, mode=INCREMENTAL
+[2025-08-13 03:11:55,072][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0195s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-13 03:12:02,396][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0157s, mode=INCREMENTAL
+[2025-08-13 03:12:09,590][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0155s, mode=INCREMENTAL
+[2025-08-13 03:12:16,796][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0157s, mode=INCREMENTAL
+[2025-08-13 03:12:23,990][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0160s, mode=INCREMENTAL
+[2025-08-13 03:12:31,182][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0189s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-13 03:12:38,532][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0154s, mode=INCREMENTAL
+[2025-08-13 03:12:45,718][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0156s, mode=INCREMENTAL
+[2025-08-13 03:12:52,937][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0151s, mode=INCREMENTAL
+[2025-08-13 03:13:00,119][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0148s, mode=INCREMENTAL
+[2025-08-13 03:13:07,339][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0174s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-13 03:13:14,630][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0154s, mode=INCREMENTAL
+[2025-08-13 03:13:21,786][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0153s, mode=INCREMENTAL
+[2025-08-13 03:13:28,952][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0151s, mode=INCREMENTAL
+[2025-08-13 03:13:36,157][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0163s, mode=INCREMENTAL
+[2025-08-13 03:13:43,491][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0180s, mode=INCREMENTAL
+Done.
+Sampling a batch with 114 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-13 03:13:49,030][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0078s, mode=INCREMENTAL
+[2025-08-13 03:13:54,471][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0079s, mode=INCREMENTAL
+[2025-08-13 03:13:59,915][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0078s, mode=INCREMENTAL
+[2025-08-13 03:14:05,382][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0076s, mode=INCREMENTAL
+[2025-08-13 03:14:10,846][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0090s, mode=INCREMENTAL
+Done.
+Saving the generated graphs
+Saved.
+📊 Computing final sampling metrics...
+Error messages: AtomValence 16, Kekulize 0, other 0,  -- No error 1984
+[rank: 0] Received SIGTERM: 15
+[rank: 0] Received SIGTERM: 15
+[rank: 0] Received SIGTERM: 15
+Bypassing SIGTERM: 15
+Bypassing SIGTERM: 15
+Bypassing SIGTERM: 15
+Some generated smiles: CCC1CC2(CO2)C1=O O=C1OC2CC(O)C2O1 CC1CC1CC(O)C=O CC1C2C(C)C(C)(O)C12 CC1OC12COCC2O CNC(=O)C1NC1C#N OCC1CCC1C1CC1 COCCC(=O)CCO C#CC[NH+]1C2CC1(C)C2 [NH-][CH+]NC12CC1OC2=O
+
+================================================================================
+📊 CONSTRAINT SATISFACTION RESULTS
+================================================================================
+
+📋 **Definitions**:
+• **FCD** — Fréchet ChemNet Distance computed on valid canonical SMILES; lower is better
+• **Unique/Novel/Valid** — proportions computed over all generated molecules (not only valid)
+• **Disconnected** — share of graphs with >1 connected component
+• **Property satisfied** — share of generated graphs meeting the enforced structural constraint
+• **V.U.N.** — product of Valid × Unique × Novel (in [0,100]%)
+
+🔍 **LOGGING TO WANDB**:
+============================================================
+  test_sampling/NumNodesW1: 0.0080171599984169
+  test_sampling/NodeTypesTV: 0.021438144147396088
+  test_sampling/EdgeTypesTV: 0.07239536195993423
+  test_sampling/Disconnected: 1.6499999910593033
+  test_sampling/MeanComponents: 1.0164999961853027
+  test_sampling/MaxComponents: 2.0
+  test_sampling/planarity: 1.0
+  test_sampling/no_cycles: 0.10649999976158142
+  test_sampling/lobster_components: 0.10649999976158142
+  test_sampling/generated_deg_hist: <wandb.sdk.data_types.histogram.Histogram object at 0x7fa6748909a0>
+  test_sampling/diff_deg_hist: <wandb.sdk.data_types.histogram.Histogram object at 0x7fa7073797c0>
+  test_sampling/abs_diff_deg_hist: <wandb.sdk.data_types.histogram.Histogram object at 0x7fa674a90550>
+  test_sampling/ring_count_satisfaction: 1.0
+  test_sampling/cycle_rank_satisfaction: 1.0
+  test_sampling/ring_count_violation: 0.0
+  test_sampling/Validity: 99.19999837875366
+  test_sampling/Uniqueness: 99.29435483870968
+  test_sampling/Novelty: 90.60913920402527
+  test_sampling/fcd score: 1.3204394685493845
+============================================================
+
+
+🎯 CORE METRICS:
+================================================================================
+qm9_thesis_ring_count_at_most_2 — TEST — QM9
+Constraint: Cycle rank ≤ 2 · N=2,000 · diffusion_steps=500 · sampler=reverse
+
++-------------------------+--------------------+
+| Metric                  | Value                |
++-------------------------+--------------------+
+| Molecules generated (N) | 2,000                |
+| FCD                     | 1.320                |
+| Unique (%)              | 99.29%               |
+| Novel (%)               | 90.61%               |
+| Valid (%)               | 99.20%               |
+| Disconnected (%)        | 1.65%                |
+| Property satisfied (%)  | 100.00%              |
+| V.U.N. (%)              | 89.25%               |
++-------------------------+--------------------+
+
+
+🏗️ STRUCTURAL CONSTRAINT SATISFACTION:
+================================================================================
+qm9_thesis_ring_count_at_most_2 — TEST — QM9 — Structural
+Constraint: Cycle rank ≤ 2 · N=2,000 · diffusion_steps=500 · sampler=reverse
+
++--------------------------+--------------------+
+| Metric                   | Value                |
++--------------------------+--------------------+
+| Ring count satisfied (%) | 100.00%              |
+| Cycle rank 0 (%)         | 10.7%                |
+| Cycle rank 1 (%)         | 33.8%                |
+| Cycle rank 2 (%)         | 55.5%                |
+| Cycle rank >2 (%)        | 0.0%                 |
++--------------------------+--------------------+
+
+
+⏱️ TIMING METRICS:
+================================================================================
+qm9_thesis_ring_count_at_most_2 — TEST — QM9 — Timing
+Constraint: Cycle rank ≤ 2 · N=2,000 · diffusion_steps=500 · sampler=reverse
+
++---------------------------------+--------------------------------------------------+
+| Metric                          | Value                                              |
++---------------------------------+--------------------------------------------------+
+| Sampling time (s) for N         | 807.44 for N=2,000                                 |
+| Per-graph sampling time (ms)    | 403.7                                              |
+| Sampling batches                | 10.00                                              |
+| Projector mean time (ms)        | 13.7                                               |
+| Projector share of sampling (%) | 8.5                                                |
+| Wall-clock (h:mm)               | 02:44                                              |
+| Environment                     | gpu=NVIDIA RTX A5000, torch=2.0.1+cu118, cuda=...  |
++---------------------------------+--------------------------------------------------+
+
+
+🧪 CHEMISTRY METRICS:
+================================================================================
+qm9_thesis_ring_count_at_most_2 — TEST — QM9 — Chemistry
+Constraint: Cycle rank ≤ 2 · N=2,000 · diffusion_steps=500 · sampler=reverse
+
++---------------------------------+--------------------+
+| Metric                          | Value                |
++---------------------------------+--------------------+
+| Valid molecules used (chem)     | 1,984                |
+| Molecular weight (Da) mean ± sd | 123.0 ± 8.5          |
+| Heavy atoms mean ± sd           | 8.8 ± 0.6            |
+| Atom composition % (C/N/O/F)    | 73.4/10.5/15.9/0.2   |
++---------------------------------+--------------------+
+
+All smiles saved on rank 0
+Done. Sampling took 817.99 seconds
+
+Test ends.
+wandb: Waiting for W&B process to finish... (success).
+wandb: - 63.298 MB of 63.298 MB uploaded (0.000 MB deduped)wandb: \ 63.298 MB of 63.298 MB uploaded (0.000 MB deduped)wandb: | 63.298 MB of 63.298 MB uploaded (0.000 MB deduped)wandb: / 63.298 MB of 63.298 MB uploaded (0.000 MB deduped)wandb: - 63.298 MB of 63.298 MB uploaded (0.000 MB deduped)wandb: 
+wandb: Run history:
+wandb:                             test/E_kl ▁
+wandb:                             test/X_kl ▁
+wandb:                       test/charges_kl ▁
+wandb:                        test/epoch_NLL ▁
+wandb:                    test_ratio/average ▁
+wandb:                  test_ratio/fcd score ▁
+wandb:                test_sampling/ChargeW1 ▁
+wandb:            test_sampling/Disconnected ▁
+wandb:             test_sampling/EdgeTypesTV ▁
+wandb:           test_sampling/MaxComponents ▁
+wandb:          test_sampling/MeanComponents ▁
+wandb:             test_sampling/NodeTypesTV ▁
+wandb:                 test_sampling/Novelty ▁
+wandb:              test_sampling/NumNodesW1 ▁
+wandb:              test_sampling/Uniqueness ▁
+wandb:               test_sampling/ValencyW1 ▁
+wandb:                test_sampling/Validity ▁
+wandb: test_sampling/cycle_rank_satisfaction ▁
+wandb:               test_sampling/fcd score ▁
+wandb:      test_sampling/lobster_components ▁
+wandb:               test_sampling/no_cycles ▁
+wandb:               test_sampling/planarity ▁
+wandb: test_sampling/ring_count_satisfaction ▁
+wandb:    test_sampling/ring_count_violation ▁
+wandb: 
+wandb: Run summary:
+wandb:                             test/E_kl 65.09752
+wandb:                             test/X_kl 3.16779
+wandb:                       test/charges_kl 0.54826
+wandb:                        test/epoch_NLL 69.36895
+wandb:                    test_ratio/average 1.53024
+wandb:                  test_ratio/fcd score 1.53024
+wandb:                test_sampling/ChargeW1 0.00466
+wandb:            test_sampling/Disconnected 1.65
+wandb:             test_sampling/EdgeTypesTV 0.0724
+wandb:           test_sampling/MaxComponents 2.0
+wandb:          test_sampling/MeanComponents 1.0165
+wandb:             test_sampling/NodeTypesTV 0.02144
+wandb:                 test_sampling/Novelty 90.60914
+wandb:              test_sampling/NumNodesW1 0.00802
+wandb:              test_sampling/Uniqueness 99.29435
+wandb:               test_sampling/ValencyW1 0.06229
+wandb:                test_sampling/Validity 99.2
+wandb: test_sampling/cycle_rank_satisfaction 1.0
+wandb:               test_sampling/fcd score 1.32044
+wandb:      test_sampling/lobster_components 0.1065
+wandb:               test_sampling/no_cycles 0.1065
+wandb:               test_sampling/planarity 1.0
+wandb: test_sampling/ring_count_satisfaction 1.0
+wandb:    test_sampling/ring_count_violation 0.0
+wandb: 
+wandb: 🚀 View run qm9_thesis_ring_count_at_most_2 at: https://wandb.ai/islekrana-universit-di-padova/ConStruct_qm9/runs/kk0kg6ik
+wandb: Synced 6 W&B file(s), 700 media file(s), 0 artifact file(s) and 2 other file(s)
+wandb: Find logs at: ./wandb/run-20250813_030019-kk0kg6ik/logs
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+       Test metric             DataLoader 0
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+        test/E_kl            65.09751892089844
+        test/X_kl            3.16778564453125
+     test/charges_kl         0.548260509967804
+     test/epoch_NLL          69.36894989013672
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+Experiment completed at Wed 13 Aug 2025 03:14:33 AM UTC

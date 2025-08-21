@@ -1,0 +1,158 @@
+torch version: 2.0.1+cu118
+CUDA available: True
+CUDA device: Tesla V100-PCIE-16GB
+=== Running Experiment: qm9_no_constraint_debug ===
+Config: debug/no_constraint/qm9_debug_no_constraint
+Job ID: 1022788
+Node: dellcuda0
+Time: Sat 16 Aug 2025 04:15:48 AM CEST
+<frozen importlib._bootstrap>:228: RuntimeWarning: to-Python converter for std::pair<double, double> already registered; second conversion method ignored.
+[rank: 0] Global seed set to 0
+Loading reference metrics.
+Edge-deletion transition model (for 'at most' constraints)
+[INFO] Early stopping enabled: monitoring 'val/epoch_NLL_ema' with patience 28
+GPU available: True (cuda), used: True
+TPU available: False, using: 0 TPU cores
+IPU available: False, using: 0 IPUs
+HPU available: False, using: 0 HPUs
+[rank: 0] Global seed set to 0
+Initializing distributed: GLOBAL_RANK: 0, MEMBER: 1/1
+[2025-08-16 04:16:29,134][torch.distributed.distributed_c10d][INFO] - Added key: store_based_barrier_key:1 to store for rank: 0
+[2025-08-16 04:16:29,134][torch.distributed.distributed_c10d][INFO] - Rank 0: Completed store-based barrier for key:store_based_barrier_key:1 with 1 nodes.
+----------------------------------------------------------------------------------------------------
+distributed_backend=nccl
+All distributed processes registered. Starting with 1 processes
+----------------------------------------------------------------------------------------------------
+
+LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0]
+
+  | Name                  | Type                  | Params
+----------------------------------------------------------------
+0 | train_loss            | TrainLoss             | 0     
+1 | train_metrics         | TrainMolecularMetrics | 0     
+2 | val_metrics           | MetricCollection      | 0     
+3 | val_nll               | NLL                   | 0     
+4 | val_sampling_metrics  | SamplingMetrics       | 0     
+5 | test_metrics          | MetricCollection      | 0     
+6 | test_nll              | NLL                   | 0     
+7 | test_sampling_metrics | SamplingMetrics       | 0     
+8 | model                 | GraphTransformer      | 1.9 M 
+----------------------------------------------------------------
+1.9 M     Trainable params
+0         Non-trainable params
+1.9 M     Total params
+7.446     Total estimated model params size (MB)
+SLURM auto-requeueing enabled. Setting signal handlers.
+Epoch 0: val/epoch_NLL: 127.32 -- val/X_kl: 7.40 -- val/E_kl: 108.43 -- val/charges_kl: 5.01 
+Val loss: 127.3223 	 Best val loss:  127.3223
+
+Val epoch 0 ends
+Starting epoch 0
+[2025-08-16 04:16:31,606][torch.nn.parallel.distributed][INFO] - Reducer buckets have been rebuilt in this iteration.
+slurmstepd-dellcuda0: error: *** JOB 1022788 ON dellcuda0 CANCELLED AT 2025-08-16T04:17:22 ***
+[rank: 0] Received SIGTERM: 15
+Bypassing SIGTERM: 15
+Error executing job with overrides: ['+experiment=debug/no_constraint/qm9_debug_no_constraint']
+Traceback (most recent call last):
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/pytorch_lightning/trainer/call.py", line 41, in _call_and_handle_interrupt
+    return trainer.strategy.launcher.launch(trainer_fn, *args, trainer=trainer, **kwargs)
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/pytorch_lightning/strategies/launchers/subprocess_script.py", line 91, in launch
+    return function(*args, **kwargs)
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/pytorch_lightning/trainer/trainer.py", line 570, in _fit_impl
+    self._run(model, ckpt_path=ckpt_path)
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/pytorch_lightning/trainer/trainer.py", line 975, in _run
+    results = self._run_stage()
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/pytorch_lightning/trainer/trainer.py", line 1018, in _run_stage
+    self.fit_loop.run()
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/pytorch_lightning/loops/fit_loop.py", line 201, in run
+    self.advance()
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/pytorch_lightning/loops/fit_loop.py", line 354, in advance
+    self.epoch_loop.run(self._data_fetcher)
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/pytorch_lightning/loops/training_epoch_loop.py", line 133, in run
+    self.advance(data_fetcher)
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/pytorch_lightning/loops/training_epoch_loop.py", line 218, in advance
+    batch_output = self.automatic_optimization.run(trainer.optimizers[0], kwargs)
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/pytorch_lightning/loops/optimization/automatic.py", line 185, in run
+    self._optimizer_step(kwargs.get("batch_idx", 0), closure)
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/pytorch_lightning/loops/optimization/automatic.py", line 260, in _optimizer_step
+    call._call_lightning_module_hook(
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/pytorch_lightning/trainer/call.py", line 140, in _call_lightning_module_hook
+    output = fn(*args, **kwargs)
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/pytorch_lightning/core/module.py", line 1256, in optimizer_step
+    optimizer.step(closure=optimizer_closure)
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/pytorch_lightning/core/optimizer.py", line 155, in step
+    step_output = self._strategy.optimizer_step(self._optimizer, closure, **kwargs)
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/pytorch_lightning/strategies/ddp.py", line 256, in optimizer_step
+    optimizer_output = super().optimizer_step(optimizer, closure, model, **kwargs)
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/pytorch_lightning/strategies/strategy.py", line 225, in optimizer_step
+    return self.precision_plugin.optimizer_step(optimizer, model=model, closure=closure, **kwargs)
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/pytorch_lightning/plugins/precision/precision_plugin.py", line 114, in optimizer_step
+    return optimizer.step(closure=closure, **kwargs)
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/torch/optim/optimizer.py", line 280, in wrapper
+    out = func(*args, **kwargs)
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/torch/optim/optimizer.py", line 33, in _use_grad
+    ret = func(self, *args, **kwargs)
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/torch/optim/adamw.py", line 148, in step
+    loss = closure()
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/pytorch_lightning/plugins/precision/precision_plugin.py", line 101, in _wrap_closure
+    closure_result = closure()
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/pytorch_lightning/loops/optimization/automatic.py", line 140, in __call__
+    self._result = self.closure(*args, **kwargs)
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/pytorch_lightning/loops/optimization/automatic.py", line 135, in closure
+    self._backward_fn(step_output.closure_loss)
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/pytorch_lightning/loops/optimization/automatic.py", line 232, in backward_fn
+    call._call_strategy_hook(self.trainer, "backward", loss, optimizer)
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/pytorch_lightning/trainer/call.py", line 287, in _call_strategy_hook
+    output = fn(*args, **kwargs)
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/pytorch_lightning/strategies/strategy.py", line 200, in backward
+    self.precision_plugin.backward(closure_loss, self.lightning_module, optimizer, *args, **kwargs)
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/pytorch_lightning/plugins/precision/precision_plugin.py", line 67, in backward
+    model.backward(tensor, *args, **kwargs)
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/pytorch_lightning/core/module.py", line 1046, in backward
+    loss.backward(*args, **kwargs)
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/torch/_tensor.py", line 487, in backward
+    torch.autograd.backward(
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/torch/autograd/__init__.py", line 200, in backward
+    Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/torch/utils/data/_utils/signal_handling.py", line 66, in handler
+    _error_if_any_worker_fails()
+RuntimeError: DataLoader worker (pid 1435138) is killed by signal: Terminated. 
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/extra/rislek/ConStruct-Thesis/ConStruct/main.py", line 168, in main
+    trainer.fit(model, datamodule=datamodule, ckpt_path=cfg.general.resume)
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/pytorch_lightning/trainer/trainer.py", line 531, in fit
+    call._call_and_handle_interrupt(
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/pytorch_lightning/trainer/call.py", line 66, in _call_and_handle_interrupt
+    trainer._teardown()
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/pytorch_lightning/trainer/trainer.py", line 998, in _teardown
+    self.strategy.teardown()
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/pytorch_lightning/strategies/ddp.py", line 428, in teardown
+    super().teardown()
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/pytorch_lightning/strategies/parallel.py", line 125, in teardown
+    super().teardown()
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/pytorch_lightning/strategies/strategy.py", line 472, in teardown
+    _optimizers_to_device(self.optimizers, torch.device("cpu"))
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/lightning_fabric/utilities/optimizer.py", line 28, in _optimizers_to_device
+    _optimizer_to_device(opt, device)
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/lightning_fabric/utilities/optimizer.py", line 34, in _optimizer_to_device
+    optimizer.state[p] = apply_to_collection(v, Tensor, move_data_to_device, device, allow_frozen=True)
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/lightning_utilities/core/apply_func.py", line 54, in apply_to_collection
+    return _apply_to_collection_slow(
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/lightning_utilities/core/apply_func.py", line 150, in _apply_to_collection_slow
+    v = _apply_to_collection_slow(
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/lightning_utilities/core/apply_func.py", line 98, in _apply_to_collection_slow
+    return function(data, *args, **kwargs)
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/lightning_fabric/utilities/apply_func.py", line 100, in move_data_to_device
+    return apply_to_collection(batch, dtype=_TransferableDataType, function=batch_to)
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/lightning_utilities/core/apply_func.py", line 66, in apply_to_collection
+    return function(data, *args, **kwargs)
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/lightning_fabric/utilities/apply_func.py", line 94, in batch_to
+    data_output = data.to(device, **kwargs)
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/torch/utils/data/_utils/signal_handling.py", line 66, in handler
+    _error_if_any_worker_fails()
+RuntimeError: DataLoader worker (pid 1434759) is killed by signal: Terminated. 
+
+Set the environment variable HYDRA_FULL_ERROR=1 for a complete stack trace.
