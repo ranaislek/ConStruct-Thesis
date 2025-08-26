@@ -515,6 +515,7 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
             samples_to_save=self.cfg.general.final_model_samples_to_save,
             test=True,
         )
+        
         # Save the samples list as pickle to a file that depends on the local rank
         # This is needed to avoid overwriting the same file on different GPUs
         with open(f"generated_samples_rank{self.local_rank}.pkl", "wb") as f:
@@ -558,6 +559,27 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
         for i in range(self._trainer.num_devices):
             with open(f"generated_samples_rank{i}.pkl", "rb") as f:
                 samples.extend(pickle.load(f))
+
+        # Pass constraint information to sampling metrics for violation tracking
+        if hasattr(self, 'dataset_infos'):
+            # Extract constraint info from config
+            constraint_type = None
+            constraint_value = None
+            
+            # Check for ring constraints in config
+            if hasattr(self.cfg, 'rev_proj'):
+                if self.cfg.rev_proj == 'ring_count_at_most':
+                    constraint_type = 'ring_count_at_most'
+                    constraint_value = getattr(self.cfg, 'max_rings', None)
+                elif self.cfg.rev_proj == 'ring_length_at_most':
+                    constraint_type = 'ring_length_at_most'
+                    constraint_value = getattr(self.cfg, 'max_ring_length', None)
+            
+            # Set constraint info in dataset_infos for violation tracking
+            if constraint_type and constraint_value:
+                self.dataset_infos.constraint_type = constraint_type
+                self.dataset_infos.constraint_value = constraint_value
+                print(f"[CONSTRAINT INFO] Type: {constraint_type}, Value: {constraint_value}")
 
         self.test_sampling_metrics.compute_all_metrics(
             generated_graphs=samples,

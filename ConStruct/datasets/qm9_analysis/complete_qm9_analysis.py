@@ -5,8 +5,10 @@ Complete QM9 Dataset Analysis Script
 
 This script performs comprehensive analysis of the QM9 dataset including:
 1. TRAINING DATASET ANALYSIS - What the model learns from
-2. FULL DATASET ANALYSIS - Complete dataset characterization
-3. COMPARISON ANALYSIS - Training vs Full dataset differences
+2. VALIDATION DATASET ANALYSIS - Model validation data
+3. TEST DATASET ANALYSIS - Model testing data
+4. FULL DATASET ANALYSIS - Complete dataset characterization
+5. COMPARISON ANALYSIS - All dataset splits differences
 
 Features:
 - Ring count and ring length analysis
@@ -41,6 +43,8 @@ def create_output_dir():
     (output_dir / "reports").mkdir(exist_ok=True)
     (output_dir / "data").mkdir(exist_ok=True)
     (output_dir / "train_analysis").mkdir(exist_ok=True)
+    (output_dir / "val_analysis").mkdir(exist_ok=True)
+    (output_dir / "test_analysis").mkdir(exist_ok=True)
     (output_dir / "full_analysis").mkdir(exist_ok=True)
     (output_dir / "comparison").mkdir(exist_ok=True)
     
@@ -384,21 +388,25 @@ def save_results(ring_count_dist, ring_length_dist, ring_count_rates, ring_lengt
     
     print(f"✅ Saved {analysis_name} results to {output_dir}/")
 
-def create_comparison_analysis(train_results, full_results, output_dir):
-    """Create comparison analysis between train and full dataset"""
+def create_comparison_analysis(train_results, val_results, test_results, full_results, output_dir):
+    """Create comparison analysis between all dataset splits"""
     print("\n📊 Creating comparison analysis...")
     
     # Create comparison plots
-    plt.figure(figsize=(15, 10))
+    plt.figure(figsize=(20, 15))
     
     # Ring count comparison
-    plt.subplot(2, 2, 1)
+    plt.subplot(3, 3, 1)
     train_rates = [train_results['ring_count_rates'][f"≤{i}"] for i in range(6)]
+    val_rates = [val_results['ring_count_rates'][f"≤{i}"] for i in range(6)]
+    test_rates = [test_results['ring_count_rates'][f"≤{i}"] for i in range(6)]
     full_rates = [full_results['ring_count_rates'][f"≤{i}"] for i in range(6)]
     x = range(6)
     
-    plt.plot(x, train_rates, 'o-', label='Training Dataset', linewidth=2, markersize=8)
-    plt.plot(x, full_rates, 's-', label='Full Dataset', linewidth=2, markersize=8)
+    plt.plot(x, train_rates, 'o-', label='Training', linewidth=2, markersize=8)
+    plt.plot(x, val_rates, 's-', label='Validation', linewidth=2, markersize=8)
+    plt.plot(x, test_rates, '^-', label='Test', linewidth=2, markersize=8)
+    plt.plot(x, full_rates, 'd-', label='Full Dataset', linewidth=2, markersize=8)
     plt.title('Ring Count Constraint Satisfaction Comparison', fontweight='bold')
     plt.xlabel('Maximum Rings')
     plt.ylabel('Satisfaction Rate')
@@ -406,13 +414,17 @@ def create_comparison_analysis(train_results, full_results, output_dir):
     plt.grid(True, alpha=0.3)
     
     # Ring length comparison
-    plt.subplot(2, 2, 2)
+    plt.subplot(3, 3, 2)
     train_length_rates = [train_results['ring_length_rates'][f"≤{i}"] for i in range(3, 9)]
+    val_length_rates = [val_results['ring_length_rates'][f"≤{i}"] for i in range(3, 9)]
+    test_length_rates = [test_results['ring_length_rates'][f"≤{i}"] for i in range(3, 9)]
     full_length_rates = [full_results['ring_length_rates'][f"≤{i}"] for i in range(3, 9)]
     x = range(3, 9)
     
-    plt.plot(x, train_length_rates, 'o-', label='Training Dataset', linewidth=2, markersize=8)
-    plt.plot(x, full_length_rates, 's-', label='Full Dataset', linewidth=2, markersize=8)
+    plt.plot(x, train_length_rates, 'o-', label='Training', linewidth=2, markersize=8)
+    plt.plot(x, val_length_rates, 's-', label='Validation', linewidth=2, markersize=8)
+    plt.plot(x, test_length_rates, '^-', label='Test', linewidth=2, markersize=8)
+    plt.plot(x, full_length_rates, 'd-', label='Full Dataset', linewidth=2, markersize=8)
     plt.title('Ring Length Constraint Satisfaction Comparison', fontweight='bold')
     plt.xlabel('Maximum Ring Length')
     plt.ylabel('Satisfaction Rate')
@@ -420,14 +432,18 @@ def create_comparison_analysis(train_results, full_results, output_dir):
     plt.grid(True, alpha=0.3)
     
     # Dataset size comparison
-    plt.subplot(2, 2, 3)
-    sizes = [train_results['dataset_info']['total_molecules'], full_results['dataset_info']['total_molecules']]
-    labels = ['Training Dataset', 'Full Dataset']
-    colors = ['lightblue', 'lightcoral']
+    plt.subplot(3, 3, 3)
+    sizes = [train_results['dataset_info']['total_molecules'], 
+             val_results['dataset_info']['total_molecules'],
+             test_results['dataset_info']['total_molecules'],
+             full_results['dataset_info']['total_molecules']]
+    labels = ['Training', 'Validation', 'Test', 'Full Dataset']
+    colors = ['lightblue', 'lightgreen', 'lightcoral', 'gold']
     
     bars = plt.bar(labels, sizes, color=colors, alpha=0.7)
     plt.title('Dataset Size Comparison', fontweight='bold')
     plt.ylabel('Number of Molecules')
+    plt.xticks(rotation=45)
     
     # Add value labels
     for bar, size in zip(bars, sizes):
@@ -435,53 +451,192 @@ def create_comparison_analysis(train_results, full_results, output_dir):
                 f'{size:,}', ha='center', va='bottom', fontweight='bold')
     
     # Average rings comparison
-    plt.subplot(2, 2, 4)
+    plt.subplot(3, 3, 4)
     avg_rings = [train_results['dataset_info']['avg_rings_per_molecule'], 
+                 val_results['dataset_info']['avg_rings_per_molecule'],
+                 test_results['dataset_info']['avg_rings_per_molecule'],
                  full_results['dataset_info']['avg_rings_per_molecule']]
     
     bars = plt.bar(labels, avg_rings, color=colors, alpha=0.7)
     plt.title('Average Rings per Molecule Comparison', fontweight='bold')
     plt.ylabel('Average Rings')
+    plt.xticks(rotation=45)
     
     # Add value labels
     for bar, avg in zip(bars, avg_rings):
         plt.text(bar.get_x() + bar.get_width()/2, bar.get_height() + max(avg_rings)*0.01,
                 f'{avg:.3f}', ha='center', va='bottom', fontweight='bold')
     
+    # Ring count distribution comparison
+    plt.subplot(3, 3, 5)
+    max_rings = max(max(train_results['ring_count_distribution'].keys()),
+                   max(val_results['ring_count_distribution'].keys()),
+                   max(test_results['ring_count_distribution'].keys()),
+                   max(full_results['ring_count_distribution'].keys()))
+    
+    x = range(max_rings + 1)
+    train_dist = [train_results['ring_count_distribution'].get(i, 0) for i in x]
+    val_dist = [val_results['ring_count_distribution'].get(i, 0) for i in x]
+    test_dist = [test_results['ring_count_distribution'].get(i, 0) for i in x]
+    full_dist = [full_results['ring_count_distribution'].get(i, 0) for i in x]
+    
+    # Normalize to percentages
+    train_dist = [v/sum(train_dist)*100 for v in train_dist]
+    val_dist = [v/sum(val_dist)*100 for v in val_dist]
+    test_dist = [v/sum(test_dist)*100 for v in test_dist]
+    full_dist = [v/sum(full_dist)*100 for v in full_dist]
+    
+    plt.plot(x, train_dist, 'o-', label='Training', linewidth=2, markersize=6)
+    plt.plot(x, val_dist, 's-', label='Validation', linewidth=2, markersize=6)
+    plt.plot(x, test_dist, '^-', label='Test', linewidth=2, markersize=6)
+    plt.plot(x, full_dist, 'd-', label='Full Dataset', linewidth=2, markersize=6)
+    plt.title('Ring Count Distribution Comparison (%)', fontweight='bold')
+    plt.xlabel('Number of Rings')
+    plt.ylabel('Percentage of Molecules')
+    plt.legend()
+    plt.grid(True, alpha=0.3)
+    
+    # Ring length distribution comparison
+    plt.subplot(3, 3, 6)
+    max_length = max(max(train_results['ring_length_distribution'].keys()),
+                    max(val_results['ring_length_distribution'].keys()),
+                    max(test_results['ring_length_distribution'].keys()),
+                    max(full_results['ring_length_distribution'].keys()))
+    
+    x = range(3, max_length + 1)
+    train_length_dist = [train_results['ring_length_distribution'].get(i, 0) for i in x]
+    val_length_dist = [val_results['ring_length_distribution'].get(i, 0) for i in x]
+    test_length_dist = [test_results['ring_length_distribution'].get(i, 0) for i in x]
+    full_length_dist = [full_results['ring_length_distribution'].get(i, 0) for i in x]
+    
+    # Normalize to percentages
+    train_length_dist = [v/sum(train_length_dist)*100 for v in train_length_dist]
+    val_length_dist = [v/sum(val_length_dist)*100 for v in val_length_dist]
+    test_length_dist = [v/sum(test_length_dist)*100 for v in test_length_dist]
+    full_length_dist = [v/sum(full_length_dist)*100 for v in full_length_dist]
+    
+    plt.plot(x, train_length_dist, 'o-', label='Training', linewidth=2, markersize=6)
+    plt.plot(x, val_length_dist, 's-', label='Validation', linewidth=2, markersize=6)
+    plt.plot(x, test_length_dist, '^-', label='Test', linewidth=2, markersize=6)
+    plt.plot(x, full_length_dist, 'd-', label='Full Dataset', linewidth=2, markersize=6)
+    plt.title('Ring Length Distribution Comparison (%)', fontweight='bold')
+    plt.xlabel('Ring Length (atoms)')
+    plt.ylabel('Percentage of Rings')
+    plt.legend()
+    plt.grid(True, alpha=0.3)
+    
+    # Split proportions
+    plt.subplot(3, 3, 7)
+    total_mols = full_results['dataset_info']['total_molecules']
+    split_sizes = [train_results['dataset_info']['total_molecules'],
+                   val_results['dataset_info']['total_molecules'],
+                   test_results['dataset_info']['total_molecules']]
+    split_labels = ['Training', 'Validation', 'Test']
+    split_colors = ['lightblue', 'lightgreen', 'lightcoral']
+    
+    wedges, texts, autotexts = plt.pie(split_sizes, labels=split_labels, colors=split_colors,
+                                       autopct='%1.1f%%', startangle=90)
+    plt.title('Dataset Split Proportions', fontweight='bold')
+    
+    # Make text more readable
+    for autotext in autotexts:
+        autotext.set_color('white')
+        autotext.set_fontweight('bold')
+    
+    # Constraint satisfaction heatmap
+    plt.subplot(3, 3, 8)
+    constraints = ['≤0', '≤1', '≤2', '≤3', '≤4', '≤5']
+    datasets = ['Training', 'Validation', 'Test', 'Full']
+    
+    # Ring count rates
+    rates_matrix = []
+    for dataset_results in [train_results, val_results, test_results, full_results]:
+        rates = [dataset_results['ring_count_rates'][c] for c in constraints]
+        rates_matrix.append(rates)
+    
+    im = plt.imshow(rates_matrix, cmap='YlOrRd', aspect='auto')
+    plt.colorbar(im, label='Satisfaction Rate')
+    plt.xticks(range(len(constraints)), constraints)
+    plt.yticks(range(len(datasets)), datasets)
+    plt.title('Ring Count Constraint Satisfaction Heatmap', fontweight='bold')
+    plt.xlabel('Ring Count Constraint')
+    plt.ylabel('Dataset')
+    
+    # Add text annotations
+    for i in range(len(datasets)):
+        for j in range(len(constraints)):
+            plt.text(j, i, f'{rates_matrix[i][j]:.2f}', ha='center', va='center', 
+                    color='black', fontweight='bold')
+    
+    # Ring length constraint heatmap
+    plt.subplot(3, 3, 9)
+    length_constraints = ['≤3', '≤4', '≤5', '≤6', '≤7', '≤8']
+    
+    # Ring length rates
+    length_rates_matrix = []
+    for dataset_results in [train_results, val_results, test_results, full_results]:
+        rates = [dataset_results['ring_length_rates'][c] for c in length_constraints]
+        length_rates_matrix.append(rates)
+    
+    im = plt.imshow(length_rates_matrix, cmap='Blues', aspect='auto')
+    plt.colorbar(im, label='Satisfaction Rate')
+    plt.xticks(range(len(length_constraints)), length_constraints)
+    plt.yticks(range(len(datasets)), datasets)
+    plt.title('Ring Length Constraint Satisfaction Heatmap', fontweight='bold')
+    plt.xlabel('Ring Length Constraint')
+    plt.ylabel('Dataset')
+    
+    # Add text annotations
+    for i in range(len(datasets)):
+        for j in range(len(length_constraints)):
+            plt.text(j, i, f'{length_rates_matrix[i][j]:.2f}', ha='center', va='center', 
+                    color='black', fontweight='bold')
+    
     plt.tight_layout()
-    plt.savefig(output_dir / "comparison_analysis.png", dpi=300, bbox_inches='tight')
+    plt.savefig(output_dir / "comprehensive_comparison_analysis.png", dpi=300, bbox_inches='tight')
     plt.close()
     
-    # Save comparison report
-    with open(output_dir / "comparison_report.txt", 'w') as f:
-        f.write("QM9 Training vs Full Dataset Comparison Report\n")
-        f.write("=" * 60 + "\n\n")
+    # Save comprehensive comparison report
+    with open(output_dir / "comprehensive_comparison_report.txt", 'w') as f:
+        f.write("QM9 Comprehensive Dataset Split Comparison Report\n")
+        f.write("=" * 70 + "\n\n")
         
         f.write("DATASET SIZE COMPARISON\n")
         f.write("-" * 30 + "\n")
         f.write(f"Training dataset: {train_results['dataset_info']['total_molecules']:,} molecules\n")
+        f.write(f"Validation dataset: {val_results['dataset_info']['total_molecules']:,} molecules\n")
+        f.write(f"Test dataset: {test_results['dataset_info']['total_molecules']:,} molecules\n")
         f.write(f"Full dataset: {full_results['dataset_info']['total_molecules']:,} molecules\n")
-        f.write(f"Difference: {full_results['dataset_info']['total_molecules'] - train_results['dataset_info']['total_molecules']:,} molecules\n\n")
+        f.write(f"Total (sum of splits): {train_results['dataset_info']['total_molecules'] + val_results['dataset_info']['total_molecules'] + test_results['dataset_info']['total_molecules']:,} molecules\n\n")
+        
+        f.write("DATASET PROPORTIONS\n")
+        f.write("-" * 20 + "\n")
+        total = full_results['dataset_info']['total_molecules']
+        f.write(f"Training: {train_results['dataset_info']['total_molecules']/total:.1%}\n")
+        f.write(f"Validation: {val_results['dataset_info']['total_molecules']/total:.1%}\n")
+        f.write(f"Test: {test_results['dataset_info']['total_molecules']/total:.1%}\n\n")
         
         f.write("RING COUNT COMPARISON\n")
         f.write("-" * 25 + "\n")
         for i in range(6):
             train_rate = train_results['ring_count_rates'][f"≤{i}"]
+            val_rate = val_results['ring_count_rates'][f"≤{i}"]
+            test_rate = test_results['ring_count_rates'][f"≤{i}"]
             full_rate = full_results['ring_count_rates'][f"≤{i}"]
-            diff = full_rate - train_rate
-            f.write(f"≤{i} rings: Train={train_rate:.3f}, Full={full_rate:.3f}, Diff={diff:+.3f}\n")
+            f.write(f"≤{i} rings: Train={train_rate:.3f}, Val={val_rate:.3f}, Test={test_rate:.3f}, Full={full_rate:.3f}\n")
         
         f.write("\nRING LENGTH COMPARISON\n")
         f.write("-" * 27 + "\n")
         for i in range(3, 9):
             train_rate = train_results['ring_length_rates'][f"≤{i}"]
+            val_rate = val_results['ring_length_rates'][f"≤{i}"]
+            test_rate = test_results['ring_length_rates'][f"≤{i}"]
             full_rate = full_results['ring_length_rates'][f"≤{i}"]
-            diff = full_rate - train_rate
-            f.write(f"≤{i} atoms: Train={train_rate:.3f}, Full={full_rate:.3f}, Diff={diff:+.3f}\n")
+            f.write(f"≤{i} atoms: Train={train_rate:.3f}, Val={val_rate:.3f}, Test={test_rate:.3f}, Full={full_rate:.3f}\n")
         
-        f.write(f"\n\nComparison completed on: {time.strftime('%Y-%m-%d %H:%M:%S')}\n")
+        f.write(f"\n\nComprehensive comparison completed on: {time.strftime('%Y-%m-%d %H:%M:%S')}\n")
     
-    print(f"✅ Saved comparison analysis to {output_dir}/")
+    print(f"✅ Saved comprehensive comparison analysis to {output_dir}/")
 
 def main():
     """Main analysis function"""
@@ -516,6 +671,8 @@ def main():
             'total_rings': train_total_rings,
             'avg_rings_per_molecule': train_total_rings / len(train_dataset)
         },
+        'ring_count_distribution': dict(train_ring_count_dist),
+        'ring_length_distribution': dict(train_ring_length_dist),
         'ring_count_rates': train_ring_count_rates,
         'ring_length_rates': train_ring_length_rates
     }
@@ -527,7 +684,77 @@ def main():
     create_plots(train_ring_count_dist, train_ring_length_dist, train_planar_count, train_non_planar_count,
                 train_ring_count_rates, train_ring_length_rates, output_dir / "train_analysis", "Training")
     
-    # ===== 2. FULL DATASET ANALYSIS =====
+    # ===== 2. VALIDATION DATASET ANALYSIS =====
+    print("\n" + "="*50)
+    print("🔍 VALIDATION DATASET ANALYSIS")
+    print("="*50)
+    
+    val_dataset = load_qm9_dataset("val")
+    if val_dataset is None:
+        print("❌ Failed to load validation dataset. Exiting.")
+        return
+    
+    # Analyze validation dataset
+    val_ring_count_dist, val_ring_length_dist, val_max_ring_length_per_mol, val_total_rings = analyze_ring_properties(val_dataset, "Validation Dataset")
+    val_planar_count, val_non_planar_count = analyze_planarity(val_dataset, "Validation Dataset")
+    val_ring_count_rates, val_ring_length_rates = calculate_constraint_rates(val_ring_count_dist, val_ring_length_dist, val_max_ring_length_per_mol)
+    
+    # Save validation analysis
+    val_results = {
+        'dataset_info': {
+            'total_molecules': len(val_dataset),
+            'total_rings': val_total_rings,
+            'avg_rings_per_molecule': val_total_rings / len(val_dataset)
+        },
+        'ring_count_distribution': dict(val_ring_count_dist),
+        'ring_length_distribution': dict(val_ring_length_dist),
+        'ring_count_rates': val_ring_count_rates,
+        'ring_length_rates': val_ring_length_rates
+    }
+    
+    save_results(val_ring_count_dist, val_ring_length_dist, val_ring_count_rates, val_ring_length_rates,
+                val_planar_count, val_non_planar_count, val_total_rings, len(val_dataset), 
+                output_dir / "val_analysis", "validation")
+    
+    create_plots(val_ring_count_dist, val_ring_length_dist, val_planar_count, val_non_planar_count,
+                val_ring_count_rates, val_ring_length_rates, output_dir / "val_analysis", "Validation")
+    
+    # ===== 3. TEST DATASET ANALYSIS =====
+    print("\n" + "="*50)
+    print("🧪 TEST DATASET ANALYSIS")
+    print("="*50)
+    
+    test_dataset = load_qm9_dataset("test")
+    if test_dataset is None:
+        print("❌ Failed to load test dataset. Exiting.")
+        return
+    
+    # Analyze test dataset
+    test_ring_count_dist, test_ring_length_dist, test_max_ring_length_per_mol, test_total_rings = analyze_ring_properties(test_dataset, "Test Dataset")
+    test_planar_count, test_non_planar_count = analyze_planarity(test_dataset, "Test Dataset")
+    test_ring_count_rates, test_ring_length_rates = calculate_constraint_rates(test_ring_count_dist, test_ring_length_dist, test_max_ring_length_per_mol)
+    
+    # Save test analysis
+    test_results = {
+        'dataset_info': {
+            'total_molecules': len(test_dataset),
+            'total_rings': test_total_rings,
+            'avg_rings_per_molecule': test_total_rings / len(test_dataset)
+        },
+        'ring_count_distribution': dict(test_ring_count_dist),
+        'ring_length_distribution': dict(test_ring_length_dist),
+        'ring_count_rates': test_ring_count_rates,
+        'ring_length_rates': test_ring_length_rates
+    }
+    
+    save_results(test_ring_count_dist, test_ring_length_dist, test_ring_count_rates, test_ring_length_rates,
+                test_planar_count, test_non_planar_count, test_total_rings, len(test_dataset), 
+                output_dir / "test_analysis", "test")
+    
+    create_plots(test_ring_count_dist, test_ring_length_dist, test_planar_count, test_non_planar_count,
+                test_ring_count_rates, test_ring_length_rates, output_dir / "test_analysis", "Test")
+    
+    # ===== 4. FULL DATASET ANALYSIS =====
     print("\n" + "="*50)
     print("🌐 FULL DATASET ANALYSIS")
     print("="*50)
@@ -556,6 +783,8 @@ def main():
             'total_rings': full_total_rings,
             'avg_rings_per_molecule': full_total_rings / len(full_dataset)
         },
+        'ring_count_distribution': dict(full_ring_count_dist),
+        'ring_length_distribution': dict(full_ring_length_dist),
         'ring_count_rates': full_ring_count_rates,
         'ring_length_rates': full_ring_length_rates
     }
@@ -567,14 +796,14 @@ def main():
     create_plots(full_ring_count_dist, full_ring_length_dist, full_planar_count, full_non_planar_count,
                 full_ring_count_rates, full_ring_length_rates, output_dir / "full_analysis", "Full")
     
-    # ===== 3. COMPARISON ANALYSIS =====
+    # ===== 5. COMPREHENSIVE COMPARISON ANALYSIS =====
     print("\n" + "="*50)
-    print("📊 COMPARISON ANALYSIS")
+    print("📊 COMPREHENSIVE COMPARISON ANALYSIS")
     print("="*50)
     
-    create_comparison_analysis(train_results, full_results, output_dir / "comparison")
+    create_comparison_analysis(train_results, val_results, test_results, full_results, output_dir / "comparison")
     
-    # ===== 4. SUMMARY =====
+    # ===== 6. SUMMARY =====
     print("\n" + "="*50)
     print("📋 ANALYSIS SUMMARY")
     print("="*50)
@@ -583,13 +812,17 @@ def main():
     duration = end_time - start_time
     
     print(f"✅ Training dataset analysis: {len(train_dataset):,} molecules")
+    print(f"✅ Validation dataset analysis: {len(val_dataset):,} molecules")
+    print(f"✅ Test dataset analysis: {len(test_dataset):,} molecules")
     print(f"✅ Full dataset analysis: {len(full_dataset):,} molecules")
-    print(f"✅ Comparison analysis completed")
+    print(f"✅ Comprehensive comparison analysis completed")
     
     print(f"\n📁 Results saved to: {output_dir}/")
     print("   ├── train_analysis/ (training dataset analysis)")
+    print("   ├── val_analysis/ (validation dataset analysis)")
+    print("   ├── test_analysis/ (test dataset analysis)")
     print("   ├── full_analysis/ (full dataset analysis)")
-    print("   ├── comparison/ (comparison analysis)")
+    print("   ├── comparison/ (comprehensive comparison analysis)")
     print("   ├── plots/ (visualization charts)")
     print("   ├── reports/ (detailed analysis reports)")
     print("   └── data/ (JSON data files)")
