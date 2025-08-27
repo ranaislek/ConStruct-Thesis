@@ -5,10 +5,11 @@ from typing import Dict, Any, List, Optional, Tuple
 def pct(x: Optional[float]) -> str:
     if x is None: return "NA"
     if 0.0 <= x <= 1.0: x *= 100.0
-    return f"{x}%"
+    # Use 4 decimal places for structural enforcement values
+    return f"{round(x, 4)}%"
 
 def f3(x: Optional[float]) -> str:
-    return "NA" if x is None else f"{x}"
+    return "NA" if x is None else f"{round(x, 3)}"
 
 # --- new: robust scalar coercion for hist/arrays/tensors/W&B Histogram ---
 def to_scalar(value) -> Optional[float]:
@@ -68,17 +69,17 @@ def to_scalar(value) -> Optional[float]:
         return None
 
 def f2(x: Optional[float]) -> str:
-    return "NA" if x is None else f"{x}"
+    return "NA" if x is None else f"{round(x, 2)}"
 
 def f1(x: Optional[float]) -> str:
-    return "NA" if x is None else f"{x}"
+    return "NA" if x is None else f"{round(x, 1)}"
 
 def intc(x: Optional[int]) -> str:
     return "NA" if x is None else f"{int(x):,}"
 
 def arr_pct_str(counts: Optional[List[int]], total: Optional[int], take: int) -> str:
     if not counts or total in (None,0) or len(counts) < take: return "NA"
-    return " / ".join([f"{(100.0*c/total)}" for c in counts[:take]])
+    return " / ".join([f"{round(100.0*c/total, 4)}" for c in counts[:take]])
 
 def split_prefix(split: str) -> str:
     assert split in {"val","test"}
@@ -125,7 +126,7 @@ def collect_core(split: str, metrics: Dict[str, Any], N_total: Optional[int], cf
         if u>1: u/=100.0
         if n>1: n/=100.0
         if v>1: v/=100.0
-        rows.append(("V.U.N. (%)", f"{100.0*(u*n*v)}%"))
+        rows.append(("V.U.N. (%)", f"{round(100.0*(u*n*v), 4)}%"))
     return rows
 
 def core_definitions_md() -> str:
@@ -168,26 +169,26 @@ def collect_structural(split: str, metrics: Dict[str, Any], N_total: Optional[in
                 count = ring_counts_all[i] if i < len(ring_counts_all) else 0
                 label = f"Cycle rank {i} (%)"
                 pct_val = (100.0 * count / N_total) if N_total else 0.0
-                rows.append((label, f"{pct_val}%"))
+                rows.append((label, f"{round(pct_val, 4)}%"))
             # Calculate >max_rings from actual data to detect constraint violations
             sum_gt = 0
             for i in range(max_rings + 1, len(ring_counts_all)):
                 sum_gt += ring_counts_all[i]
             pct_gt = (100.0 * sum_gt / N_total) if N_total else 0.0
-            rows.append((f"Cycle rank >{max_rings} (%)", f"{pct_gt}%"))
+            rows.append((f"Cycle rank >{max_rings} (%)", f"{round(pct_gt, 4)}%"))
         else:
             # Unconstrained training: show all natural distribution
             for i, count in enumerate(ring_counts_all):
                 label = f"Cycle rank {i} (%)" if i < 9 else "Cycle rank 9+ (%)"
                 pct_val = (100.0 * count / N_total) if N_total else 0.0
-                rows.append((label, f"{pct_val}%"))
+                rows.append((label, f"{round(pct_val, 4)}%"))
 
     # For ring length constraints: show only ring length distribution
     elif kind == "ring_length" and ring_lengths_all is not None:
         # index 0 = acyclic
         count0 = ring_lengths_all[0] if len(ring_lengths_all) > 0 else 0
         pct0 = (100.0 * count0 / N_total) if N_total else 0.0
-        rows.append(("Acyclic (max len 0) (%)", f"{pct0}%"))
+        rows.append(("Acyclic (max len 0) (%)", f"{round(pct0, 4)}%"))
 
         # indices 1..10 => lengths 3..12 ; index 11 => >12
         # For constrained trainings, show only up to enforced value and set bigger values to 0
@@ -200,24 +201,24 @@ def collect_structural(split: str, metrics: Dict[str, Any], N_total: Optional[in
                 idx = (length - 3) + 1  # map 3→1
                 count = ring_lengths_all[idx] if idx < len(ring_lengths_all) else 0
                 pct_val = (100.0 * count / N_total) if N_total else 0.0
-                rows.append((f"Cycle length {length} (max) (%)", f"{pct_val}%"))
+                rows.append((f"Cycle length {length} (max) (%)", f"{round(pct_val, 4)}%"))
             # Calculate >L from actual data to detect constraint violations
             sum_gt = 0
             for idx in range((L - 3) + 2, len(ring_lengths_all)):  # indices whose length > L
                 sum_gt += ring_lengths_all[idx]
             pct_gt = (100.0 * sum_gt / N_total) if N_total else 0.0
-            rows.append((f"Cycle length >{L} (max) (%)", f"{pct_gt}%"))
+            rows.append((f"Cycle length >{L} (max) (%)", f"{round(pct_gt, 4)}%"))
         else:
             # Natural distribution: show 3..12 and >12
             for length in range(3, 13):
                 idx = (length - 3) + 1
                 count = ring_lengths_all[idx] if idx < len(ring_lengths_all) else 0
                 pct_val = (100.0 * count / N_total) if N_total else 0.0
-                rows.append((f"Cycle length {length} (max) (%)", f"{pct_val}%"))
+                rows.append((f"Cycle length {length} (max) (%)", f"{round(pct_val, 4)}%"))
             # >12
             count_gt = ring_lengths_all[-1] if len(ring_lengths_all) > 0 else 0
             pct_gt = (100.0 * count_gt / N_total) if N_total else 0.0
-            rows.append(("Cycle length >12 (max) (%)", f"{pct_gt}%"))
+            rows.append(("Cycle length >12 (max) (%)", f"{round(pct_gt, 4)}%"))
 
     # For planarity constraints: show only planarity satisfaction, no ring distributions
     elif kind == "planarity":
@@ -231,25 +232,25 @@ def collect_structural(split: str, metrics: Dict[str, Any], N_total: Optional[in
             for i, count in enumerate(ring_counts_all):
                 label = f"Cycle rank {i} (%)" if i < 9 else "Cycle rank 9+ (%)"
                 pct_val = (100.0 * count / N_total) if N_total else 0.0
-                rows.append((label, f"{pct_val}%"))
+                rows.append((label, f"{round(pct_val, 4)}%"))
         
         # Show ring length distribution
         if ring_lengths_all is not None:
             # index 0 = acyclic
             count0 = ring_lengths_all[0] if len(ring_lengths_all) > 0 else 0
             pct0 = (100.0 * count0 / N_total) if N_total else 0.0
-            rows.append(("Acyclic (max len 0) (%)", f"{pct0}%"))
+            rows.append(("Acyclic (max len 0) (%)", f"{round(pct0, 4)}%"))
 
             # Natural distribution: show 3..12 and >12
             for length in range(3, 13):
                 idx = (length - 3) + 1
                 count = ring_lengths_all[idx] if idx < len(ring_lengths_all) else 0
                 pct_val = (100.0 * count / N_total) if N_total else 0.0
-                rows.append((f"Cycle length {length} (max) (%)", f"{pct_val}%"))
+                rows.append((f"Cycle length {length} (max) (%)", f"{round(pct_val, 4)}%"))
             # >12
             count_gt = ring_lengths_all[-1] if len(ring_lengths_all) > 0 else 0
             pct_gt = (100.0 * count_gt / N_total) if N_total else 0.0
-            rows.append(("Cycle length >12 (max) (%)", f"{pct_gt}%"))
+            rows.append(("Cycle length >12 (max) (%)", f"{round(pct_gt, 4)}%"))
 
     return rows
 

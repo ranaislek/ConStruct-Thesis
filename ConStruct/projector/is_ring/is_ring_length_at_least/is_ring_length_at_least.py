@@ -39,7 +39,7 @@ def ring_length_at_least_projector(graph, min_length):
     # This ensures we get a ring of the required length without tensor issues
     
     if len(nodes) >= min_length:
-        # Create a cycle of min_length using the first min_length nodes
+        # Create a ring of min_length using the first min_length nodes
         for i in range(min_length):
             u = nodes[i]
             v = nodes[(i + 1) % min_length]

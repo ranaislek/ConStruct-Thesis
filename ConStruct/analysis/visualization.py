@@ -231,17 +231,48 @@ class Visualizer:
                 flush=True,
             )
 
-            imgs = [imageio.v3.imread(fn) for fn in save_paths]
-            gif_path = os.path.join(
-                os.path.dirname(path), "{}.gif".format(path.split("/")[-1])
-            )
-            imgs.extend([imgs[-1]] * 10)
-            imageio.mimsave(gif_path, imgs, subrectangles=True, duration=200)
-            if wandb.run:
-                wandb.log(
-                    {"chain": [wandb.Video(gif_path, caption=gif_path, format="gif")]}
+            # Enhanced image reading with error handling for wandb sync issues
+            imgs = []
+            for fn in save_paths:
+                try:
+                    # Try to read the image with multiple backends
+                    img = imageio.v3.imread(fn)
+                    imgs.append(img)
+                except OSError as e:
+                    # Handle missing image files or backend issues
+                    print(f"Warning: Could not read image {fn}: {e}")
+                    # Create a blank image as fallback
+                    try:
+                        import numpy as np
+                        # Create a 300x300 blank image (white background)
+                        blank_img = np.ones((300, 300, 3), dtype=np.uint8) * 255
+                        imgs.append(blank_img)
+                    except ImportError:
+                        # If numpy is not available, skip this image
+                        print(f"Skipping image {fn} due to missing dependencies")
+                        continue
+                except Exception as e:
+                    # Handle any other errors
+                    print(f"Error reading image {fn}: {e}")
+                    continue
+            
+            # Only create GIF if we have images
+            if imgs:
+                gif_path = os.path.join(
+                    os.path.dirname(path), "{}.gif".format(path.split("/")[-1])
                 )
-                print(f"Saving {gif_path} to wandb")
-                wandb.log(
-                    {"chain": wandb.Video(gif_path, fps=8, format="gif")}, commit=True
-                )
+                imgs.extend([imgs[-1]] * 10)
+                try:
+                    imageio.mimsave(gif_path, imgs, subrectangles=True, duration=200)
+                    if wandb.run:
+                        wandb.log(
+                            {"chain": [wandb.Video(gif_path, caption=gif_path, format="gif")]}
+                        )
+                        print(f"Saving {gif_path} to wandb")
+                        wandb.log(
+                            {"chain": wandb.Video(gif_path, fps=8, format="gif")}, commit=True
+                        )
+                except Exception as e:
+                    print(f"Warning: Could not create GIF {gif_path}: {e}")
+            else:
+                print(f"Warning: No valid images found for chain {i}, skipping GIF creation")

@@ -276,11 +276,18 @@ class SamplingMetrics(nn.Module):
             }
             
             
-            # print(f"📊 Sampling metrics: {key_metrics['validity']:.1f}% valid, "
-            #       f"{key_metrics['uniqueness']:.1f}% unique, "
-            #       f"{key_metrics['novelty']:.1f}% novel, "
-            #       f"FCD: {key_metrics['fcd_score']:.3f}, "
-            #       f"Disconnected: {key_metrics['disconnected']:.1f}%")
+            # Restore original decimal handling with 3 decimal precision - COMMENT LATER IF UNNECESSARY
+            print(
+                f"Sampling metrics",
+                {
+                    key: (
+                        round(val, 3)
+                        if "hist" not in key
+                        else [round(el, 3) for el in val.histogram]
+                    )
+                    for key, val in to_log.items()
+                },
+            )
 
         return to_log, edge_tv_per_class
 

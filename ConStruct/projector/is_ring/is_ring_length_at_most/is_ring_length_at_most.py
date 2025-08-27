@@ -10,7 +10,7 @@ __all__ = ["has_rings_of_length_at_most", "ring_length_at_most_projector", "get_
 
 
 def has_rings_of_length_at_most(graph, max_length):
-    """Return True if max basis-cycle length ≤ max_length (structural constraint)."""
+    """Return True if max ring length ≤ max_length (structural constraint)."""
     cycles = nx.cycle_basis(graph)
     for cycle in cycles:
         if len(cycle) > max_length:
@@ -20,27 +20,27 @@ def has_rings_of_length_at_most(graph, max_length):
 
 def ring_length_at_most_projector(graph, max_length):
     """
-    Edge-Deletion Projector: Enforces structural constraint: max basis-cycle length ≤ max_length.
-    This removes edges from the largest cycles first, but tries to preserve smaller cycles.
+    Edge-Deletion Projector: Enforces structural constraint: max ring length ≤ max_length.
+    This removes edges from the largest rings first, but tries to preserve smaller rings.
     """
     while True:
         cycles = nx.cycle_basis(graph)
-        if not cycles:  # No cycles left
+        if not cycles:  # No rings left
             break
             
-        # Find the largest cycle
+        # Find the largest ring
         largest_cycle = max(cycles, key=len)
         if len(largest_cycle) <= max_length:
             break
             
         # For rings that are too large, we need to break them
         # But we should try to preserve smaller rings if possible
-        # Remove an edge from the largest cycle
+        # Remove an edge from the largest ring
         edge_to_remove = (largest_cycle[0], largest_cycle[1])
         if graph.has_edge(*edge_to_remove):
             graph.remove_edge(*edge_to_remove)
         else:
-            # Try the next edge in the cycle
+            # Try the next edge in the ring
             for i in range(len(largest_cycle)):
                 u, v = largest_cycle[i], largest_cycle[(i+1)%len(largest_cycle)]
                 if graph.has_edge(u, v):
@@ -56,22 +56,22 @@ def ring_length_at_most_projector_improved(graph, max_length):
     """
     while True:
         cycles = nx.cycle_basis(graph)
-        if not cycles:  # No cycles left
+        if not cycles:  # No rings left
             break
             
-        # Find the largest cycle
+        # Find the largest ring
         largest_cycle = max(cycles, key=len)
         if len(largest_cycle) <= max_length:
             break
             
         # For rings that are too large, we need to break them
         # But we should try to preserve smaller rings if possible
-        # Remove an edge from the largest cycle
+        # Remove an edge from the largest ring
         edge_to_remove = (largest_cycle[0], largest_cycle[1])
         if graph.has_edge(*edge_to_remove):
             graph.remove_edge(*edge_to_remove)
         else:
-            # Try the next edge in the cycle
+            # Try the next edge in the ring
             for i in range(len(largest_cycle)):
                 u, v = largest_cycle[i], largest_cycle[(i+1)%len(largest_cycle)]
                 if graph.has_edge(u, v):
@@ -81,7 +81,7 @@ def ring_length_at_most_projector_improved(graph, max_length):
 
 
 def get_max_ring_length_at_most(graph):
-    """Return the max basis-cycle length in the graph for 'at most' constraints, or 0 if no cycles."""
+    """Return the max ring length in the graph for 'at most' constraints, or 0 if no rings."""
     cycles = nx.cycle_basis(graph)
     if not cycles:
         return 0

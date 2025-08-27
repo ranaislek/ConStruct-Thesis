@@ -11,14 +11,14 @@ __all__ = ["has_at_least_n_rings", "ring_count_at_least_projector", "count_rings
 
 
 def has_at_least_n_rings(graph, n):
-    """Return True if the graph has at least n rings (cycles)."""
+    """Return True if the graph has at least n rings."""
     cycles = nx.cycle_basis(graph)
     return len(cycles) >= n
 
 
 def ring_count_at_least_projector(graph, min_rings):
     """
-    Edge-Insertion Projector: If the graph has fewer than min_rings, add edges to create cycles.
+    Edge-Insertion Projector: If the graph has fewer than min_rings, add edges to create rings.
     AGGRESSIVE APPROACH: Add edges strategically to create the required number of rings.
     """
     cycles = nx.cycle_basis(graph)
@@ -45,7 +45,7 @@ def ring_count_at_least_projector(graph, min_rings):
             # Need to create a ring within a single component
             nodes = list(graph.nodes())
             
-            # Strategy 1: Try to add edges to create new cycles
+            # Strategy 1: Try to add edges to create new rings
             ring_created = False
             
             # Try to find a path and close it
@@ -64,26 +64,26 @@ def ring_count_at_least_projector(graph, min_rings):
                 if ring_created:
                     break
             
-            # Strategy 2: If no ring created, try adding edges to create new cycles
+            # Strategy 2: If no ring created, try adding edges to create new rings
             if not ring_created:
                 for i, node1 in enumerate(nodes):
                     for j, node2 in enumerate(nodes):
                         if i < j and not graph.has_edge(node1, node2):
-                            # Check if adding this edge creates a new cycle
+                            # Check if adding this edge creates a new ring
                             graph.add_edge(node1, node2)
                             new_cycles = nx.cycle_basis(graph)
                             if len(new_cycles) > current_rings:
                                 ring_created = True
                                 break
                             else:
-                                # Remove the edge if it didn't create a cycle
+                                # Remove the edge if it didn't create a ring
                                 graph.remove_edge(node1, node2)
                     if ring_created:
                         break
             
-            # Strategy 3: If still no ring created, add a new node and create a cycle
+            # Strategy 3: If still no ring created, add a new node and create a ring
             if not ring_created and len(nodes) >= 3:
-                # Add a new node and connect it to create a new cycle
+                # Add a new node and connect it to create a new ring
                 new_node = max(nodes) + 1
                 # Connect to two existing nodes to create a new triangle
                 graph.add_edge(new_node, nodes[0])
