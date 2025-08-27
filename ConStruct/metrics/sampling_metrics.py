@@ -47,8 +47,7 @@ class SamplingMetrics(nn.Module):
         self.mean_lobster_components = MeanMetric()
         
         # Add ring constraint metrics (structural)
-        self.mean_cycle_rank_satisfaction = MeanMetric()
-        self.mean_max_basis_cycle_length_satisfaction = MeanMetric()
+        self.mean_ring_count_satisfaction = MeanMetric()
         self.mean_ring_length_satisfaction = MeanMetric()
         
         self.deg_histogram = DegreeHistogramMetric(self.stat)
@@ -132,8 +131,7 @@ class SamplingMetrics(nn.Module):
             self.mean_planarity,
             self.mean_no_cycles,
             self.mean_lobster_components,
-            self.mean_cycle_rank_satisfaction,
-            self.mean_max_basis_cycle_length_satisfaction,
+            self.mean_ring_count_satisfaction,
             self.mean_ring_length_satisfaction,
             self.deg_histogram,
         ]:
@@ -193,17 +191,16 @@ class SamplingMetrics(nn.Module):
         ring_constraint_info = None
         if hasattr(self, 'cfg') and self.cfg and hasattr(self.cfg.model, 'rev_proj'):
             if self.cfg.model.rev_proj == 'ring_count_at_most':
-                max_cycle_rank = getattr(self.cfg.model, 'max_rings', 3)
-                cycle_rank_ratios = cycle_rank_satisfaction_ratio(generated_graphs, max_cycle_rank).to(device)
-                self.mean_cycle_rank_satisfaction(cycle_rank_ratios)
-                ring_constraint_info = ('ring_count_at_most', max_cycle_rank)
+                max_ring_count = getattr(self.cfg.model, 'max_rings', 3)
+                ring_count_ratios = ring_count_satisfaction_ratio(generated_graphs, max_ring_count).to(device)
+                self.mean_ring_count_satisfaction(ring_count_ratios)
+                ring_constraint_info = ('ring_count_at_most', max_ring_count)
             
             elif self.cfg.model.rev_proj == 'ring_length_at_most':
-                max_basis_cycle_length = getattr(self.cfg.model, 'max_ring_length', 6)
-                max_basis_cycle_length_ratios = max_basis_cycle_length_satisfaction_ratio(generated_graphs, max_basis_cycle_length).to(device)
-                self.mean_max_basis_cycle_length_satisfaction(max_basis_cycle_length_ratios)
-                self.mean_ring_length_satisfaction(max_basis_cycle_length_ratios)  # Also track as ring_length_satisfaction
-                ring_constraint_info = ('ring_length_at_most', max_basis_cycle_length)
+                max_ring_length = getattr(self.cfg.model, 'max_ring_length', 6)
+                ring_length_ratios = ring_length_satisfaction_ratio(generated_graphs, max_ring_length).to(device)
+                self.mean_ring_length_satisfaction(ring_length_ratios)
+                ring_constraint_info = ('ring_length_at_most', max_ring_length)
 
         # Degree distributions
         self.deg_histogram(generated_graphs)
@@ -236,16 +233,12 @@ class SamplingMetrics(nn.Module):
         if ring_constraint_info:
             constraint_type, constraint_value = ring_constraint_info
             if constraint_type == 'ring_count_at_most':
-                # Log both old and new keys for backward compatibility
-                satisfaction_rate = self.mean_cycle_rank_satisfaction.compute().item()
+                satisfaction_rate = self.mean_ring_count_satisfaction.compute().item()
                 to_log[f"{key}/ring_count_satisfaction"] = satisfaction_rate
-                to_log[f"{key}/cycle_rank_satisfaction"] = satisfaction_rate
                 to_log[f"{key}/ring_count_violation"] = 1 - satisfaction_rate
             elif constraint_type == 'ring_length_at_most':
-                # Log both old and new keys for backward compatibility
-                satisfaction_rate = self.mean_max_basis_cycle_length_satisfaction.compute().item()
+                satisfaction_rate = self.mean_ring_length_satisfaction.compute().item()
                 to_log[f"{key}/ring_length_satisfaction"] = satisfaction_rate
-                to_log[f"{key}/max_basis_cycle_length_satisfaction"] = satisfaction_rate
                 to_log[f"{key}/ring_length_violation"] = 1 - satisfaction_rate
 
         if self.domain_metrics is not None:
@@ -464,13 +457,13 @@ def lobster_components_ratio(generated_graphs: List[PlaceHolder]):
     return lobster_components_tg
 
 
-def cycle_rank_satisfaction_ratio(generated_graphs: List[PlaceHolder], max_cycle_rank: int):
+def ring_count_satisfaction_ratio(generated_graphs: List[PlaceHolder], max_ring_count: int):
     """
-    Calculate the ratio of graphs that satisfy cycle rank constraint (structural).
+    Calculate the ratio of graphs that satisfy ring count constraint (structural).
     
     Args:
         generated_graphs: List of generated graph batches
-        max_cycle_rank: Maximum allowed cycle rank (basis size) (constraint value)
+        max_ring_count: Maximum allowed ring count (constraint value)
     
     Returns:
         Tensor of satisfaction ratios (1 for satisfied, 0 for not satisfied)
@@ -483,12 +476,12 @@ def cycle_rank_satisfaction_ratio(generated_graphs: List[PlaceHolder], max_cycle
             from ConStruct.projector.projector_utils import build_simple_graph_from_edge_tensor
             nx_graph = build_simple_graph_from_edge_tensor(edge_mat, mask)
             
-            # Check if graph satisfies cycle rank constraint (structural)
+            # Check if graph satisfies ring count constraint (structural)
             try:
                 # Use NetworkX cycle_basis for structural constraint
                 cycles = nx.cycle_basis(nx_graph)
-                cycle_rank = len(cycles)
-                satisfies_constraint = int(cycle_rank <= max_cycle_rank)
+                ring_count = len(cycles)
+                satisfies_constraint = int(ring_count <= max_ring_count)
             except Exception:
                 # Conservative fallback: treat failure as not satisfied
                 satisfies_constraint = 0
@@ -500,13 +493,13 @@ def cycle_rank_satisfaction_ratio(generated_graphs: List[PlaceHolder], max_cycle
     return satisfaction_ratios
 
 
-def max_basis_cycle_length_satisfaction_ratio(generated_graphs: List[PlaceHolder], max_basis_cycle_length: int):
+def ring_length_satisfaction_ratio(generated_graphs: List[PlaceHolder], max_ring_length: int):
     """
-    Calculate the ratio of graphs that satisfy max basis-cycle length constraint (structural).
+    Calculate the ratio of graphs that satisfy max ring length constraint (structural).
     
     Args:
         generated_graphs: List of generated graph batches
-        max_basis_cycle_length: Maximum allowed basis-cycle length (constraint value)
+        max_ring_length: Maximum allowed ring length (constraint value)
     
     Returns:
         Tensor of satisfaction ratios (1 for satisfied, 0 for not satisfied)
@@ -519,7 +512,7 @@ def max_basis_cycle_length_satisfaction_ratio(generated_graphs: List[PlaceHolder
             from ConStruct.projector.projector_utils import build_simple_graph_from_edge_tensor
             nx_graph = build_simple_graph_from_edge_tensor(edge_mat, mask)
             
-            # Check if graph satisfies max basis-cycle length constraint (structural)
+            # Check if graph satisfies max ring length constraint (structural)
             try:
                 # Use NetworkX cycle_basis for structural constraint
                 cycles = nx.cycle_basis(nx_graph)
@@ -527,7 +520,7 @@ def max_basis_cycle_length_satisfaction_ratio(generated_graphs: List[PlaceHolder
                     max_cycle_length = max(len(cycle) for cycle in cycles)
                 else:
                     max_cycle_length = 0
-                satisfies_constraint = int(max_cycle_length <= max_basis_cycle_length)
+                satisfies_constraint = int(max_cycle_length <= max_ring_length)
             except Exception:
                 # Conservative fallback: treat failure as not satisfied
                 satisfies_constraint = 0

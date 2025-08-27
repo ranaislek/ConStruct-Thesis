@@ -98,8 +98,8 @@ def detect_constraint_kind(metrics: Dict[str, Any], split: str, cfg=None) -> str
     return "none"
 
 def constraint_caption(kind: str, meta: Dict[str, Any]) -> str:
-    if kind == "ring_count":  return f"Cycle rank ≤ {meta.get('max_rings','k')}"
-    if kind == "ring_length": return f"Cycle length ≤ {meta.get('max_ring_length','L')}"
+    if kind == "ring_count":  return f"Ring count ≤ {meta.get('max_rings','k')}"
+    if kind == "ring_length": return f"Ring length ≤ {meta.get('max_ring_length','L')}"
     if kind == "planarity":   return "Planar molecules only"
     return "No structural constraint"
 
@@ -141,8 +141,8 @@ def core_definitions_md() -> str:
 
 # -------- Structural (main) --------
 def collect_structural(split: str, metrics: Dict[str, Any], N_total: Optional[int],
-                       ring_counts_all: Optional[List[int]]=None,
-                       ring_lengths_all: Optional[List[int]]=None,
+                       ring_count_counts: Optional[List[int]]=None,
+                       ring_length_counts: Optional[List[int]]=None,
                        max_rings: Optional[int]=None,
                        max_ring_length: Optional[int]=None,
                        cfg=None) -> List[Tuple[str,str]]:
@@ -162,31 +162,31 @@ def collect_structural(split: str, metrics: Dict[str, Any], N_total: Optional[in
 
     # 2) Distributions (per-molecule)
     # For ring count constraints: show only ring count distribution
-    if kind == "ring_count" and ring_counts_all is not None:
+    if kind == "ring_count" and ring_count_counts is not None:
         if max_rings is not None:
             # Constrained training: show up to max_rings, then calculate >max_rings
             for i in range(max_rings + 1):
-                count = ring_counts_all[i] if i < len(ring_counts_all) else 0
-                label = f"Cycle rank {i} (%)"
+                count = ring_count_counts[i] if i < len(ring_count_counts) else 0
+                label = f"Ring count {i} (%)"
                 pct_val = (100.0 * count / N_total) if N_total else 0.0
                 rows.append((label, f"{round(pct_val, 4)}%"))
             # Calculate >max_rings from actual data to detect constraint violations
             sum_gt = 0
-            for i in range(max_rings + 1, len(ring_counts_all)):
-                sum_gt += ring_counts_all[i]
+            for i in range(max_rings + 1, len(ring_count_counts)):
+                sum_gt += ring_count_counts[i]
             pct_gt = (100.0 * sum_gt / N_total) if N_total else 0.0
-            rows.append((f"Cycle rank >{max_rings} (%)", f"{round(pct_gt, 4)}%"))
+            rows.append((f"Ring count >{max_rings} (%)", f"{round(pct_gt, 4)}%"))
         else:
             # Unconstrained training: show all natural distribution
-            for i, count in enumerate(ring_counts_all):
-                label = f"Cycle rank {i} (%)" if i < 9 else "Cycle rank 9+ (%)"
+            for i, count in enumerate(ring_count_counts):
+                label = f"Ring count {i} (%)" if i < 9 else "Ring count 9+ (%)"
                 pct_val = (100.0 * count / N_total) if N_total else 0.0
                 rows.append((label, f"{round(pct_val, 4)}%"))
 
     # For ring length constraints: show only ring length distribution
-    elif kind == "ring_length" and ring_lengths_all is not None:
+    elif kind == "ring_length" and ring_length_counts is not None:
         # index 0 = acyclic
-        count0 = ring_lengths_all[0] if len(ring_lengths_all) > 0 else 0
+        count0 = ring_length_counts[0] if len(ring_length_counts) > 0 else 0
         pct0 = (100.0 * count0 / N_total) if N_total else 0.0
         rows.append(("Acyclic (max len 0) (%)", f"{round(pct0, 4)}%"))
 
@@ -199,26 +199,26 @@ def collect_structural(split: str, metrics: Dict[str, Any], N_total: Optional[in
             # 3..L
             for length in range(3, L+1):
                 idx = (length - 3) + 1  # map 3→1
-                count = ring_lengths_all[idx] if idx < len(ring_lengths_all) else 0
+                count = ring_length_counts[idx] if idx < len(ring_length_counts) else 0
                 pct_val = (100.0 * count / N_total) if N_total else 0.0
-                rows.append((f"Cycle length {length} (max) (%)", f"{round(pct_val, 4)}%"))
+                rows.append((f"Ring length {length} (max) (%)", f"{round(pct_val, 4)}%"))
             # Calculate >L from actual data to detect constraint violations
             sum_gt = 0
-            for idx in range((L - 3) + 2, len(ring_lengths_all)):  # indices whose length > L
-                sum_gt += ring_lengths_all[idx]
+            for idx in range((L - 3) + 2, len(ring_length_counts)):  # indices whose length > L
+                sum_gt += ring_length_counts[idx]
             pct_gt = (100.0 * sum_gt / N_total) if N_total else 0.0
-            rows.append((f"Cycle length >{L} (max) (%)", f"{round(pct_gt, 4)}%"))
+            rows.append((f"Ring length >{L} (max) (%)", f"{round(pct_gt, 4)}%"))
         else:
             # Natural distribution: show 3..12 and >12
             for length in range(3, 13):
                 idx = (length - 3) + 1
-                count = ring_lengths_all[idx] if idx < len(ring_lengths_all) else 0
+                count = ring_length_counts[idx] if idx < len(ring_length_counts) else 0
                 pct_val = (100.0 * count / N_total) if N_total else 0.0
-                rows.append((f"Cycle length {length} (max) (%)", f"{round(pct_val, 4)}%"))
+                rows.append((f"Ring length {length} (max) (%)", f"{round(pct_val, 4)}%"))
             # >12
-            count_gt = ring_lengths_all[-1] if len(ring_lengths_all) > 0 else 0
+            count_gt = ring_length_counts[-1] if len(ring_length_counts) > 0 else 0
             pct_gt = (100.0 * count_gt / N_total) if N_total else 0.0
-            rows.append(("Cycle length >12 (max) (%)", f"{round(pct_gt, 4)}%"))
+            rows.append(("Ring length >12 (max) (%)", f"{round(pct_val, 4)}%"))
 
     # For planarity constraints: show only planarity satisfaction, no ring distributions
     elif kind == "planarity":
@@ -228,29 +228,29 @@ def collect_structural(split: str, metrics: Dict[str, Any], N_total: Optional[in
     # For no-constraint trainings: show both distributions (natural)
     elif kind == "none":
         # Show ring count distribution
-        if ring_counts_all is not None:
-            for i, count in enumerate(ring_counts_all):
-                label = f"Cycle rank {i} (%)" if i < 9 else "Cycle rank 9+ (%)"
+        if ring_count_counts is not None:
+            for i, count in enumerate(ring_count_counts):
+                label = f"Ring count {i} (%)" if i < 9 else "Ring count 9+ (%)"
                 pct_val = (100.0 * count / N_total) if N_total else 0.0
                 rows.append((label, f"{round(pct_val, 4)}%"))
         
         # Show ring length distribution
-        if ring_lengths_all is not None:
+        if ring_length_counts is not None:
             # index 0 = acyclic
-            count0 = ring_lengths_all[0] if len(ring_lengths_all) > 0 else 0
+            count0 = ring_length_counts[0] if len(ring_length_counts) > 0 else 0
             pct0 = (100.0 * count0 / N_total) if N_total else 0.0
             rows.append(("Acyclic (max len 0) (%)", f"{round(pct0, 4)}%"))
 
             # Natural distribution: show 3..12 and >12
             for length in range(3, 13):
                 idx = (length - 3) + 1
-                count = ring_lengths_all[idx] if idx < len(ring_lengths_all) else 0
+                count = ring_length_counts[idx] if idx < len(ring_length_counts) else 0
                 pct_val = (100.0 * count / N_total) if N_total else 0.0
-                rows.append((f"Cycle length {length} (max) (%)", f"{round(pct_val, 4)}%"))
+                rows.append((f"Ring length {length} (max) (%)", f"{round(pct_val, 4)}%"))
             # >12
-            count_gt = ring_lengths_all[-1] if len(ring_lengths_all) > 0 else 0
+            count_gt = ring_length_counts[-1] if len(ring_length_counts) > 0 else 0
             pct_gt = (100.0 * count_gt / N_total) if N_total else 0.0
-            rows.append(("Cycle length >12 (max) (%)", f"{round(pct_gt, 4)}%"))
+            rows.append(("Ring length >12 (max) (%)", f"{round(pct_gt, 4)}%"))
 
     return rows
 
@@ -418,7 +418,7 @@ def write_tables(outdir: str, split: str, exp_name: str, dataset: str, constrain
     sub_struct = (
         sub
         + " · Structural cycles via NetworkX cycle_basis; "
-          "ring-length rows = per-molecule MAX basis-cycle length; "
+          "ring-length rows = per-molecule MAX ring length; "
           "aromatic bonds included"
     )
     with open(os.path.join(outdir, f"{split}_core.md"), "w") as f:

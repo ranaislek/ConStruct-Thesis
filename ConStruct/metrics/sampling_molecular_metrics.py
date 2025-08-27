@@ -385,8 +385,8 @@ class SamplingMolecularMetrics(nn.Module):
             constraint_str = constraint_caption(kind, constraint_meta)
             
             # New (STRUCTURAL, projector-consistent)
-            cycle_rank_counts, max_cycle_length_counts = self.collect_structural_distributions_from_graphs(generated_graphs)
-            N_struct = sum(cycle_rank_counts)  # equals number of molecules
+            ring_count_counts, ring_length_counts = self.collect_structural_distributions_from_graphs(generated_graphs)
+            N_struct = sum(ring_count_counts)  # equals number of molecules
 
             # core/structural metrics (removed alignment)
             core_rows = collect_core(split, metrics_to_pass, N_total, self.cfg)
@@ -394,8 +394,8 @@ class SamplingMolecularMetrics(nn.Module):
                 split,
                 metrics_to_pass,
                 N_struct,  # denominator = all generated graphs (structural)
-                cycle_rank_counts,              # per-molecule cycle-rank histogram
-                max_cycle_length_counts,        # per-molecule MAX basis-cycle-length histogram (with 0=acyclic)
+                ring_count_counts,              # per-molecule ring-count histogram
+                ring_length_counts,             # per-molecule MAX ring-length histogram (with 0=acyclic)
                 max_rings=getattr(self.cfg.model, 'max_rings', None),
                 max_ring_length=getattr(self.cfg.model, 'max_ring_length', None),
                 cfg=self.cfg,  # Pass configuration for constraint detection
@@ -968,21 +968,21 @@ class SamplingMolecularMetrics(nn.Module):
     def collect_structural_distributions_from_graphs(self, generated_graphs: list[PlaceHolder]):
         """
         Returns:
-            cycle_rank_counts: list sized 10 → bins [0,1,2,3,4,5,6,7,8,9+]
-            max_cycle_length_counts: list sized 12 → bins:
+            ring_count_counts: list sized 10 → bins [0,1,2,3,4,5,6,7,8,9+]
+            ring_length_counts: list sized 12 → bins:
                 [0 (acyclic), 3,4,5,6,7,8,9,10,11,12, >12]
         """
         from ConStruct.projector.projector_utils import build_simple_graph_from_edge_tensor
         import networkx as nx
 
-        # Cycle-rank histogram: 0..8, 9+ lumped
-        cycle_rank_counts = [0] * 10
+        # Ring-count histogram: 0..8, 9+ lumped
+        ring_count_counts = [0] * 10
 
-        # Max-basis-cycle-length histogram:
+        # Max-ring-length histogram:
         # index 0 = acyclic
         # index 1..10 => lengths 3..12
         # index 11 => >12
-        max_cycle_length_counts = [0] * 12
+        ring_length_counts = [0] * 12
 
         for batch in generated_graphs:
             for edge_mat, mask in zip(batch.E, batch.node_mask):
@@ -992,26 +992,26 @@ class SamplingMolecularMetrics(nn.Module):
                 except Exception:
                     # Count as unknown → treat as violating bucket for safety
                     # but here we place into " >12 " max-length bin to keep totals consistent
-                    cycle_rank_counts[-1] += 1
-                    max_cycle_length_counts[-1] += 1
+                    ring_count_counts[-1] += 1
+                    ring_length_counts[-1] += 1
                     continue
 
-                # Cycle rank
+                # Ring count
                 r = len(cycles)
-                cycle_rank_counts[r if r < 9 else 9] += 1
+                ring_count_counts[r if r < 9 else 9] += 1
 
-                # Max basis-cycle length (per molecule)
+                # Max ring length (per molecule)
                 if not cycles:
-                    max_cycle_length_counts[0] += 1  # acyclic
+                    ring_length_counts[0] += 1  # acyclic
                 else:
                     Lmax = max(len(c) for c in cycles)
                     if 3 <= Lmax <= 12:
                         idx = (Lmax - 3) + 1  # 3→1, 12→10
-                        max_cycle_length_counts[idx] += 1
+                        ring_length_counts[idx] += 1
                     else:
-                        max_cycle_length_counts[-1] += 1  # >12
+                        ring_length_counts[-1] += 1  # >12
 
-        return cycle_rank_counts, max_cycle_length_counts
+        return ring_count_counts, ring_length_counts
 
     def collect_ring_distributions(self, generated_graphs: list[PlaceHolder]) -> Tuple[List[int], List[int]]:
         """
@@ -1021,14 +1021,14 @@ class SamplingMolecularMetrics(nn.Module):
             generated_graphs: List of PlaceHolder objects containing generated graphs
             
         Returns:
-            Tuple of (ring_counts_all, ring_lengths_all) where each is a list of counts
+            Tuple of (ring_count_counts, ring_length_counts) where each is a list of counts
         """
         import networkx as nx
         from ConStruct.projector.projector_utils import build_simple_graph_from_edge_tensor
         
         # Initialize distribution counters
-        ring_counts = [0] * 10  # 0, 1, 2, 3, 4, 5, 6, 7, 8, 9+ rings
-        ring_lengths = [0] * 10  # 0, 3, 4, 5, 6, 7, 8, 9, 10, 11+ atoms per ring (0 for acyclic)
+        ring_count_counts = [0] * 10  # 0, 1, 2, 3, 4, 5, 6, 7, 8, 9+ rings
+        ring_length_counts = [0] * 10  # 0, 3, 4, 5, 6, 7, 8, 9, 10, 11+ atoms per ring (0 for acyclic)
         
         for batch in generated_graphs:
             for edge_mat, mask in zip(batch.E, batch.node_mask):
@@ -1039,12 +1039,12 @@ class SamplingMolecularMetrics(nn.Module):
                     # Get cycle basis (structural analysis)
                     cycles = nx.cycle_basis(nx_graph)
                     
-                    # Count rings (cycle rank)
+                    # Count rings (ring count)
                     num_rings = len(cycles)
-                    if num_rings < len(ring_counts):
-                        ring_counts[num_rings] += 1
+                    if num_rings < len(ring_count_counts):
+                        ring_count_counts[num_rings] += 1
                     else:
-                        ring_counts[-1] += 1  # 9+ rings
+                        ring_count_counts[-1] += 1  # 9+ rings
                     
                     # Analyze ring lengths
                     if cycles:
@@ -1053,21 +1053,21 @@ class SamplingMolecularMetrics(nn.Module):
                             ring_length = len(cycle)
                             if ring_length >= 3:  # Valid ring length
                                 idx = ring_length - 2  # Convert to 0-based index (3->1, 4->2, etc.)
-                                if idx < len(ring_lengths):
-                                    ring_lengths[idx] += 1
+                                if idx < len(ring_length_counts):
+                                    ring_length_counts[idx] += 1
                                 else:
-                                    ring_lengths[-1] += 1  # 11+ atoms
+                                    ring_length_counts[-1] += 1  # 11+ atoms
                     else:
                         # Graph is acyclic - count as length 0
-                        ring_lengths[0] += 1
+                        ring_length_counts[0] += 1
                             
                 except Exception:
                     # Conservative: treat failure as acyclic (no rings)
-                    ring_counts[0] += 1
-                    ring_lengths[0] += 1
+                    ring_count_counts[0] += 1
+                    ring_length_counts[0] += 1
                     continue
         
-        return ring_counts, ring_lengths
+        return ring_count_counts, ring_length_counts
     
     def _calculate_avg_molecular_weight(self, smiles_list: List[str]) -> float:
         """Calculate average molecular weight for a list of SMILES."""
@@ -1885,8 +1885,8 @@ def check_ring_constraints_all_molecules_from_graphs(generated_graphs, constrain
     satisfied_molecules = 0
     
     # Collect distribution data for structural analysis
-    cycle_ranks = []
-    max_basis_cycle_lengths = []
+    ring_counts = []
+    ring_lengths = []
     
     # Use the same approach as WandB: direct graph analysis
     for batch in generated_graphs:
@@ -1900,24 +1900,24 @@ def check_ring_constraints_all_molecules_from_graphs(generated_graphs, constrain
             try:
                 # Use NetworkX cycle_basis for structural constraint
                 cycles = nx.cycle_basis(nx_graph)
-                cycle_rank = len(cycles)
-                cycle_ranks.append(cycle_rank)
+                ring_count = len(cycles)
+                ring_counts.append(ring_count)
                 
                 if cycles:
-                    max_basis_cycle_length = max(len(cycle) for cycle in cycles)
+                    max_ring_length = max(len(cycle) for cycle in cycles)
                 else:
-                    max_basis_cycle_length = 0
-                max_basis_cycle_lengths.append(max_basis_cycle_length)
+                    max_ring_length = 0
+                ring_lengths.append(max_ring_length)
                 
                 # Check constraint satisfaction
                 if constraint_type == "ring_count_at_most":
-                    satisfies_constraint = cycle_rank <= constraint_value
+                    satisfies_constraint = ring_count <= constraint_value
                 elif constraint_type == "ring_length_at_most":
-                    satisfies_constraint = max_basis_cycle_length <= constraint_value
+                    satisfies_constraint = max_ring_length <= constraint_value
                 elif constraint_type == "ring_count_at_least":
-                    satisfies_constraint = cycle_rank >= constraint_value
+                    satisfies_constraint = ring_count >= constraint_value
                 elif constraint_type == "ring_length_at_least":
-                    satisfies_constraint = max_basis_cycle_length >= constraint_value
+                    satisfies_constraint = max_ring_length >= constraint_value
                 else:
                     satisfies_constraint = False
                 
@@ -1926,8 +1926,8 @@ def check_ring_constraints_all_molecules_from_graphs(generated_graphs, constrain
                     
             except Exception as e:
                 # If structural analysis fails, assume constraint not satisfied
-                cycle_ranks.append(0)
-                max_basis_cycle_lengths.append(0)
+                ring_counts.append(0)
+                ring_lengths.append(0)
                 pass
     
     # Calculate satisfaction rate (structural - based on ALL molecules)
@@ -1948,8 +1948,8 @@ def check_ring_constraints_all_molecules_from_graphs(generated_graphs, constrain
         'total_molecules': total_molecules,
         'satisfied_molecules': satisfied_molecules,
         'satisfaction_rate': satisfaction_rate,
-        'cycle_ranks': cycle_ranks,
-        'max_basis_cycle_lengths': max_basis_cycle_lengths
+        'ring_counts': ring_counts,
+        'ring_lengths': ring_lengths
     }
 
 
