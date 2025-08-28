@@ -53,6 +53,6 @@ python main.py \
     general.final_model_samples_to_generate=10000 \
     model.rev_proj=planar \
     general.wandb=disabled \
-    general.save_chains=0
+    general.final_model_chains_to_save=0
 
 echo "Planarity test completed at $(date)"

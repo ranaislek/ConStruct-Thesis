@@ -52,7 +52,7 @@ python main.py \
     general.name=test_no_constraint \
     general.final_model_samples_to_generate=10000 \
     general.wandb=disabled \
-    general.save_chains=0
+    general.final_model_chains_to_save=0
 
 echo "No constraint test completed at $(date)"
 echo "Results saved to: outputs/checkpoint_testing/no_constraint/" 

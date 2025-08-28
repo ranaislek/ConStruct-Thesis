@@ -55,7 +55,7 @@ python main.py \
     model.max_rings=0 \
     model.use_incremental=true \
     general.wandb=disabled \
-    general.save_chains=0
+    general.final_model_chains_to_save=0
 
 
 echo "Ring Count ≤ 0 test completed at $(date)"

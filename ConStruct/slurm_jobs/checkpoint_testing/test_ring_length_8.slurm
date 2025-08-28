@@ -55,6 +55,6 @@ python main.py \
     model.max_ring_length=8 \
     model.use_incremental_length=true \
     general.wandb=disabled \
-    general.save_chains=0
+    general.final_model_chains_to_save=0
 
 echo "Ring Length ≤ 8 test completed at $(date)"
