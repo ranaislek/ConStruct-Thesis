@@ -1,0 +1,37 @@
+QM9 Comprehensive Dataset Split Comparison Report
+======================================================================
+
+DATASET SIZE COMPARISON
+------------------------------
+Training dataset: 97,732 molecules
+Validation dataset: 20,042 molecules
+Test dataset: 13,054 molecules
+Full dataset: 130,828 molecules
+Total (sum of splits): 130,828 molecules
+
+DATASET PROPORTIONS
+--------------------
+Training: 74.7%
+Validation: 15.3%
+Test: 10.0%
+
+RING COUNT COMPARISON
+-------------------------
+≤0 rings: Train=0.103, Val=0.103, Test=0.096, Full=0.102
+≤1 rings: Train=0.495, Val=0.496, Test=0.498, Full=0.496
+≤2 rings: Train=0.811, Val=0.814, Test=0.814, Full=0.812
+≤3 rings: Train=0.963, Val=0.963, Test=0.965, Full=0.963
+≤4 rings: Train=0.996, Val=0.997, Test=0.997, Full=0.997
+≤5 rings: Train=1.000, Val=1.000, Test=1.000, Full=1.000
+
+RING LENGTH COMPARISON
+---------------------------
+≤3 atoms: Train=0.212, Val=0.218, Test=0.209, Full=0.213
+≤4 atoms: Train=0.449, Val=0.452, Test=0.445, Full=0.449
+≤5 atoms: Train=0.822, Val=0.827, Test=0.824, Full=0.823
+≤6 atoms: Train=0.968, Val=0.969, Test=0.963, Full=0.967
+≤7 atoms: Train=0.995, Val=0.996, Test=0.995, Full=0.995
+≤8 atoms: Train=0.999, Val=0.999, Test=0.999, Full=0.999
+
+
+Comprehensive comparison completed on: 2025-08-22 13:28:31
