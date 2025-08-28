@@ -19,19 +19,19 @@ RING COUNT COMPARISON
 -------------------------
 ≤0 rings: Train=0.103, Val=0.103, Test=0.096, Full=0.102
 ≤1 rings: Train=0.495, Val=0.496, Test=0.498, Full=0.496
-≤2 rings: Train=0.811, Val=0.814, Test=0.814, Full=0.812
-≤3 rings: Train=0.963, Val=0.963, Test=0.965, Full=0.963
-≤4 rings: Train=0.996, Val=0.997, Test=0.997, Full=0.997
-≤5 rings: Train=1.000, Val=1.000, Test=1.000, Full=1.000
+≤2 rings: Train=0.568, Val=0.571, Test=0.575, Full=0.569
+≤3 rings: Train=0.813, Val=0.816, Test=0.816, Full=0.814
+≤4 rings: Train=0.840, Val=0.843, Test=0.843, Full=0.841
+≤5 rings: Train=0.840, Val=0.843, Test=0.843, Full=0.841
 
 RING LENGTH COMPARISON
 ---------------------------
-≤3 atoms: Train=0.212, Val=0.218, Test=0.209, Full=0.213
-≤4 atoms: Train=0.449, Val=0.452, Test=0.445, Full=0.449
-≤5 atoms: Train=0.822, Val=0.827, Test=0.824, Full=0.823
-≤6 atoms: Train=0.968, Val=0.969, Test=0.963, Full=0.967
-≤7 atoms: Train=0.995, Val=0.996, Test=0.995, Full=0.995
-≤8 atoms: Train=0.999, Val=0.999, Test=0.999, Full=0.999
+≤3 atoms: Train=0.208, Val=0.214, Test=0.205, Full=0.208
+≤4 atoms: Train=0.318, Val=0.327, Test=0.317, Full=0.319
+≤5 atoms: Train=0.587, Val=0.591, Test=0.592, Full=0.588
+≤6 atoms: Train=0.793, Val=0.794, Test=0.791, Full=0.793
+≤7 atoms: Train=0.908, Val=0.910, Test=0.910, Full=0.908
+≤8 atoms: Train=0.977, Val=0.978, Test=0.980, Full=0.977
 
 
-Comprehensive comparison completed on: 2025-08-22 13:28:31
+Comprehensive comparison completed on: 2025-08-28 17:11:29

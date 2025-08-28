@@ -5,48 +5,67 @@ DATASET OVERVIEW
 --------------------
 Analysis type: training
 Total molecules analyzed: 97,732
-Total rings found: 159,500
-Average rings per molecule: 1.632
+Total rings found: 260,211
+Average rings per molecule: 2.662
 
 RING COUNT ANALYSIS
 --------------------
 Distribution of molecules by ring count:
   0 rings: 10,059 molecules (10.3%)
   1 rings: 38,324 molecules (39.2%)
-  2 rings: 30,878 molecules (31.6%)
-  3 rings: 14,823 molecules (15.2%)
-  4 rings: 3,297 molecules (3.4%)
-  5 rings: 343 molecules (0.4%)
-  6 rings: 8 molecules (0.0%)
+  2 rings: 7,131 molecules (7.3%)
+  3 rings: 23,948 molecules (24.5%)
+  4 rings: 2,648 molecules (2.7%)
+  5 rings: 27 molecules (0.0%)
+  6 rings: 5,721 molecules (5.9%)
+  7 rings: 6,481 molecules (6.6%)
+  8 rings: 322 molecules (0.3%)
+  9 rings: 2 molecules (0.0%)
+  10 rings: 211 molecules (0.2%)
+  11 rings: 9 molecules (0.0%)
+  12 rings: 768 molecules (0.8%)
+  13 rings: 215 molecules (0.2%)
+  14 rings: 1,551 molecules (1.6%)
+  15 rings: 34 molecules (0.0%)
+  19 rings: 69 molecules (0.1%)
+  20 rings: 54 molecules (0.1%)
+  22 rings: 46 molecules (0.0%)
+  23 rings: 14 molecules (0.0%)
+  24 rings: 4 molecules (0.0%)
+  25 rings: 7 molecules (0.0%)
+  26 rings: 67 molecules (0.1%)
+  28 rings: 13 molecules (0.0%)
+  29 rings: 4 molecules (0.0%)
+  35 rings: 3 molecules (0.0%)
 
 RING LENGTH ANALYSIS
 --------------------
 Distribution of rings by length:
-  3-atom rings: 49,268 rings
-  4-atom rings: 48,186 rings
-  5-atom rings: 43,870 rings
-  6-atom rings: 14,940 rings
-  7-atom rings: 2,780 rings
-  8-atom rings: 381 rings
-  9-atom rings: 75 rings
+  3-atom rings: 49,729 rings
+  4-atom rings: 58,215 rings
+  5-atom rings: 70,676 rings
+  6-atom rings: 46,394 rings
+  7-atom rings: 22,491 rings
+  8-atom rings: 10,136 rings
+  9-atom rings: 2,570 rings
 
 CONSTRAINT SATISFACTION RATES
 ------------------------------
 Ring Count Constraints:
   ≤0: 0.103 (10.3%)
   ≤1: 0.495 (49.5%)
-  ≤2: 0.811 (81.1%)
-  ≤3: 0.963 (96.3%)
-  ≤4: 0.996 (99.6%)
-  ≤5: 1.000 (100.0%)
+  ≤2: 0.568 (56.8%)
+  ≤3: 0.813 (81.3%)
+  ≤4: 0.840 (84.0%)
+  ≤5: 0.840 (84.0%)
 
 Ring Length Constraints:
-  ≤3: 0.212 (21.2%)
-  ≤4: 0.449 (44.9%)
-  ≤5: 0.822 (82.2%)
-  ≤6: 0.968 (96.8%)
-  ≤7: 0.995 (99.5%)
-  ≤8: 0.999 (99.9%)
+  ≤3: 0.208 (20.8%)
+  ≤4: 0.318 (31.8%)
+  ≤5: 0.587 (58.7%)
+  ≤6: 0.793 (79.3%)
+  ≤7: 0.908 (90.8%)
+  ≤8: 0.977 (97.7%)
 
 PLANARITY ANALYSIS
 --------------------
@@ -55,4 +74,4 @@ Non-planar molecules: 0
 Planarity rate: 1.000 (100.0%)
 
 
-Analysis completed on: 2025-08-22 13:25:24
+Analysis completed on: 2025-08-28 16:57:30
