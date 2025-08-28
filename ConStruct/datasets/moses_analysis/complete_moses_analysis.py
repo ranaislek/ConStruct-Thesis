@@ -31,6 +31,8 @@ import time
 # Add ConStruct to path
 sys.path.append('/home/rislek/ConStruct-Thesis')
 
+from ConStruct.projector.graph_cycles import enumerate_simple_cycles_unique
+
 def create_output_dir():
     """Create output directory structure"""
     output_dir = Path(__file__).parent
@@ -119,8 +121,8 @@ def analyze_ring_properties(dataset, dataset_name="dataset"):
         
         nx_graph = nx.from_numpy_array(adj_matrix)
         
-        # Count rings
-        cycles = nx.cycle_basis(nx_graph)
+        # Count rings using all simple cycles (all simple rings)
+        cycles = list(enumerate_simple_cycles_unique(nx_graph))
         ring_count = len(cycles)
         ring_count_dist[ring_count] += 1
         total_rings += ring_count

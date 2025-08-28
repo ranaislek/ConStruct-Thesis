@@ -8,6 +8,8 @@ import torch
 import torch.nn.functional as F
 from rdkit import Chem
 from typing import List, Optional, Tuple, Dict, Any
+from networkx.algorithms import isomorphism as iso
+from ConStruct.projector.graph_cycles import enumerate_simple_cycles_unique, count_simple_cycles, max_simple_cycle_length
 
 from ConStruct.projector.is_planar import is_planar
 from ConStruct.projector.is_ring.is_ring_count_at_most.is_ring_count_at_most import ring_count_at_most_projector
@@ -532,7 +534,7 @@ class RingCountAtMostProjector(AbstractProjector):
     - Natural bias: toward sparse graphs (fewer edges = fewer ring possibilities)
     
     Structural Constraint:
-    - Count rings using NetworkX cycle_basis() (ring count = basis size)
+    - Count rings as ALL simple rings (unique simple cycles)
     - Remove edges that break excess rings
     - Block edge additions that would exceed maximum ring count
     
@@ -574,7 +576,8 @@ class RingCountAtMostProjector(AbstractProjector):
                 # Reconstruct the graph from the adjacency matrix to get correct ring count
                 adj_matrix = self.z_t_adj[i].cpu().numpy()
                 nx_graph = nx.from_numpy_array(adj_matrix)
-                self.current_ring_counts[i] = len(nx.cycle_basis(nx_graph))
+                from ConStruct.projector.graph_cycles import count_simple_cycles
+                self.current_ring_counts[i] = count_simple_cycles(nx_graph)
         
         # Verbose logging flag (set to True for detailed debugging)
         self.verbose = False
@@ -592,9 +595,9 @@ class RingCountAtMostProjector(AbstractProjector):
         Returns:
             bool: True if graph has ring count ≤ max_rings
         """
-        # Use NetworkX to count rings (ring count = basis size) - structural constraint only
-        cycles = nx.cycle_basis(nx_graph)
-        ring_count = len(cycles)
+        # Count ALL unique simple cycles (structural-only)
+        from ConStruct.projector.graph_cycles import count_simple_cycles
+        ring_count = count_simple_cycles(nx_graph)
         is_valid = ring_count <= self.max_rings
         # print(f"   🔍 RingCountAtMostProjector.valid_graph_fn(): {ring_count} rings, max={self.max_rings}, valid={is_valid}")
         return is_valid  # Ring count ≤ K
@@ -713,7 +716,7 @@ class RingLengthAtMostProjector(AbstractProjector):
     - Natural bias: toward sparse graphs (fewer edges = fewer ring possibilities)
     
     Structural Constraint:
-    - Check ring lengths using NetworkX cycle_basis()
+    - Check ring lengths using ALL simple rings (unique simple cycles)
     - Block edge additions that would create rings longer than maximum
     - Remove edges that create rings longer than allowed
     
@@ -757,12 +760,9 @@ class RingLengthAtMostProjector(AbstractProjector):
         self.verbose = False
 
     def valid_graph_fn(self, nx_graph):
-        """Check if max ring length ≤ L."""
-        cycles = nx.cycle_basis(nx_graph)
-        for cycle in cycles:
-            if len(cycle) > self.max_ring_length:
-                return False
-        return True
+        """Check if max ring length ≤ L (exhaustive simple-cycle check)."""
+        from ConStruct.projector.is_ring.is_ring_length_at_most import has_rings_of_length_at_most
+        return has_rings_of_length_at_most(nx_graph, self.max_ring_length)
 
     @property
     def can_block_edges(self):
@@ -898,12 +898,13 @@ class RingLengthAtMostProjector(AbstractProjector):
         graph_id = id(nx_graph)
         if graph_id not in self._cycle_cache:
             try:
-                cycles = list(nx.cycle_basis(nx_graph))
+                from ConStruct.projector.graph_cycles import enumerate_simple_cycles_unique, max_simple_cycle_length
+                cycles = list(enumerate_simple_cycles_unique(nx_graph))
                 cycle_lengths = [len(cycle) for cycle in cycles]
                 self._cycle_cache[graph_id] = {
                     'cycles': cycles,
                     'cycle_lengths': cycle_lengths,
-                    'max_length': max(cycle_lengths) if cycle_lengths else 0,
+                    'max_length': max_simple_cycle_length(nx_graph),
                     'cycle_count': len(cycles)
                 }
             except:
@@ -998,7 +999,8 @@ class RingLengthAtMostProjector(AbstractProjector):
         # TARGETED FIX: Check for specific 5+8 bicyclic heterocyclic pattern (C1=NC2=NC(CO1)CO2 case)
         # This is the minimal check needed to achieve 100% constraint satisfaction
         try:
-            cycles = nx.cycle_basis(nx_graph)
+            from ConStruct.projector.graph_cycles import enumerate_simple_cycles_unique
+            cycles = list(enumerate_simple_cycles_unique(nx_graph))
             if len(cycles) >= 2:
                 # Look for 5-membered and 8+ membered cycles
                 five_cycles = [cycle for cycle in cycles if len(cycle) == 5]
@@ -1041,7 +1043,8 @@ class RingLengthAtMostProjector(AbstractProjector):
         
         # Risk: if nodes are in cycles
         try:
-            cycles = nx.cycle_basis(nx_graph)
+            from ConStruct.projector.graph_cycles import enumerate_simple_cycles_unique
+            cycles = list(enumerate_simple_cycles_unique(nx_graph))
             for cycle in cycles:
                 if u in cycle:
                     risk_score += len(cycle)
@@ -1061,7 +1064,8 @@ class RingLengthAtMostProjector(AbstractProjector):
         Update tracking of nodes that are part of large cycles.
         """
         try:
-            cycles = nx.cycle_basis(nx_graph)
+            from ConStruct.projector.graph_cycles import enumerate_simple_cycles_unique
+            cycles = list(enumerate_simple_cycles_unique(nx_graph))
             self.large_cycle_nodes[graph_idx].clear()
             for cycle in cycles:
                 if len(cycle) >= self.max_ring_length - 1:  # Conservative: track nodes in cycles close to limit
@@ -1079,7 +1083,8 @@ class RingLengthAtMostProjector(AbstractProjector):
         
         # Add similar patterns
         try:
-            cycles = nx.cycle_basis(nx_graph)
+            from ConStruct.projector.graph_cycles import enumerate_simple_cycles_unique
+            cycles = list(enumerate_simple_cycles_unique(nx_graph))
             for cycle in cycles:
                 if u in cycle or v in cycle:
                     # Add other edges in this cycle as potential violations
@@ -1107,7 +1112,8 @@ class RingLengthAtMostProjector(AbstractProjector):
         
         # Check if this would connect two separate cycles
         try:
-            cycles = nx.cycle_basis(nx_graph)
+            from ConStruct.projector.graph_cycles import enumerate_simple_cycles_unique
+            cycles = list(enumerate_simple_cycles_unique(nx_graph))
             u_cycles = [i for i, cycle in enumerate(cycles) if u in cycle]
             v_cycles = [i for i, cycle in enumerate(cycles) if v in cycle]
             
@@ -1124,7 +1130,8 @@ class RingLengthAtMostProjector(AbstractProjector):
         Check if adding edge would create a bicyclic system.
         """
         try:
-            cycles = nx.cycle_basis(nx_graph)
+            from ConStruct.projector.graph_cycles import enumerate_simple_cycles_unique
+            cycles = list(enumerate_simple_cycles_unique(nx_graph))
             u_in_cycles = [i for i, cycle in enumerate(cycles) if u in cycle]
             v_in_cycles = [i for i, cycle in enumerate(cycles) if v in cycle]
             
@@ -1139,7 +1146,8 @@ class RingLengthAtMostProjector(AbstractProjector):
         """
         # Update large cycle nodes if this edge created a new cycle
         try:
-            cycles = nx.cycle_basis(nx_graph)
+            from ConStruct.projector.graph_cycles import enumerate_simple_cycles_unique
+            cycles = list(enumerate_simple_cycles_unique(nx_graph))
             for cycle in cycles:
                 if u in cycle and v in cycle:
                     if len(cycle) >= self.max_ring_length - 1:
@@ -1158,11 +1166,11 @@ class RingLengthAtMostProjector(AbstractProjector):
         
         # Check if this would create a complex polycyclic system
         try:
-            cycles = nx.cycle_basis(nx_graph)
+            from ConStruct.projector.graph_cycles import enumerate_simple_cycles_unique, max_simple_cycle_length
+            cycles = list(enumerate_simple_cycles_unique(nx_graph))
             if len(cycles) >= 2:
                 # Multiple cycles exist - adding edge could create complex fused system
-                cycle_lengths = [len(cycle) for cycle in cycles]
-                if max(cycle_lengths) >= self.max_ring_length - 1:
+                if max_simple_cycle_length(nx_graph) >= self.max_ring_length - 1:
                     return self.max_ring_length + 1  # Conservative: block
         except:
             pass
@@ -1179,7 +1187,8 @@ class RingLengthAtMostProjector(AbstractProjector):
         This targets the exact patterns that caused 8-membered ring violations.
         """
         try:
-            cycles = nx.cycle_basis(nx_graph)
+            from ConStruct.projector.graph_cycles import enumerate_simple_cycles_unique
+            cycles = list(enumerate_simple_cycles_unique(nx_graph))
             if len(cycles) < 1:
                 return False
         
@@ -1308,7 +1317,8 @@ class RingLengthAtMostProjector(AbstractProjector):
             u_cycle_count = 0
             v_cycle_count = 0
             try:
-                cycles = nx.cycle_basis(nx_graph)
+                from ConStruct.projector.graph_cycles import enumerate_simple_cycles_unique
+                cycles = list(enumerate_simple_cycles_unique(nx_graph))
                 for cycle in cycles:
                     if u in cycle:
                         u_cycle_count += 1
@@ -1595,14 +1605,15 @@ class RingCountAtLeastProjector(AbstractProjector):
         Returns:
             bool: True if graph has at least min_rings rings
         """
-        # Use NetworkX to count rings - structural constraint only
-        cycles = nx.cycle_basis(nx_graph)
+        # Count ALL unique simple cycles (structural-only)
+        from ConStruct.projector.graph_cycles import count_simple_cycles
+        ring_count = count_simple_cycles(nx_graph)
         
         # For edge-insertion with "at least" constraints:
         # - We start from fully connected graphs (many rings)
         # - We remove edges until we have exactly min_rings
         # - We NEVER allow graphs with fewer than min_rings
-        return len(cycles) >= self.min_rings  # At least N rings (NO EXCEPTIONS!)
+        return ring_count >= self.min_rings  # At least N simple cycles (NO EXCEPTIONS!)
 
     @property
     def can_block_edges(self):
@@ -1631,8 +1642,8 @@ class RingCountAtLeastProjector(AbstractProjector):
         # Process each graph in the batch
         for graph_idx, nx_graph in enumerate(self.nx_graphs_list):
             # Check current ring count (structural constraint only)
-            cycles = nx.cycle_basis(nx_graph)
-            current_rings = len(cycles)
+            from ConStruct.projector.graph_cycles import count_simple_cycles
+            current_rings = count_simple_cycles(nx_graph)
             
             # If we already have enough rings, no action needed
             if current_rings >= self.min_rings:
@@ -1673,15 +1684,16 @@ class RingCountAtLeastProjector(AbstractProjector):
                             if path_exists:
                                 # Connecting nodes with existing path creates a cycle!
                                 nx_graph.add_edge(node1, node2)
-                                new_cycles = nx.cycle_basis(nx_graph)
+                                from ConStruct.projector.graph_cycles import count_simple_cycles
+                                new_count = count_simple_cycles(nx_graph)
                                 
-                                if len(new_cycles) > current_rings:
+                                if new_count > current_rings:
                                     # SUCCESS: This edge created a new ring
                                     # Edge successfully added
                                     z_s.E[graph_idx, node1, node2, 1] = 1  # single bond
                                     z_s.E[graph_idx, node2, node1, 1] = 1  # undirected
                                     ring_created = True
-                                    current_rings = len(new_cycles)
+                                    current_rings = new_count
                                     break
                                 else:
                                     # Remove edge if it didn't create a ring
@@ -1718,10 +1730,11 @@ class RingCountAtLeastProjector(AbstractProjector):
                                     z_s.E[graph_idx, v, u, 1] = 1  # undirected
                                 
                                 # Check if this created a ring
-                                new_cycles = nx.cycle_basis(nx_graph)
-                                if len(new_cycles) > current_rings:
+                                from ConStruct.projector.graph_cycles import count_simple_cycles
+                                new_count = count_simple_cycles(nx_graph)
+                                if new_count > current_rings:
                                     ring_created = True
-                                    current_rings = len(new_cycles)
+                                    current_rings = new_count
                                     break
                                 else:
                                     # Remove edges if no ring created
@@ -1750,10 +1763,11 @@ class RingCountAtLeastProjector(AbstractProjector):
                                     z_s.E[graph_idx, node1, node2, 1] = 1
                                     z_s.E[graph_idx, node2, node1, 1] = 1
                                     
-                                    new_cycles = nx.cycle_basis(nx_graph)
-                                    if len(new_cycles) > current_rings:
+                                    from ConStruct.projector.graph_cycles import count_simple_cycles
+                                    new_count = count_simple_cycles(nx_graph)
+                                    if new_count > current_rings:
                                         ring_created = True
-                                        current_rings = len(new_cycles)
+                                        current_rings = new_count
                                         break
                                     else:
                                         nx_graph.remove_edge(node1, node2)
@@ -1765,7 +1779,8 @@ class RingCountAtLeastProjector(AbstractProjector):
                 
                 # Update ring count for next iteration
                 if not ring_created:
-                    current_rings = len(nx.cycle_basis(nx_graph))
+                    from ConStruct.projector.graph_cycles import count_simple_cycles
+                    current_rings = count_simple_cycles(nx_graph)
             
             # Mark edges as blocked to prevent future violations
             n = nx_graph.number_of_nodes()
@@ -1836,13 +1851,9 @@ class RingLengthAtLeastProjector(AbstractProjector):
         Returns:
             bool: True if all rings have length at least min_ring_length
         """
-        # Use NetworkX to check if all rings have length at least min_ring_length
-        cycles = nx.cycle_basis(nx_graph)
-        
-        # For edge-insertion with "at least" constraints:
-        # - We start from fully connected graphs
-        # - We remove edges until all rings have at least min_ring_length
-        # - We NEVER allow rings shorter than min_ring_length
+        # Use simple cycles to check if all rings have length at least min_ring_length
+        from ConStruct.projector.graph_cycles import enumerate_simple_cycles_unique
+        cycles = list(enumerate_simple_cycles_unique(nx_graph))
         for cycle in cycles:
             if len(cycle) < self.min_ring_length:
                 return False
@@ -1858,7 +1869,8 @@ class RingLengthAtLeastProjector(AbstractProjector):
         # Process each graph in the batch
         for graph_idx, nx_graph in enumerate(self.nx_graphs_list):
             # Check current ring lengths (structural constraint only)
-            cycles = nx.cycle_basis(nx_graph)
+            from ConStruct.projector.graph_cycles import enumerate_simple_cycles_unique
+            cycles = list(enumerate_simple_cycles_unique(nx_graph))
             
             # Check if we already have rings of sufficient length
             has_sufficient_rings = True
@@ -1945,7 +1957,8 @@ class RingLengthAtLeastProjector(AbstractProjector):
         Returns:
             Modified graph with rings of sufficient length
         """
-        cycles = nx.cycle_basis(graph)
+        from ConStruct.projector.graph_cycles import enumerate_simple_cycles_unique
+        cycles = list(enumerate_simple_cycles_unique(graph))
         
         # Check if we already have rings of sufficient length
         for cycle in cycles:

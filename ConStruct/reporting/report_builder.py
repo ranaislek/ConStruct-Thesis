@@ -337,7 +337,7 @@ def collect_timing(t: Dict[str, Any], N_total: Optional[int], device_meta: Dict[
     else:
         rows.append(("Projector share of sampling (%)", f1(proj_share_pct)))
     
-    rows.append(("Wall-clock (h:mm)",           t.get("wall_clock_hhmm","NA")))
+    rows.append(("Wall-clock elapsed (hh:mm)",  t.get("wall_clock_hhmm","NA")))
     # Device/context for reproducibility
     dev = device_meta or {}
     ctx = ", ".join([f"{k}={v}" for k,v in dev.items() if v])

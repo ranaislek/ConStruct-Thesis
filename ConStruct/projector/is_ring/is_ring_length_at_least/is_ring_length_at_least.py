@@ -2,17 +2,19 @@
 #
 # Ring length "at least" constraint functionality for molecular graph generation
 # This is the flipped mechanism of edge-deletion for edge-insertion transitions
+# Uses ALL simple rings (unique simple cycles) for structural ring detection
 #
 ###############################################################################
 
 import networkx as nx
+from ConStruct.projector.graph_cycles import enumerate_simple_cycles_unique
 
 __all__ = ["has_rings_of_length_at_least", "ring_length_at_least_projector", "get_min_ring_length_at_least"]
 
 
 def has_rings_of_length_at_least(graph, min_length):
-    """Return True if the graph has at least one ring of length >= min_length."""
-    cycles = nx.cycle_basis(graph)
+    """Return True if the graph has at least one ring of length >= min_length (all simple rings)."""
+    cycles = list(enumerate_simple_cycles_unique(graph))
     for cycle in cycles:
         if len(cycle) >= min_length:
             return True
@@ -24,8 +26,9 @@ def ring_length_at_least_projector(graph, min_length):
     Edge-Insertion Projector: If the graph has no rings of length >= min_length, 
     add edges to create larger rings.
     SIMPLE APPROACH: Create a ring of exact length using existing nodes.
+    Uses ALL simple rings (unique simple cycles) for detection.
     """
-    cycles = nx.cycle_basis(graph)
+    cycles = list(enumerate_simple_cycles_unique(graph))
     
     # Check if we already have a ring of sufficient length
     for cycle in cycles:
@@ -61,8 +64,8 @@ def ring_length_at_least_projector(graph, min_length):
 
 
 def get_min_ring_length_at_least(graph):
-    """Return the length of the smallest ring in the graph for 'at least' constraints, or 0 if no rings."""
-    cycles = nx.cycle_basis(graph)
+    """Return the length of the smallest ring (all simple rings) in the graph for 'at least' constraints, or 0 if no rings."""
+    cycles = list(enumerate_simple_cycles_unique(graph))
     if not cycles:
         return 0
     return min(len(cycle) for cycle in cycles) 

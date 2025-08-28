@@ -20,6 +20,9 @@ from rdkit.Chem import AllChem
 import networkx as nx
 import pandas as pd
 
+from ConStruct.projector.projector_utils import build_simple_graph_from_edge_tensor
+from ConStruct.projector.graph_cycles import enumerate_simple_cycles_unique, count_simple_cycles, max_simple_cycle_length
+
 allowed_bonds = {
     "H": {0: 1, 1: 0, -1: 0},
     "C": {0: [3, 4], 1: 3, -1: 3},
@@ -638,8 +641,9 @@ class SamplingMolecularMetrics(nn.Module):
                     from ConStruct.projector.is_ring.is_ring_length_at_most import has_rings_of_length_at_most
                     
                     # Get detailed cycle information using the SAME method as projectors
-                    cycles = nx.cycle_basis(nx_graph)
-                    max_ring_len = max((len(c) for c in cycles), default=0)
+                    from ConStruct.projector.graph_cycles import enumerate_simple_cycles_unique, max_simple_cycle_length
+                    cycles = list(enumerate_simple_cycles_unique(nx_graph))
+                    max_ring_len = max_simple_cycle_length(nx_graph)
                     
                     # Check if projector would allow this (using the SAME function)
                     projector_allows = has_rings_of_length_at_most(nx_graph, constraint_value)
@@ -860,8 +864,9 @@ class SamplingMolecularMetrics(nn.Module):
                 
                 try:
                     # Get evaluation metrics
-                    cycles = nx.cycle_basis(nx_graph)
-                    max_ring_length = max((len(c) for c in cycles), default=0)
+                    from ConStruct.projector.graph_cycles import enumerate_simple_cycles_unique, max_simple_cycle_length
+                    cycles = list(enumerate_simple_cycles_unique(nx_graph))
+                    max_ring_length = max_simple_cycle_length(nx_graph)
                     
                     # Get projector decision
                     if constraint_type == "ring_length_at_most":
@@ -988,7 +993,8 @@ class SamplingMolecularMetrics(nn.Module):
             for edge_mat, mask in zip(batch.E, batch.node_mask):
                 g = build_simple_graph_from_edge_tensor(edge_mat, mask)
                 try:
-                    cycles = nx.cycle_basis(g)
+                    from ConStruct.projector.graph_cycles import enumerate_simple_cycles_unique
+                    cycles = list(enumerate_simple_cycles_unique(g))
                 except Exception:
                     # Count as unknown → treat as violating bucket for safety
                     # but here we place into " >12 " max-length bin to keep totals consistent
@@ -1036,8 +1042,8 @@ class SamplingMolecularMetrics(nn.Module):
                     # Use unified graph construction helper
                     nx_graph = build_simple_graph_from_edge_tensor(edge_mat, mask)
                     
-                    # Get cycle basis (structural analysis)
-                    cycles = nx.cycle_basis(nx_graph)
+                    # Get all simple cycles (structural analysis; all simple rings)
+                    cycles = list(enumerate_simple_cycles_unique(nx_graph))
                     
                     # Count rings (ring count)
                     num_rings = len(cycles)
@@ -1898,15 +1904,13 @@ def check_ring_constraints_all_molecules_from_graphs(generated_graphs, constrain
             total_molecules += 1
             
             try:
-                # Use NetworkX cycle_basis for structural constraint
-                cycles = nx.cycle_basis(nx_graph)
+                # Use all simple cycles for structural constraint
+                from ConStruct.projector.graph_cycles import enumerate_simple_cycles_unique, max_simple_cycle_length
+                cycles = list(enumerate_simple_cycles_unique(nx_graph))
                 ring_count = len(cycles)
                 ring_counts.append(ring_count)
                 
-                if cycles:
-                    max_ring_length = max(len(cycle) for cycle in cycles)
-                else:
-                    max_ring_length = 0
+                max_ring_length = max_simple_cycle_length(nx_graph)
                 ring_lengths.append(max_ring_length)
                 
                 # Check constraint satisfaction

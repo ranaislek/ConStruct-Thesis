@@ -19,6 +19,7 @@ from ConStruct.metrics.metrics_utils import (
 )
 
 from ConStruct.projector.projector_utils import has_lobster_components
+from ConStruct.projector.graph_cycles import count_simple_cycles, max_simple_cycle_length
 from ConStruct.projector.is_planar import is_planar
 
 
@@ -476,11 +477,9 @@ def ring_count_satisfaction_ratio(generated_graphs: List[PlaceHolder], max_ring_
             from ConStruct.projector.projector_utils import build_simple_graph_from_edge_tensor
             nx_graph = build_simple_graph_from_edge_tensor(edge_mat, mask)
             
-            # Check if graph satisfies ring count constraint (structural)
+            # Check if graph satisfies ring count constraint (structural; all simple rings)
             try:
-                # Use NetworkX cycle_basis for structural constraint
-                cycles = nx.cycle_basis(nx_graph)
-                ring_count = len(cycles)
+                ring_count = count_simple_cycles(nx_graph)
                 satisfies_constraint = int(ring_count <= max_ring_count)
             except Exception:
                 # Conservative fallback: treat failure as not satisfied
@@ -512,14 +511,9 @@ def ring_length_satisfaction_ratio(generated_graphs: List[PlaceHolder], max_ring
             from ConStruct.projector.projector_utils import build_simple_graph_from_edge_tensor
             nx_graph = build_simple_graph_from_edge_tensor(edge_mat, mask)
             
-            # Check if graph satisfies max ring length constraint (structural)
+            # Check if graph satisfies max ring length constraint (structural; all simple rings)
             try:
-                # Use NetworkX cycle_basis for structural constraint
-                cycles = nx.cycle_basis(nx_graph)
-                if cycles:
-                    max_cycle_length = max(len(cycle) for cycle in cycles)
-                else:
-                    max_cycle_length = 0
+                max_cycle_length = max_simple_cycle_length(nx_graph)
                 satisfies_constraint = int(max_cycle_length <= max_ring_length)
             except Exception:
                 # Conservative fallback: treat failure as not satisfied

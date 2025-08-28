@@ -2,26 +2,28 @@
 #
 # Ring count "at least" constraint functionality for molecular graph generation
 # This is the flipped mechanism of edge-deletion for edge-insertion transitions
+# Uses ALL simple rings (unique simple cycles) for structural counting
 #
 ###############################################################################
 
 import networkx as nx
+from ConStruct.projector.graph_cycles import enumerate_simple_cycles_unique, count_simple_cycles
 
 __all__ = ["has_at_least_n_rings", "ring_count_at_least_projector", "count_rings_at_least"]
 
 
 def has_at_least_n_rings(graph, n):
-    """Return True if the graph has at least n rings."""
-    cycles = nx.cycle_basis(graph)
-    return len(cycles) >= n
+    """Return True if the graph has at least n rings (all simple rings)."""
+    return count_simple_cycles(graph) >= n
 
 
 def ring_count_at_least_projector(graph, min_rings):
     """
     Edge-Insertion Projector: If the graph has fewer than min_rings, add edges to create rings.
     AGGRESSIVE APPROACH: Add edges strategically to create the required number of rings.
+    Uses ALL simple rings (unique simple cycles) for ring count.
     """
-    cycles = nx.cycle_basis(graph)
+    cycles = list(enumerate_simple_cycles_unique(graph))
     current_rings = len(cycles)
     
     if current_rings >= min_rings:
@@ -71,7 +73,7 @@ def ring_count_at_least_projector(graph, min_rings):
                         if i < j and not graph.has_edge(node1, node2):
                             # Check if adding this edge creates a new ring
                             graph.add_edge(node1, node2)
-                            new_cycles = nx.cycle_basis(graph)
+                            new_cycles = list(enumerate_simple_cycles_unique(graph))
                             if len(new_cycles) > current_rings:
                                 ring_created = True
                                 break
@@ -83,7 +85,7 @@ def ring_count_at_least_projector(graph, min_rings):
             
             # Strategy 3: If still no ring created, add a new node and create a ring
             if not ring_created and len(nodes) >= 3:
-                # Add a new node and connect it to create a new ring
+                # Add a new node and connect it to create a new triangle
                 new_node = max(nodes) + 1
                 # Connect to two existing nodes to create a new triangle
                 graph.add_edge(new_node, nodes[0])
@@ -99,13 +101,12 @@ def ring_count_at_least_projector(graph, min_rings):
                 components = list(nx.connected_components(graph))
         
         # Update ring count and components
-        current_rings = len(nx.cycle_basis(graph))
+        current_rings = count_simple_cycles(graph)
         components = list(nx.connected_components(graph))
     
     return graph
 
 
 def count_rings_at_least(graph):
-    """Return the number of rings (cycles) in the graph for 'at least' constraints."""
-    cycles = nx.cycle_basis(graph)
-    return len(cycles) 
+    """Return the number of rings (all simple rings) in the graph for 'at least' constraints."""
+    return count_simple_cycles(graph) 

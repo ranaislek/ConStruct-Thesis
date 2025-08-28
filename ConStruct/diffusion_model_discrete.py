@@ -49,6 +49,8 @@ from ConStruct.projector.projector_utils import (
     # RingCountAtLeastProjector,  # COMMENTED OUT
     # RingLengthAtLeastProjector,  # COMMENTED OUT
 )
+from networkx.algorithms import isomorphism as iso
+from ConStruct.projector.graph_cycles import enumerate_simple_cycles_unique, count_simple_cycles, max_simple_cycle_length
 
 
 
@@ -885,53 +887,48 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
                     total_rings_after = 0
                     graph_valid = True
                     for graph_idx, nx_graph in enumerate(rev_projector.nx_graphs_list):
-                        cycles = nx.cycle_basis(nx_graph)
-                        ring_count = len(cycles)
+                        ring_count = count_simple_cycles(nx_graph)
                         total_rings_after += ring_count
                         if ring_count > rev_projector.max_rings:
                             graph_valid = False
                             logger.warning(f"⚠️ Graph {graph_idx} has {ring_count} rings > {rev_projector.max_rings} at timestep {s_int}")
-                    
-                    # logger.info(f"🔍 Timestep {s_int}: total_rings_after={total_rings_after}, valid={graph_valid}")
-                    
-                    # Assert constraint at t == 0
-                    if s_int == 0:
-                        if not graph_valid:
-                            logger.error(f"❌ CONSTRAINT VIOLATION at t=0: {total_rings_after} rings > {rev_projector.max_rings}")
-                            raise AssertionError(f"Ring constraint violated at t=0: {total_rings_after} rings > {rev_projector.max_rings}")
                 
                 # Check ring length constraint after projection and check validity
                 elif hasattr(rev_projector, 'max_ring_length'):
                     max_ring_length_after = 0
                     graph_valid = True
                     for graph_idx, nx_graph in enumerate(rev_projector.nx_graphs_list):
-                        cycles = nx.cycle_basis(nx_graph)
-                        if cycles:
-                            max_cycle_length = max(len(cycle) for cycle in cycles)
-                            max_ring_length_after = max(max_ring_length_after, max_cycle_length)
-                            if max_cycle_length > rev_projector.max_ring_length:
-                                graph_valid = False
-                                logger.warning(f"⚠️ Graph {graph_idx} has max cycle length {max_cycle_length} > {rev_projector.max_ring_length} at timestep {s_int}")
-                    
-                    # Assert constraint at t == 0
-                    if s_int == 0:
-                        if not graph_valid:
-                            logger.error(f"❌ RING LENGTH CONSTRAINT VIOLATION at t=0: max cycle length {max_ring_length_after} > {rev_projector.max_ring_length}")
-                            raise AssertionError(f"Ring length constraint violated at t=0: max cycle length {max_ring_length_after} > {rev_projector.max_ring_length}")
-                        
-                        # Ring-length-at-most: assert at the final step too
-                        if hasattr(rev_projector, 'max_ring_length'):
-                            from networkx import cycle_basis
-                            L = rev_projector.max_ring_length
-                            for g_idx, g in enumerate(rev_projector.nx_graphs_list):
-                                try:
-                                    cycles = cycle_basis(g)
-                                    if any(len(c) > L for c in cycles):
-                                        raise AssertionError(f"Ring-length-at-most violated at t=0 on graph {g_idx}: found cycle length > {L}")
-                                except Exception as e:
-                                    # If we cannot verify, fail loudly to avoid silent violations
-                                    raise
+                        max_cycle_length = max_simple_cycle_length(nx_graph)
+                        max_ring_length_after = max(max_ring_length_after, max_cycle_length)
+                        if max_cycle_length > rev_projector.max_ring_length:
+                            graph_valid = False
+                            logger.warning(f"⚠️ Graph {graph_idx} has max cycle length {max_cycle_length} > {rev_projector.max_ring_length} at timestep {s_int}")
                 
+                # Assert constraint at t == 0
+                if s_int == 0:
+                    if not graph_valid:
+                        logger.error(f"❌ CONSTRAINT VIOLATION at t=0: {total_rings_after} rings > {rev_projector.max_rings}")
+                        raise AssertionError(f"Ring constraint violated at t=0: {total_rings_after} rings > {rev_projector.max_rings}")
+                
+                # Assert constraint at t == 0
+                if s_int == 0:
+                    if not graph_valid:
+                        logger.error(f"❌ RING LENGTH CONSTRAINT VIOLATION at t=0: max cycle length {max_ring_length_after} > {rev_projector.max_ring_length}")
+                        raise AssertionError(f"Ring length constraint violated at t=0: max cycle length {max_ring_length_after} > {rev_projector.max_ring_length}")
+                        
+                    # Ring-length-at-most: assert at the final step too
+                    if hasattr(rev_projector, 'max_ring_length'):
+                        from networkx import cycle_basis
+                        L = rev_projector.max_ring_length
+                        for g_idx, g in enumerate(rev_projector.nx_graphs_list):
+                            try:
+                                cycles = cycle_basis(g)
+                                if any(len(c) > L for c in cycles):
+                                    raise AssertionError(f"Ring-length-at-most violated at t=0 on graph {g_idx}: found cycle length > {L}")
+                            except Exception as e:
+                                # If we cannot verify, fail loudly to avoid silent violations
+                                raise
+            
                 # Planarity-specific validation
                 elif self.cfg.model.rev_proj == "planar":
                     planarity_valid = True
@@ -970,17 +967,16 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
                         nx_graph = nx.from_numpy_array(adj_matrix)
                         nx_graphs_current.append(nx_graph)
                         
-                        # Count rings and track ring lengths
-                        cycles = nx.cycle_basis(nx_graph)
+                        # Count rings and track ring lengths using all simple cycles
+                        cycles = list(enumerate_simple_cycles_unique(nx_graph))
                         ring_count = len(cycles)
                         total_rings_current += ring_count
                         
                         # Track ring lengths and update distributions
-                        max_ring_length_in_graph = 0
+                        max_ring_length_in_graph = max_simple_cycle_length(nx_graph)
                         for cycle in cycles:
                             ring_length = len(cycle)
                             ring_lengths_current.append(ring_length)
-                            max_ring_length_in_graph = max(max_ring_length_in_graph, ring_length)
                         
                         # Update ring count distribution (≤0, ≤1, ≤2, ≤3, ≤4, ≤5)
                         for max_rings in ring_count_distribution.keys():
