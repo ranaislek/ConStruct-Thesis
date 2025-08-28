@@ -51,7 +51,8 @@ python main.py \
     general.test_only=checkpoints/qm9_thesis_no_constraint/epoch-94.ckpt \
     general.name=test_no_constraint \
     general.final_model_samples_to_generate=10000 \
-    general.wandb=online
+    general.wandb=disabled \
+    general.save_chains=0
 
 echo "No constraint test completed at $(date)"
 echo "Results saved to: outputs/checkpoint_testing/no_constraint/" 

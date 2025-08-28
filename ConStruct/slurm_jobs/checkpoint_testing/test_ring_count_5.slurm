@@ -54,6 +54,7 @@ python main.py \
     model.rev_proj=ring_count_at_most \
     model.max_rings=5 \
     model.use_incremental=true \
-    general.wandb=online
+    general.wandb=disabled \
+    general.save_chains=0
 
 echo "Ring Count ≤ 5 test completed at $(date)"

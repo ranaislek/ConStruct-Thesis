@@ -803,7 +803,7 @@ class RingLengthAtMostProjector(AbstractProjector):
                     continue
                 risk_score = self._calculate_edge_risk(nx_graph, u, v, graph_idx)
                 edge_risk_scores.append((risk_score, i, u, v))
-            
+                    
             # Sort by risk score (highest risk first)
             edge_risk_scores.sort(reverse=True)
             
@@ -1166,11 +1166,11 @@ class RingLengthAtMostProjector(AbstractProjector):
                     return self.max_ring_length + 1  # Conservative: block
         except:
             pass
-        
+            
         # Enhanced: Check for specific violation patterns from our test results
         if self._detect_specific_violation_patterns(nx_graph, u, v):
             return self.max_ring_length + 1  # Block these patterns
-        
+            
         return 0
     
     def _detect_specific_violation_patterns(self, nx_graph, u, v):
@@ -1182,10 +1182,10 @@ class RingLengthAtMostProjector(AbstractProjector):
             cycles = nx.cycle_basis(nx_graph)
             if len(cycles) < 1:
                 return False
-            
+        
             cycle_lengths = [len(cycle) for cycle in cycles]
             cycle_lengths.sort()
-            
+        
             # Pattern 1: When we have a 7-membered ring and adding edge could create 8-membered
             if max(cycle_lengths) == 7:
                 # Check if this edge connects to the 7-membered ring
@@ -1194,7 +1194,7 @@ class RingLengthAtMostProjector(AbstractProjector):
                         if u in cycle or v in cycle:
                             # This could extend the 7-membered ring to 8-membered
                             return True
-            
+        
             # Pattern 2: When we have 6+7 bicyclic and adding edge could create larger fused ring
             if len(cycle_lengths) >= 2 and cycle_lengths[-2] == 6 and cycle_lengths[-1] == 7:
                 # Check if this edge connects the 6 and 7 membered rings
@@ -1210,7 +1210,7 @@ class RingLengthAtMostProjector(AbstractProjector):
                     if (u in six_cycle and v in seven_cycle) or (v in six_cycle and u in seven_cycle):
                         # This connects the two rings - could create larger fused ring
                         return True
-            
+        
             # Pattern 3: When we have 5+7 bicyclic and adding edge could create larger fused ring
             if len(cycle_lengths) >= 2 and cycle_lengths[-2] == 5 and cycle_lengths[-1] == 7:
                 # Check if this edge connects the 5 and 7 membered rings
@@ -1226,7 +1226,7 @@ class RingLengthAtMostProjector(AbstractProjector):
                     if (u in five_cycle and v in seven_cycle) or (v in five_cycle and u in seven_cycle):
                         # This connects the two rings - could create larger fused ring
                         return True
-            
+        
             # Pattern 4: When we have 4+8 bicyclic (from test violations)
             if len(cycle_lengths) >= 2 and cycle_lengths[-2] == 4 and cycle_lengths[-1] == 8:
                 # Check if this edge connects the 4 and 8 membered rings
@@ -1242,7 +1242,7 @@ class RingLengthAtMostProjector(AbstractProjector):
                     if (u in four_cycle and v in eight_cycle) or (v in four_cycle and u in eight_cycle):
                         # This connects the two rings - could create larger fused ring
                         return True
-            
+        
             # Pattern 5: When we have 3+8 bicyclic (from test violations)
             if len(cycle_lengths) >= 2 and cycle_lengths[-2] == 3 and cycle_lengths[-1] == 8:
                 # Check if this edge connects the 3 and 8 membered rings
@@ -1258,18 +1258,18 @@ class RingLengthAtMostProjector(AbstractProjector):
                     if (u in three_cycle and v in eight_cycle) or (v in three_cycle and u in eight_cycle):
                         # This connects the two rings - could create larger fused ring
                         return True
-            
+        
             # Pattern 6: Conservative check for any edge that connects to large cycles
             for cycle in cycles:
                 if len(cycle) >= self.max_ring_length - 1:  # Close to the limit
                     if u in cycle or v in cycle:
                         # This edge connects to a large cycle - high risk
                         return True
-            
+        
             # Enhanced: Check for cumulative edge effects
             if self._check_cumulative_edge_effects(nx_graph, u, v):
                 return True
-            
+        
         except:
             pass
         
@@ -1289,7 +1289,7 @@ class RingLengthAtMostProjector(AbstractProjector):
             if u_degree >= 3 or v_degree >= 3:
                 # High degree nodes are more likely to be part of complex ring systems
                 return True
-            
+        
             # Check if this edge would create a path that could form a large ring
             try:
                 # Find shortest path between u and v (excluding the edge we're adding)
@@ -1471,7 +1471,7 @@ class RingLengthAtMostProjector(AbstractProjector):
         
         if len(cycles) < 2:
             return patterns
-        
+            
         # Check for spiro patterns (single shared atom between rings)
         for i, cycle1 in enumerate(cycles):
             for j, cycle2 in enumerate(cycles[i+1:], i+1):
@@ -1503,7 +1503,7 @@ class RingLengthAtMostProjector(AbstractProjector):
         
         if len(cycles) < 3:
             return patterns
-        
+            
         # Check for cycles with high overlap (shared vertices)
         high_overlap_count = 0
         for i, cycle1 in enumerate(cycles):
@@ -1511,7 +1511,7 @@ class RingLengthAtMostProjector(AbstractProjector):
                 shared_vertices = set(cycle1) & set(cycle2)
                 if len(shared_vertices) >= 2:  # High overlap
                     high_overlap_count += 1
-        
+            
         if high_overlap_count >= 2:
             # Complex system with multiple overlapping cycles
             max_potential_length = sum(cycle_data['cycle_lengths'][:3]) - 3  # -3 for shared vertices
@@ -1542,8 +1542,8 @@ class RingLengthAtMostProjector(AbstractProjector):
             for j, cycle2 in enumerate(pattern_cycles[i+1:], i+1):
                 if (u in cycle1 and v in cycle2) or (v in cycle1 and u in cycle2):
                     return True
-        
-        return False
+            
+            return False
 
 
 class RingCountAtLeastProjector(AbstractProjector):

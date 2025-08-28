@@ -54,6 +54,7 @@ python main.py \
     model.rev_proj=ring_length_at_most \
     model.max_ring_length=6 \
     model.use_incremental_length=true \
-    general.wandb=online
+    general.wandb=disabled \
+    general.save_chains=0
 
 echo "Ring Length ≤ 6 test completed at $(date)"

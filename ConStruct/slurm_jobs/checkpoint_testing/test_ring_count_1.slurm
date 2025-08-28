@@ -54,7 +54,8 @@ python main.py \
     model.rev_proj=ring_count_at_most \
     model.max_rings=1 \
     model.use_incremental=true \
-    general.wandb=online
+    general.wandb=disabled \
+    general.save_chains=0
 
 echo "Ring Count ≤ 1 test completed at $(date)"
 echo "Results saved to: outputs/checkpoint_testing/ring_count_1/" 
