@@ -1,0 +1,1809 @@
+torch version: 2.0.1+cu118
+CUDA available: True
+CUDA device: NVIDIA RTX A5000
+=== Testing Ring Length ≤ 3 Constraint ===
+Using No-Constraint Checkpoint: checkpoints/qm9_thesis_no_constraint/epoch-94.ckpt
+Constraint: Maximum ring size of 3 atoms
+Job ID: 1083668
+Node: vgpu1-0
+Time: Fri 29 Aug 2025 05:11:49 AM UTC
+<frozen importlib._bootstrap>:228: RuntimeWarning: to-Python converter for std::pair<double, double> already registered; second conversion method ignored.
+[rank: 0] Global seed set to 0
+Loading reference metrics.
+Edge-deletion transition model (for 'at most' constraints)
+[INFO] Early stopping enabled: monitoring 'val/epoch_NLL' with patience 28
+GPU available: True (cuda), used: True
+TPU available: False, using: 0 TPU cores
+IPU available: False, using: 0 IPUs
+HPU available: False, using: 0 HPUs
+[rank: 0] Global seed set to 0
+[rank: 0] Global seed set to 0
+Initializing distributed: GLOBAL_RANK: 0, MEMBER: 1/1
+[2025-08-29 05:12:42,558][torch.distributed.distributed_c10d][INFO] - Added key: store_based_barrier_key:1 to store for rank: 0
+[2025-08-29 05:12:42,559][torch.distributed.distributed_c10d][INFO] - Rank 0: Completed store-based barrier for key:store_based_barrier_key:1 with 1 nodes.
+----------------------------------------------------------------------------------------------------
+distributed_backend=nccl
+All distributed processes registered. Starting with 1 processes
+----------------------------------------------------------------------------------------------------
+
+You are using a CUDA device ('NVIDIA RTX A5000') that has Tensor Cores. To properly utilize them, you should set `torch.set_float32_matmul_precision('medium' | 'high')` which will trade-off precision for performance. For more details, read https://pytorch.org/docs/stable/generated/torch.set_float32_matmul_precision.html#torch.set_float32_matmul_precision
+Restoring states from the checkpoint path at checkpoints/qm9_thesis_no_constraint/epoch-94.ckpt
+LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0]
+Loaded model weights from the checkpoint at checkpoints/qm9_thesis_no_constraint/epoch-94.ckpt
+SLURM auto-requeueing enabled. Setting signal handlers.
+Test loss: 67.4657
+Epoch 0: test/epoch_NLL: 67.4657 -- test/X_kl: 3.1520 -- test/E_kl: 63.2048 -- test/charges_kl: 0.5536 
+Sampling start on GR0
+Samples to generate: 10000 for each of the 1 devices
+Samples to save: 1000
+Sampling a batch with 230 graphs on local rank 0. Saving 230 visualization and 0 full chains.
+[2025-08-29 05:13:07,475][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0220s, mode=INCREMENTAL
+[2025-08-29 05:13:27,597][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0191s, mode=INCREMENTAL
+[2025-08-29 05:13:53,718][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0217s, mode=INCREMENTAL
+[2025-08-29 05:14:26,668][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0202s, mode=INCREMENTAL
+[2025-08-29 05:15:07,022][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0415s, mode=INCREMENTAL
+Visualizing 230 graphs out of 230
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b230/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b230/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b230/graph_2.png to wandb
+Done.
+Sampling a batch with 230 graphs on local rank 0. Saving 230 visualization and 0 full chains.
+[2025-08-29 05:15:25,556][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0234s, mode=INCREMENTAL
+[2025-08-29 05:15:45,802][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0218s, mode=INCREMENTAL
+[2025-08-29 05:16:12,162][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0253s, mode=INCREMENTAL
+[2025-08-29 05:16:44,932][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0211s, mode=INCREMENTAL
+[2025-08-29 05:17:25,052][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0379s, mode=INCREMENTAL
+Visualizing 230 graphs out of 230
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b460/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b460/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b460/graph_2.png to wandb
+Done.
+Sampling a batch with 230 graphs on local rank 0. Saving 230 visualization and 0 full chains.
+[2025-08-29 05:17:43,777][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0237s, mode=INCREMENTAL
+[2025-08-29 05:18:03,762][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0206s, mode=INCREMENTAL
+[2025-08-29 05:18:29,649][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0227s, mode=INCREMENTAL
+[2025-08-29 05:19:02,511][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0284s, mode=INCREMENTAL
+[2025-08-29 05:19:42,650][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0340s, mode=INCREMENTAL
+Visualizing 230 graphs out of 230
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b690/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b690/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b690/graph_2.png to wandb
+Done.
+Sampling a batch with 230 graphs on local rank 0. Saving 230 visualization and 0 full chains.
+[2025-08-29 05:20:01,075][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0226s, mode=INCREMENTAL
+[2025-08-29 05:20:20,966][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0242s, mode=INCREMENTAL
+[2025-08-29 05:20:46,558][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0226s, mode=INCREMENTAL
+[2025-08-29 05:21:19,665][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0220s, mode=INCREMENTAL
+[2025-08-29 05:22:00,310][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0316s, mode=INCREMENTAL
+Visualizing 230 graphs out of 230
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b920/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b920/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b920/graph_2.png to wandb
+Done.
+Sampling a batch with 80 graphs on local rank 0. Saving 80 visualization and 0 full chains.
+[2025-08-29 05:22:12,752][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0068s, mode=INCREMENTAL
+[2025-08-29 05:22:22,624][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0092s, mode=INCREMENTAL
+[2025-08-29 05:22:34,806][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0109s, mode=INCREMENTAL
+[2025-08-29 05:22:49,528][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0104s, mode=INCREMENTAL
+[2025-08-29 05:23:06,577][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0118s, mode=INCREMENTAL
+Visualizing 80 graphs out of 80
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b1000/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b1000/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b1000/graph_2.png to wandb
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 05:23:21,726][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0250s, mode=INCREMENTAL
+[2025-08-29 05:23:41,734][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0238s, mode=INCREMENTAL
+[2025-08-29 05:24:08,218][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0333s, mode=INCREMENTAL
+[2025-08-29 05:24:41,953][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0280s, mode=INCREMENTAL
+[2025-08-29 05:25:22,352][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0393s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 05:25:36,512][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0238s, mode=INCREMENTAL
+[2025-08-29 05:25:56,482][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0220s, mode=INCREMENTAL
+[2025-08-29 05:26:22,682][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0263s, mode=INCREMENTAL
+[2025-08-29 05:26:55,082][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0261s, mode=INCREMENTAL
+[2025-08-29 05:27:34,575][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0441s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 05:27:48,689][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0230s, mode=INCREMENTAL
+[2025-08-29 05:28:09,044][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0251s, mode=INCREMENTAL
+[2025-08-29 05:28:35,680][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0205s, mode=INCREMENTAL
+[2025-08-29 05:29:08,549][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0218s, mode=INCREMENTAL
+[2025-08-29 05:29:48,367][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0351s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 05:30:01,936][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0221s, mode=INCREMENTAL
+[2025-08-29 05:30:21,193][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0218s, mode=INCREMENTAL
+[2025-08-29 05:30:46,949][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0247s, mode=INCREMENTAL
+[2025-08-29 05:31:20,107][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0244s, mode=INCREMENTAL
+[2025-08-29 05:32:00,075][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0363s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 05:32:14,127][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0234s, mode=INCREMENTAL
+[2025-08-29 05:32:34,005][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0243s, mode=INCREMENTAL
+[2025-08-29 05:33:00,132][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0216s, mode=INCREMENTAL
+[2025-08-29 05:33:32,963][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0212s, mode=INCREMENTAL
+[2025-08-29 05:34:12,871][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0328s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 05:34:26,489][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0211s, mode=INCREMENTAL
+[2025-08-29 05:34:46,421][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0228s, mode=INCREMENTAL
+[2025-08-29 05:35:12,698][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0228s, mode=INCREMENTAL
+[2025-08-29 05:35:45,716][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0273s, mode=INCREMENTAL
+[2025-08-29 05:36:25,823][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0381s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 05:36:39,558][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0261s, mode=INCREMENTAL
+[2025-08-29 05:36:59,391][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0245s, mode=INCREMENTAL
+[2025-08-29 05:37:26,227][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0218s, mode=INCREMENTAL
+[2025-08-29 05:38:00,165][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0265s, mode=INCREMENTAL
+[2025-08-29 05:38:40,948][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0423s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 05:38:54,609][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0233s, mode=INCREMENTAL
+[2025-08-29 05:39:14,157][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0249s, mode=INCREMENTAL
+[2025-08-29 05:39:39,676][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0215s, mode=INCREMENTAL
+[2025-08-29 05:40:11,844][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0287s, mode=INCREMENTAL
+[2025-08-29 05:40:50,938][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0334s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 05:41:04,422][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0215s, mode=INCREMENTAL
+[2025-08-29 05:41:23,942][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0230s, mode=INCREMENTAL
+[2025-08-29 05:41:49,072][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0264s, mode=INCREMENTAL
+[2025-08-29 05:42:21,075][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0262s, mode=INCREMENTAL
+[2025-08-29 05:43:01,072][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0364s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 05:43:15,260][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0208s, mode=INCREMENTAL
+[2025-08-29 05:43:34,917][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0249s, mode=INCREMENTAL
+[2025-08-29 05:44:00,986][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0292s, mode=INCREMENTAL
+[2025-08-29 05:44:34,397][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0219s, mode=INCREMENTAL
+[2025-08-29 05:45:15,002][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0372s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 05:45:28,841][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0215s, mode=INCREMENTAL
+[2025-08-29 05:45:48,582][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0196s, mode=INCREMENTAL
+[2025-08-29 05:46:14,222][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0225s, mode=INCREMENTAL
+[2025-08-29 05:46:46,867][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0255s, mode=INCREMENTAL
+[2025-08-29 05:47:27,169][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0410s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 05:47:42,014][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0223s, mode=INCREMENTAL
+[2025-08-29 05:48:01,870][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0227s, mode=INCREMENTAL
+[2025-08-29 05:48:27,777][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0266s, mode=INCREMENTAL
+[2025-08-29 05:49:00,826][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0225s, mode=INCREMENTAL
+[2025-08-29 05:49:40,941][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0351s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 05:49:55,555][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0256s, mode=INCREMENTAL
+[2025-08-29 05:50:16,426][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0256s, mode=INCREMENTAL
+[2025-08-29 05:50:42,605][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0231s, mode=INCREMENTAL
+[2025-08-29 05:51:15,756][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0266s, mode=INCREMENTAL
+[2025-08-29 05:51:55,330][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0352s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 05:52:09,309][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0210s, mode=INCREMENTAL
+[2025-08-29 05:52:29,688][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0228s, mode=INCREMENTAL
+[2025-08-29 05:52:55,849][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0195s, mode=INCREMENTAL
+[2025-08-29 05:53:28,833][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0239s, mode=INCREMENTAL
+[2025-08-29 05:54:08,957][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0389s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 05:54:23,235][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0205s, mode=INCREMENTAL
+[2025-08-29 05:54:43,355][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0219s, mode=INCREMENTAL
+[2025-08-29 05:55:09,049][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0229s, mode=INCREMENTAL
+[2025-08-29 05:55:41,705][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0234s, mode=INCREMENTAL
+[2025-08-29 05:56:20,708][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0463s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 05:56:34,503][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0211s, mode=INCREMENTAL
+[2025-08-29 05:56:53,742][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0220s, mode=INCREMENTAL
+[2025-08-29 05:57:19,100][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0215s, mode=INCREMENTAL
+[2025-08-29 05:57:51,166][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0244s, mode=INCREMENTAL
+[2025-08-29 05:58:30,429][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0377s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 05:58:44,398][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0201s, mode=INCREMENTAL
+[2025-08-29 05:59:04,311][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0232s, mode=INCREMENTAL
+[2025-08-29 05:59:30,235][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0227s, mode=INCREMENTAL
+[2025-08-29 06:00:03,460][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0219s, mode=INCREMENTAL
+[2025-08-29 06:00:44,088][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0358s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 06:00:57,568][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0231s, mode=INCREMENTAL
+[2025-08-29 06:01:17,152][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0290s, mode=INCREMENTAL
+[2025-08-29 06:01:42,364][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0247s, mode=INCREMENTAL
+[2025-08-29 06:02:14,701][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0243s, mode=INCREMENTAL
+[2025-08-29 06:02:54,202][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0384s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 06:03:07,829][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0255s, mode=INCREMENTAL
+[2025-08-29 06:03:27,537][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0243s, mode=INCREMENTAL
+[2025-08-29 06:03:53,258][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0278s, mode=INCREMENTAL
+[2025-08-29 06:04:26,250][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0282s, mode=INCREMENTAL
+[2025-08-29 06:05:06,541][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0336s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 06:05:20,595][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0221s, mode=INCREMENTAL
+[2025-08-29 06:05:40,473][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0249s, mode=INCREMENTAL
+[2025-08-29 06:06:06,511][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0230s, mode=INCREMENTAL
+[2025-08-29 06:06:39,500][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0248s, mode=INCREMENTAL
+[2025-08-29 06:07:19,355][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0353s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 06:07:33,448][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0229s, mode=INCREMENTAL
+[2025-08-29 06:07:53,687][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0226s, mode=INCREMENTAL
+[2025-08-29 06:08:20,143][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0259s, mode=INCREMENTAL
+[2025-08-29 06:08:53,653][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0235s, mode=INCREMENTAL
+[2025-08-29 06:09:33,831][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0316s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 06:09:47,651][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0221s, mode=INCREMENTAL
+[2025-08-29 06:10:07,450][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0227s, mode=INCREMENTAL
+[2025-08-29 06:10:33,758][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0299s, mode=INCREMENTAL
+[2025-08-29 06:11:07,285][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0241s, mode=INCREMENTAL
+[2025-08-29 06:11:47,491][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0345s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 06:12:01,718][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0226s, mode=INCREMENTAL
+[2025-08-29 06:12:22,406][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0235s, mode=INCREMENTAL
+[2025-08-29 06:12:48,842][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0268s, mode=INCREMENTAL
+[2025-08-29 06:13:21,537][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0252s, mode=INCREMENTAL
+[2025-08-29 06:14:01,214][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0324s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 06:14:15,590][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0201s, mode=INCREMENTAL
+[2025-08-29 06:14:35,509][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0228s, mode=INCREMENTAL
+[2025-08-29 06:15:02,161][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0327s, mode=INCREMENTAL
+[2025-08-29 06:15:35,278][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0271s, mode=INCREMENTAL
+[2025-08-29 06:16:15,276][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0369s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 06:16:28,876][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0258s, mode=INCREMENTAL
+[2025-08-29 06:16:48,511][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0221s, mode=INCREMENTAL
+[2025-08-29 06:17:14,369][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0273s, mode=INCREMENTAL
+[2025-08-29 06:17:47,829][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0282s, mode=INCREMENTAL
+[2025-08-29 06:18:28,625][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0305s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 06:18:42,607][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0222s, mode=INCREMENTAL
+[2025-08-29 06:19:02,235][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0250s, mode=INCREMENTAL
+[2025-08-29 06:19:28,507][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0257s, mode=INCREMENTAL
+[2025-08-29 06:20:01,467][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0305s, mode=INCREMENTAL
+[2025-08-29 06:20:41,392][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0342s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 06:20:55,138][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0237s, mode=INCREMENTAL
+[2025-08-29 06:21:14,616][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0227s, mode=INCREMENTAL
+[2025-08-29 06:21:41,056][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0228s, mode=INCREMENTAL
+[2025-08-29 06:22:14,351][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0252s, mode=INCREMENTAL
+[2025-08-29 06:22:54,066][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0470s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 06:23:08,362][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0224s, mode=INCREMENTAL
+[2025-08-29 06:23:28,504][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0221s, mode=INCREMENTAL
+[2025-08-29 06:23:54,366][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0207s, mode=INCREMENTAL
+[2025-08-29 06:24:26,566][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0263s, mode=INCREMENTAL
+[2025-08-29 06:25:05,685][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0390s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 06:25:19,445][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0236s, mode=INCREMENTAL
+[2025-08-29 06:25:38,808][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0305s, mode=INCREMENTAL
+[2025-08-29 06:26:04,546][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0236s, mode=INCREMENTAL
+[2025-08-29 06:26:36,900][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0231s, mode=INCREMENTAL
+[2025-08-29 06:27:16,632][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0390s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 06:27:30,559][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0213s, mode=INCREMENTAL
+[2025-08-29 06:27:50,350][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0222s, mode=INCREMENTAL
+[2025-08-29 06:28:16,285][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0240s, mode=INCREMENTAL
+[2025-08-29 06:28:49,756][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0260s, mode=INCREMENTAL
+[2025-08-29 06:29:30,027][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0345s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 06:29:43,992][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0232s, mode=INCREMENTAL
+[2025-08-29 06:30:04,051][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0268s, mode=INCREMENTAL
+[2025-08-29 06:30:30,212][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0337s, mode=INCREMENTAL
+[2025-08-29 06:31:03,258][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0219s, mode=INCREMENTAL
+[2025-08-29 06:31:43,210][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0373s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 06:31:57,305][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0236s, mode=INCREMENTAL
+[2025-08-29 06:32:17,190][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0267s, mode=INCREMENTAL
+[2025-08-29 06:32:43,225][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0221s, mode=INCREMENTAL
+[2025-08-29 06:33:16,478][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0227s, mode=INCREMENTAL
+[2025-08-29 06:33:56,718][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0345s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 06:34:10,481][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0223s, mode=INCREMENTAL
+[2025-08-29 06:34:30,033][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0232s, mode=INCREMENTAL
+[2025-08-29 06:34:55,632][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0207s, mode=INCREMENTAL
+[2025-08-29 06:35:28,406][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0228s, mode=INCREMENTAL
+[2025-08-29 06:36:08,293][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0408s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 06:36:22,086][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0221s, mode=INCREMENTAL
+[2025-08-29 06:36:41,518][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0213s, mode=INCREMENTAL
+[2025-08-29 06:37:06,785][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0269s, mode=INCREMENTAL
+[2025-08-29 06:37:39,259][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0239s, mode=INCREMENTAL
+[2025-08-29 06:38:19,157][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0417s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 06:38:33,043][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0220s, mode=INCREMENTAL
+[2025-08-29 06:38:52,818][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0267s, mode=INCREMENTAL
+[2025-08-29 06:39:18,340][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0204s, mode=INCREMENTAL
+[2025-08-29 06:39:50,965][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0214s, mode=INCREMENTAL
+[2025-08-29 06:40:30,631][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0332s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 06:40:44,756][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0231s, mode=INCREMENTAL
+[2025-08-29 06:41:04,921][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0273s, mode=INCREMENTAL
+[2025-08-29 06:41:31,690][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0219s, mode=INCREMENTAL
+[2025-08-29 06:42:05,192][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0241s, mode=INCREMENTAL
+[2025-08-29 06:42:45,203][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0371s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 06:42:59,036][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0214s, mode=INCREMENTAL
+[2025-08-29 06:43:19,199][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0215s, mode=INCREMENTAL
+[2025-08-29 06:43:45,061][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0241s, mode=INCREMENTAL
+[2025-08-29 06:44:17,388][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0196s, mode=INCREMENTAL
+[2025-08-29 06:44:56,297][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0339s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 06:45:09,805][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0241s, mode=INCREMENTAL
+[2025-08-29 06:45:29,425][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0226s, mode=INCREMENTAL
+[2025-08-29 06:45:55,223][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0274s, mode=INCREMENTAL
+[2025-08-29 06:46:27,763][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0266s, mode=INCREMENTAL
+[2025-08-29 06:47:07,715][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0452s, mode=INCREMENTAL
+Done.
+Sampling a batch with 222 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 06:47:20,935][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0206s, mode=INCREMENTAL
+[2025-08-29 06:47:39,964][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0223s, mode=INCREMENTAL
+[2025-08-29 06:48:04,897][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0258s, mode=INCREMENTAL
+[2025-08-29 06:48:35,981][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0306s, mode=INCREMENTAL
+[2025-08-29 06:49:13,448][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0380s, mode=INCREMENTAL
+Done.
+Saving the generated graphs
+Saved.
+📊 Computing final sampling metrics...
+Error messages: AtomValence 51, Kekulize 0, other 0,  -- No error 9949
+[rank: 0] Received SIGTERM: 15
+[rank: 0] Received SIGTERM: 15
+[rank: 0] Received SIGTERM: 15
+[rank: 0] Received SIGTERM: 15
+Bypassing SIGTERM: 15
+Bypassing SIGTERM: 15
+Bypassing SIGTERM: 15
+Bypassing SIGTERM: 15
+Some generated smiles: CCC(C=O)CC1CO1 CCCOC(O)=NNC CCC(C)COCC=O CC(C)=CC1(C)CC1C CCC1(C)OC1COC C#CC1(CC)NC1C#N CC1C(CO)C1C1CC1 C#CCC(C#C)NC=O C#CC[NH+]1CC1(C)CO [NH-][CH+]NC1CC1OC=O
+
+================================================================================
+📊 CONSTRAINT SATISFACTION RESULTS
+================================================================================
+
+📋 **Definitions**:
+• **FCD** — Fréchet ChemNet Distance computed on valid canonical SMILES; lower is better
+• **Unique/Novel/Valid** — proportions computed over all generated molecules (not only valid)
+• **Disconnected** — share of graphs with >1 connected component
+• **Property satisfied** — share of generated graphs meeting the enforced structural constraint
+• **V.U.N.** — product of Valid × Unique × Novel (in [0,100]%)
+
+🔍 **LOGGING TO WANDB**:
+============================================================
+  test_sampling/NumNodesW1: 0.007265243213623762
+  test_sampling/NodeTypesTV: 0.008019560016691685
+  test_sampling/EdgeTypesTV: 0.1197604164481163
+  test_sampling/Disconnected: 1.4600000344216824
+  test_sampling/MeanComponents: 1.0147000551223755
+  test_sampling/MaxComponents: 3.0
+  test_sampling/planarity: 1.0
+  test_sampling/no_cycles: 0.5400999784469604
+  test_sampling/lobster_components: 0.5400999784469604
+  test_sampling/generated_deg_hist: <wandb.sdk.data_types.histogram.Histogram object at 0x7fee3aeeda90>
+  test_sampling/diff_deg_hist: <wandb.sdk.data_types.histogram.Histogram object at 0x7fee3aeeda60>
+  test_sampling/abs_diff_deg_hist: <wandb.sdk.data_types.histogram.Histogram object at 0x7fee3aeed070>
+  test_sampling/ring_length_satisfaction: 1.0
+  test_sampling/ring_length_violation: 0.0
+  test_sampling/Validity: 99.48999881744385
+  test_sampling/Uniqueness: 90.75283948135491
+  test_sampling/Novelty: 92.84527897834778
+  test_sampling/fcd score: 5.163268097349253
+============================================================
+
+
+🎯 CORE METRICS:
+================================================================================
+test_ring_length_3 — TEST — QM9
+Constraint: Ring length ≤ 3 · N=10,000 · diffusion_steps=500 · sampler=reverse
+
++-------------------------+--------------------+
+| Metric                  | Value                |
++-------------------------+--------------------+
+| Molecules generated (N) | 10,000               |
+| FCD                     | 5.163                |
+| Unique (%)              | 90.7528%             |
+| Novel (%)               | 92.8453%             |
+| Valid (%)               | 99.49%               |
+| Disconnected (%)        | 1.46%                |
+| Property satisfied (%)  | 100.0%               |
+| V.U.N. (%)              | 83.83%               |
++-------------------------+--------------------+
+
+
+🏗️ STRUCTURAL CONSTRAINT SATISFACTION:
+================================================================================
+test_ring_length_3 — TEST — QM9 — Structural
+Constraint: Ring length ≤ 3 · N=10,000 · diffusion_steps=500 · sampler=reverse
+
++---------------------------+--------------------+
+| Metric                    | Value                |
++---------------------------+--------------------+
+| Ring length satisfied (%) | 100.0%               |
+| Acyclic (max len 0) (%)   | 54.01%               |
+| Ring length 3 (max) (%)   | 45.99%               |
+| Ring length >3 (max) (%)  | 0.0%                 |
++---------------------------+--------------------+
+
+
+⏱️ TIMING METRICS:
+================================================================================
+test_ring_length_3 — TEST — QM9 — Timing
+Constraint: Ring length ≤ 3 · N=10,000 · diffusion_steps=500 · sampler=reverse
+
++---------------------------------+--------------------------------------------------+
+| Metric                          | Value                                              |
++---------------------------------+--------------------------------------------------+
+| Sampling time (s) for N         | 5779.12 for N=10,000                               |
+| Per-graph sampling time (ms)    | 577.9                                              |
+| Sampling batches                | 44                                                 |
+| Projector mean time (ms)        | 23.7                                               |
+| Projector share of sampling (%) | 9.0                                                |
+| Wall-clock elapsed (hh:mm)      | 01:37                                              |
+| Environment                     | gpu=NVIDIA RTX A5000, torch=2.0.1+cu118, cuda=...  |
++---------------------------------+--------------------------------------------------+
+
+
+🧪 CHEMISTRY METRICS:
+================================================================================
+test_ring_length_3 — TEST — QM9 — Chemistry
+Constraint: Ring length ≤ 3 · N=10,000 · diffusion_steps=500 · sampler=reverse
+
++---------------------------------+--------------------+
+| Metric                          | Value                |
++---------------------------------+--------------------+
+| Valid molecules used (chem)     | 9,949                |
+| Molecular weight (Da) mean ± sd | 125.0 ± 8.5          |
+| Heavy atoms mean ± sd           | 8.8 ± 0.6            |
+| Atom composition % (C/N/O/F)    | 72.0/11.9/16.0/0.2   |
++---------------------------------+--------------------+
+
+All smiles saved on rank 0
+[VIOLATION TRACKING] Detected constraint: ring_length_at_most, value: 3
+[VIOLATION TRACKING] Enforced constraint: ring_length_at_most
+[VIOLATION TRACKING] Tracking violations for: ['ring_length']
+[VIOLATION TRACKING] Ignoring violations for: ['ring_count', 'planarity']
+[VIOLATIONS] Summary saved to violation_summary_rank0_20250829_065123.txt
+
+[DEBUG] Comparing projector vs evaluation for ring_length_at_most ≤ 3
+[DEBUG] Analyzed 10000 molecules
+[DEBUG] Found 0 projector-evaluation discrepancies
+Sampling metrics {'test_sampling/NumNodesW1': 0.007, 'test_sampling/NodeTypesTV': 0.008, 'test_sampling/EdgeTypesTV': 0.12, 'test_sampling/Disconnected': 1.46, 'test_sampling/MeanComponents': 1.015, 'test_sampling/MaxComponents': 3.0, 'test_sampling/planarity': 1.0, 'test_sampling/no_cycles': 0.54, 'test_sampling/lobster_components': 0.54, 'test_sampling/generated_deg_hist': [0.001, 0.36, 0.419, 0.187, 0.032, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 'test_sampling/diff_deg_hist': [0.001, 0.36, 0.419, 0.152, -0.147, -0.298, -0.265, -0.147, -0.054, -0.017, -0.003, -0.0, -0.0], 'test_sampling/abs_diff_deg_hist': [0.001, 0.36, 0.419, 0.152, 0.147, 0.298, 0.265, 0.147, 0.054, 0.017, 0.003, 0.0, 0.0], 'test_sampling/ring_length_satisfaction': 1.0, 'test_sampling/ring_length_violation': 0.0, 'test_sampling/Validity': 99.49, 'test_sampling/Uniqueness': 90.753, 'test_sampling/Novelty': 92.845, 'test_sampling/fcd score': 5.163, 'test_sampling/ChargeW1': 0.004, 'test_sampling/ValencyW1': 0.258, 'test_ratio/fcd score': 5.984, 'test_ratio/average': 5.984}
+Done. Sampling took 5958.87 seconds
+
+Test ends.
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+       Test metric             DataLoader 0
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+        test/E_kl             63.204833984375
+        test/X_kl           3.1520004272460938
+     test/charges_kl        0.5535587072372437
+     test/epoch_NLL          67.46573638916016
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+[rank: 0] Global seed set to 1000
+[rank: 0] Global seed set to 1000
+You are using a CUDA device ('NVIDIA RTX A5000') that has Tensor Cores. To properly utilize them, you should set `torch.set_float32_matmul_precision('medium' | 'high')` which will trade-off precision for performance. For more details, read https://pytorch.org/docs/stable/generated/torch.set_float32_matmul_precision.html#torch.set_float32_matmul_precision
+Restoring states from the checkpoint path at checkpoints/qm9_thesis_no_constraint/epoch-94.ckpt
+LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0]
+Loaded model weights from the checkpoint at checkpoints/qm9_thesis_no_constraint/epoch-94.ckpt
+SLURM auto-requeueing enabled. Setting signal handlers.
+Test loss: 67.5701
+Epoch 0: test/epoch_NLL: 67.5701 -- test/X_kl: 3.1083 -- test/E_kl: 63.3221 -- test/charges_kl: 0.5840 
+Sampling start on GR0
+Samples to generate: 10000 for each of the 1 devices
+Samples to save: 1000
+Sampling a batch with 230 graphs on local rank 0. Saving 230 visualization and 0 full chains.
+[2025-08-29 06:52:35,765][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0242s, mode=INCREMENTAL
+[2025-08-29 06:52:55,599][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0234s, mode=INCREMENTAL
+[2025-08-29 06:53:22,023][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0229s, mode=INCREMENTAL
+[2025-08-29 06:53:55,038][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0263s, mode=INCREMENTAL
+[2025-08-29 06:54:34,822][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0426s, mode=INCREMENTAL
+Visualizing 230 graphs out of 230
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b230/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b230/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b230/graph_2.png to wandb
+Done.
+Sampling a batch with 230 graphs on local rank 0. Saving 230 visualization and 0 full chains.
+[2025-08-29 06:54:53,131][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0243s, mode=INCREMENTAL
+[2025-08-29 06:55:13,105][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0245s, mode=INCREMENTAL
+[2025-08-29 06:55:38,994][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0266s, mode=INCREMENTAL
+[2025-08-29 06:56:11,928][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0247s, mode=INCREMENTAL
+[2025-08-29 06:56:52,031][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0421s, mode=INCREMENTAL
+Visualizing 230 graphs out of 230
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b460/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b460/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b460/graph_2.png to wandb
+Done.
+Sampling a batch with 230 graphs on local rank 0. Saving 230 visualization and 0 full chains.
+[2025-08-29 06:57:09,672][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0209s, mode=INCREMENTAL
+[2025-08-29 06:57:28,739][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0240s, mode=INCREMENTAL
+[2025-08-29 06:57:54,611][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0242s, mode=INCREMENTAL
+[2025-08-29 06:58:27,451][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0256s, mode=INCREMENTAL
+[2025-08-29 06:59:07,891][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0336s, mode=INCREMENTAL
+Visualizing 230 graphs out of 230
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b690/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b690/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b690/graph_2.png to wandb
+Done.
+Sampling a batch with 230 graphs on local rank 0. Saving 230 visualization and 0 full chains.
+[2025-08-29 06:59:26,753][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0223s, mode=INCREMENTAL
+[2025-08-29 06:59:46,884][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0235s, mode=INCREMENTAL
+[2025-08-29 07:00:13,188][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0256s, mode=INCREMENTAL
+[2025-08-29 07:00:45,837][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0196s, mode=INCREMENTAL
+[2025-08-29 07:01:25,216][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0431s, mode=INCREMENTAL
+Visualizing 230 graphs out of 230
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b920/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b920/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b920/graph_2.png to wandb
+Done.
+Sampling a batch with 80 graphs on local rank 0. Saving 80 visualization and 0 full chains.
+[2025-08-29 07:01:37,293][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0089s, mode=INCREMENTAL
+[2025-08-29 07:01:47,046][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0072s, mode=INCREMENTAL
+[2025-08-29 07:01:59,051][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0135s, mode=INCREMENTAL
+[2025-08-29 07:02:13,335][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0084s, mode=INCREMENTAL
+[2025-08-29 07:02:30,278][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0113s, mode=INCREMENTAL
+Visualizing 80 graphs out of 80
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b1000/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b1000/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b1000/graph_2.png to wandb
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 07:02:45,645][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0216s, mode=INCREMENTAL
+[2025-08-29 07:03:05,850][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0232s, mode=INCREMENTAL
+[2025-08-29 07:03:32,806][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0235s, mode=INCREMENTAL
+[2025-08-29 07:04:06,823][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0253s, mode=INCREMENTAL
+[2025-08-29 07:04:48,255][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0438s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 07:05:02,385][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0225s, mode=INCREMENTAL
+[2025-08-29 07:05:21,991][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0255s, mode=INCREMENTAL
+[2025-08-29 07:05:47,782][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0266s, mode=INCREMENTAL
+[2025-08-29 07:06:20,266][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0217s, mode=INCREMENTAL
+[2025-08-29 07:07:00,151][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0345s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 07:07:14,154][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0227s, mode=INCREMENTAL
+[2025-08-29 07:07:33,783][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0248s, mode=INCREMENTAL
+[2025-08-29 07:07:59,740][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0229s, mode=INCREMENTAL
+[2025-08-29 07:08:33,030][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0210s, mode=INCREMENTAL
+[2025-08-29 07:09:14,130][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0383s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 07:09:28,060][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0218s, mode=INCREMENTAL
+[2025-08-29 07:09:47,971][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0236s, mode=INCREMENTAL
+[2025-08-29 07:10:14,560][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0234s, mode=INCREMENTAL
+[2025-08-29 07:10:47,440][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0228s, mode=INCREMENTAL
+[2025-08-29 07:11:27,748][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0427s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 07:11:42,244][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0232s, mode=INCREMENTAL
+[2025-08-29 07:12:02,807][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0220s, mode=INCREMENTAL
+[2025-08-29 07:12:29,861][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0233s, mode=INCREMENTAL
+[2025-08-29 07:13:03,920][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0232s, mode=INCREMENTAL
+[2025-08-29 07:13:44,957][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0395s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 07:13:59,359][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0233s, mode=INCREMENTAL
+[2025-08-29 07:14:19,805][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0272s, mode=INCREMENTAL
+[2025-08-29 07:14:46,517][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0284s, mode=INCREMENTAL
+[2025-08-29 07:15:19,864][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0302s, mode=INCREMENTAL
+[2025-08-29 07:16:00,387][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0407s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 07:16:14,198][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0232s, mode=INCREMENTAL
+[2025-08-29 07:16:33,509][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0262s, mode=INCREMENTAL
+[2025-08-29 07:16:58,741][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0262s, mode=INCREMENTAL
+[2025-08-29 07:17:31,451][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0229s, mode=INCREMENTAL
+[2025-08-29 07:18:12,826][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0356s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 07:18:26,773][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0226s, mode=INCREMENTAL
+[2025-08-29 07:18:46,624][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0243s, mode=INCREMENTAL
+[2025-08-29 07:19:12,303][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0233s, mode=INCREMENTAL
+[2025-08-29 07:19:45,004][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0216s, mode=INCREMENTAL
+[2025-08-29 07:20:25,613][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0343s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 07:20:39,876][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0219s, mode=INCREMENTAL
+[2025-08-29 07:20:59,688][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0270s, mode=INCREMENTAL
+[2025-08-29 07:21:25,994][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0286s, mode=INCREMENTAL
+[2025-08-29 07:21:59,428][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0252s, mode=INCREMENTAL
+[2025-08-29 07:22:39,779][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0368s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 07:22:53,882][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0239s, mode=INCREMENTAL
+[2025-08-29 07:23:14,431][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0251s, mode=INCREMENTAL
+[2025-08-29 07:23:41,382][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0240s, mode=INCREMENTAL
+[2025-08-29 07:24:16,307][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0245s, mode=INCREMENTAL
+[2025-08-29 07:24:57,027][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0401s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 07:25:11,379][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0233s, mode=INCREMENTAL
+[2025-08-29 07:25:31,775][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0233s, mode=INCREMENTAL
+[2025-08-29 07:25:57,671][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0244s, mode=INCREMENTAL
+[2025-08-29 07:26:29,830][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0259s, mode=INCREMENTAL
+[2025-08-29 07:27:09,142][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0397s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 07:27:23,286][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0211s, mode=INCREMENTAL
+[2025-08-29 07:27:43,376][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0221s, mode=INCREMENTAL
+[2025-08-29 07:28:10,028][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0254s, mode=INCREMENTAL
+[2025-08-29 07:28:42,892][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0248s, mode=INCREMENTAL
+[2025-08-29 07:29:23,200][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0378s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 07:29:37,039][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0225s, mode=INCREMENTAL
+[2025-08-29 07:29:56,436][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0247s, mode=INCREMENTAL
+[2025-08-29 07:30:22,359][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0248s, mode=INCREMENTAL
+[2025-08-29 07:30:55,840][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0252s, mode=INCREMENTAL
+[2025-08-29 07:31:36,329][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0364s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 07:31:50,236][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0215s, mode=INCREMENTAL
+[2025-08-29 07:32:10,287][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0228s, mode=INCREMENTAL
+[2025-08-29 07:32:36,696][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0255s, mode=INCREMENTAL
+[2025-08-29 07:33:09,973][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0238s, mode=INCREMENTAL
+[2025-08-29 07:33:50,321][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0374s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 07:34:04,375][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0272s, mode=INCREMENTAL
+[2025-08-29 07:34:24,314][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0241s, mode=INCREMENTAL
+[2025-08-29 07:34:50,418][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0257s, mode=INCREMENTAL
+[2025-08-29 07:35:23,782][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0248s, mode=INCREMENTAL
+[2025-08-29 07:36:04,316][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0359s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 07:36:18,122][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0231s, mode=INCREMENTAL
+[2025-08-29 07:36:38,047][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0219s, mode=INCREMENTAL
+[2025-08-29 07:37:04,883][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0236s, mode=INCREMENTAL
+[2025-08-29 07:37:38,118][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0229s, mode=INCREMENTAL
+[2025-08-29 07:38:18,768][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0474s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 07:38:32,789][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0207s, mode=INCREMENTAL
+[2025-08-29 07:38:52,354][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0265s, mode=INCREMENTAL
+[2025-08-29 07:39:18,790][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0272s, mode=INCREMENTAL
+[2025-08-29 07:39:52,871][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0229s, mode=INCREMENTAL
+[2025-08-29 07:40:33,492][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0364s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 07:40:47,282][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0262s, mode=INCREMENTAL
+[2025-08-29 07:41:07,100][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0240s, mode=INCREMENTAL
+[2025-08-29 07:41:33,725][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0286s, mode=INCREMENTAL
+[2025-08-29 07:42:07,034][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0251s, mode=INCREMENTAL
+[2025-08-29 07:42:47,465][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0356s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 07:43:01,722][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0227s, mode=INCREMENTAL
+[2025-08-29 07:43:21,622][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0241s, mode=INCREMENTAL
+[2025-08-29 07:43:47,975][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0309s, mode=INCREMENTAL
+[2025-08-29 07:44:21,781][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0216s, mode=INCREMENTAL
+[2025-08-29 07:45:03,115][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0341s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 07:45:17,537][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0228s, mode=INCREMENTAL
+[2025-08-29 07:45:37,213][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0225s, mode=INCREMENTAL
+[2025-08-29 07:46:03,398][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0226s, mode=INCREMENTAL
+[2025-08-29 07:46:36,345][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0270s, mode=INCREMENTAL
+[2025-08-29 07:47:16,838][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0372s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 07:47:31,216][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0237s, mode=INCREMENTAL
+[2025-08-29 07:47:51,132][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0220s, mode=INCREMENTAL
+[2025-08-29 07:48:17,167][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0211s, mode=INCREMENTAL
+[2025-08-29 07:48:50,413][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0255s, mode=INCREMENTAL
+[2025-08-29 07:49:30,345][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0308s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 07:49:44,598][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0224s, mode=INCREMENTAL
+[2025-08-29 07:50:04,852][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0261s, mode=INCREMENTAL
+[2025-08-29 07:50:31,496][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0221s, mode=INCREMENTAL
+[2025-08-29 07:51:04,793][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0250s, mode=INCREMENTAL
+[2025-08-29 07:51:44,459][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0403s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 07:51:58,249][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0226s, mode=INCREMENTAL
+[2025-08-29 07:52:18,146][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0245s, mode=INCREMENTAL
+[2025-08-29 07:52:44,721][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0246s, mode=INCREMENTAL
+[2025-08-29 07:53:17,822][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0230s, mode=INCREMENTAL
+[2025-08-29 07:53:57,701][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0318s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 07:54:12,395][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0230s, mode=INCREMENTAL
+[2025-08-29 07:54:32,856][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0236s, mode=INCREMENTAL
+[2025-08-29 07:54:59,315][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0225s, mode=INCREMENTAL
+[2025-08-29 07:55:32,957][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0261s, mode=INCREMENTAL
+[2025-08-29 07:56:13,978][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0372s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 07:56:28,136][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0239s, mode=INCREMENTAL
+[2025-08-29 07:56:47,779][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0237s, mode=INCREMENTAL
+[2025-08-29 07:57:14,023][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0242s, mode=INCREMENTAL
+[2025-08-29 07:57:47,189][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0285s, mode=INCREMENTAL
+[2025-08-29 07:58:28,455][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0449s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 07:58:42,383][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0220s, mode=INCREMENTAL
+[2025-08-29 07:59:02,001][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0223s, mode=INCREMENTAL
+[2025-08-29 07:59:28,746][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0242s, mode=INCREMENTAL
+[2025-08-29 08:00:02,123][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0210s, mode=INCREMENTAL
+[2025-08-29 08:00:42,775][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0344s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 08:00:56,720][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0226s, mode=INCREMENTAL
+[2025-08-29 08:01:16,504][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0231s, mode=INCREMENTAL
+[2025-08-29 08:01:42,565][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0264s, mode=INCREMENTAL
+[2025-08-29 08:02:15,396][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0254s, mode=INCREMENTAL
+[2025-08-29 08:02:55,555][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0397s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 08:03:09,632][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0218s, mode=INCREMENTAL
+[2025-08-29 08:03:29,363][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0212s, mode=INCREMENTAL
+[2025-08-29 08:03:55,196][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0246s, mode=INCREMENTAL
+[2025-08-29 08:04:27,673][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0248s, mode=INCREMENTAL
+[2025-08-29 08:05:07,801][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0454s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 08:05:21,835][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0224s, mode=INCREMENTAL
+[2025-08-29 08:05:41,934][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0258s, mode=INCREMENTAL
+[2025-08-29 08:06:08,244][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0246s, mode=INCREMENTAL
+[2025-08-29 08:06:41,274][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0243s, mode=INCREMENTAL
+[2025-08-29 08:07:20,924][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0449s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 08:07:35,417][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0219s, mode=INCREMENTAL
+[2025-08-29 08:07:56,157][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0229s, mode=INCREMENTAL
+[2025-08-29 08:08:23,234][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0271s, mode=INCREMENTAL
+[2025-08-29 08:08:57,032][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0257s, mode=INCREMENTAL
+[2025-08-29 08:09:37,770][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0406s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 08:09:51,902][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0224s, mode=INCREMENTAL
+[2025-08-29 08:10:12,236][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0230s, mode=INCREMENTAL
+[2025-08-29 08:10:38,338][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0279s, mode=INCREMENTAL
+[2025-08-29 08:11:11,552][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0238s, mode=INCREMENTAL
+[2025-08-29 08:11:51,592][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0374s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 08:12:05,645][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0216s, mode=INCREMENTAL
+[2025-08-29 08:12:25,738][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0229s, mode=INCREMENTAL
+[2025-08-29 08:12:52,005][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0268s, mode=INCREMENTAL
+[2025-08-29 08:13:25,319][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0253s, mode=INCREMENTAL
+[2025-08-29 08:14:05,721][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0409s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 08:14:19,988][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0213s, mode=INCREMENTAL
+[2025-08-29 08:14:40,439][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0245s, mode=INCREMENTAL
+[2025-08-29 08:15:07,485][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0237s, mode=INCREMENTAL
+[2025-08-29 08:15:41,329][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0233s, mode=INCREMENTAL
+[2025-08-29 08:16:22,646][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0302s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 08:16:36,604][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0225s, mode=INCREMENTAL
+[2025-08-29 08:16:56,496][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0262s, mode=INCREMENTAL
+[2025-08-29 08:17:22,662][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0225s, mode=INCREMENTAL
+[2025-08-29 08:17:55,333][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0311s, mode=INCREMENTAL
+[2025-08-29 08:18:35,736][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0412s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 08:18:49,638][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0225s, mode=INCREMENTAL
+[2025-08-29 08:19:09,181][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0263s, mode=INCREMENTAL
+[2025-08-29 08:19:35,196][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0206s, mode=INCREMENTAL
+[2025-08-29 08:20:08,937][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0215s, mode=INCREMENTAL
+[2025-08-29 08:20:50,023][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0385s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 08:21:04,266][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0225s, mode=INCREMENTAL
+[2025-08-29 08:21:24,182][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0214s, mode=INCREMENTAL
+[2025-08-29 08:21:50,743][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0247s, mode=INCREMENTAL
+[2025-08-29 08:22:24,069][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0247s, mode=INCREMENTAL
+[2025-08-29 08:23:05,059][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0412s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 08:23:18,962][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0224s, mode=INCREMENTAL
+[2025-08-29 08:23:38,521][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0214s, mode=INCREMENTAL
+[2025-08-29 08:24:04,182][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0206s, mode=INCREMENTAL
+[2025-08-29 08:24:37,119][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0248s, mode=INCREMENTAL
+[2025-08-29 08:25:17,357][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0325s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 08:25:31,457][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0235s, mode=INCREMENTAL
+[2025-08-29 08:25:51,557][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0268s, mode=INCREMENTAL
+[2025-08-29 08:26:18,039][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0206s, mode=INCREMENTAL
+[2025-08-29 08:26:50,969][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0219s, mode=INCREMENTAL
+[2025-08-29 08:27:31,040][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0339s, mode=INCREMENTAL
+Done.
+Sampling a batch with 222 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 08:27:44,781][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0230s, mode=INCREMENTAL
+[2025-08-29 08:28:04,270][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0239s, mode=INCREMENTAL
+[2025-08-29 08:28:29,500][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0256s, mode=INCREMENTAL
+[2025-08-29 08:29:01,343][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0238s, mode=INCREMENTAL
+[2025-08-29 08:29:40,151][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0432s, mode=INCREMENTAL
+Done.
+Saving the generated graphs
+Saved.
+📊 Computing final sampling metrics...
+Error messages: AtomValence 68, Kekulize 0, other 0,  -- No error 9932
+[rank: 0] Received SIGTERM: 15
+[rank: 0] Received SIGTERM: 15
+[rank: 0] Received SIGTERM: 15
+[rank: 0] Received SIGTERM: 15
+Bypassing SIGTERM: 15
+Bypassing SIGTERM: 15
+Bypassing SIGTERM: 15
+Bypassing SIGTERM: 15
+Some generated smiles: CCCC(C)C(C)CC CCCC(OC)C1CO1 CC(N)(C#N)CCC#N CCC(C)(C)C[NH+]1CC1 CCC(C#N)(CC)CO C#CC1(C)CC1(C)CC CC(O)C(C)(C)OC[NH-] CCCC=CCC(C)C C#CCC1CC1(C)O COCC1CC1(C)C#N
+
+================================================================================
+📊 CONSTRAINT SATISFACTION RESULTS
+================================================================================
+
+📋 **Definitions**:
+• **FCD** — Fréchet ChemNet Distance computed on valid canonical SMILES; lower is better
+• **Unique/Novel/Valid** — proportions computed over all generated molecules (not only valid)
+• **Disconnected** — share of graphs with >1 connected component
+• **Property satisfied** — share of generated graphs meeting the enforced structural constraint
+• **V.U.N.** — product of Valid × Unique × Novel (in [0,100]%)
+
+🔍 **LOGGING TO WANDB**:
+============================================================
+  test_sampling/NumNodesW1: 0.008965248242020607
+  test_sampling/NodeTypesTV: 0.010820945724844933
+  test_sampling/EdgeTypesTV: 0.11982344835996628
+  test_sampling/Disconnected: 1.5399999916553497
+  test_sampling/MeanComponents: 1.0154000520706177
+  test_sampling/MaxComponents: 2.0
+  test_sampling/planarity: 1.0
+  test_sampling/no_cycles: 0.5396999716758728
+  test_sampling/lobster_components: 0.5396999716758728
+  test_sampling/generated_deg_hist: <wandb.sdk.data_types.histogram.Histogram object at 0x7fee1c3aa520>
+  test_sampling/diff_deg_hist: <wandb.sdk.data_types.histogram.Histogram object at 0x7fee1c3aa610>
+  test_sampling/abs_diff_deg_hist: <wandb.sdk.data_types.histogram.Histogram object at 0x7fee1c3aad30>
+  test_sampling/ring_length_satisfaction: 1.0
+  test_sampling/ring_length_violation: 0.0
+  test_sampling/Validity: 99.32000041007996
+  test_sampling/Uniqueness: 90.33427305678615
+  test_sampling/Novelty: 91.96388721466064
+  test_sampling/fcd score: 5.160792076861242
+============================================================
+
+
+🎯 CORE METRICS:
+================================================================================
+test_ring_length_3 — TEST — QM9
+Constraint: Ring length ≤ 3 · N=10,000 · diffusion_steps=500 · sampler=reverse
+
++-------------------------+--------------------+
+| Metric                  | Value                |
++-------------------------+--------------------+
+| Molecules generated (N) | 10,000               |
+| FCD                     | 5.161                |
+| Unique (%)              | 90.3343%             |
+| Novel (%)               | 91.9639%             |
+| Valid (%)               | 99.32%               |
+| Disconnected (%)        | 1.54%                |
+| Property satisfied (%)  | 100.0%               |
+| V.U.N. (%)              | 82.51%               |
++-------------------------+--------------------+
+
+
+🏗️ STRUCTURAL CONSTRAINT SATISFACTION:
+================================================================================
+test_ring_length_3 — TEST — QM9 — Structural
+Constraint: Ring length ≤ 3 · N=10,000 · diffusion_steps=500 · sampler=reverse
+
++---------------------------+--------------------+
+| Metric                    | Value                |
++---------------------------+--------------------+
+| Ring length satisfied (%) | 100.0%               |
+| Acyclic (max len 0) (%)   | 53.97%               |
+| Ring length 3 (max) (%)   | 46.03%               |
+| Ring length >3 (max) (%)  | 0.0%                 |
++---------------------------+--------------------+
+
+
+⏱️ TIMING METRICS:
+================================================================================
+test_ring_length_3 — TEST — QM9 — Timing
+Constraint: Ring length ≤ 3 · N=10,000 · diffusion_steps=500 · sampler=reverse
+
++---------------------------------+--------------------------------------------------+
+| Metric                          | Value                                              |
++---------------------------------+--------------------------------------------------+
+| Sampling time (s) for N         | 11616.38 for N=10,000                              |
+| Per-graph sampling time (ms)    | 1161.6                                             |
+| Sampling batches                | 88                                                 |
+| Projector mean time (ms)        | 23.8                                               |
+| Projector share of sampling (%) | 9.0                                                |
+| Wall-clock elapsed (hh:mm)      | 03:18                                              |
+| Environment                     | gpu=NVIDIA RTX A5000, torch=2.0.1+cu118, cuda=...  |
++---------------------------------+--------------------------------------------------+
+
+
+🧪 CHEMISTRY METRICS:
+================================================================================
+test_ring_length_3 — TEST — QM9 — Chemistry
+Constraint: Ring length ≤ 3 · N=10,000 · diffusion_steps=500 · sampler=reverse
+
++---------------------------------+--------------------+
+| Metric                          | Value                |
++---------------------------------+--------------------+
+| Valid molecules used (chem)     | 9,932                |
+| Molecular weight (Da) mean ± sd | 124.9 ± 8.6          |
+| Heavy atoms mean ± sd           | 8.8 ± 0.6            |
+| Atom composition % (C/N/O/F)    | 71.8/11.8/16.1/0.2   |
++---------------------------------+--------------------+
+
+All smiles saved on rank 0
+[VIOLATION TRACKING] Detected constraint: ring_length_at_most, value: 3
+[VIOLATION TRACKING] Enforced constraint: ring_length_at_most
+[VIOLATION TRACKING] Tracking violations for: ['ring_length']
+[VIOLATION TRACKING] Ignoring violations for: ['ring_count', 'planarity']
+[VIOLATIONS] Summary saved to violation_summary_rank0_20250829_083149.txt
+
+[DEBUG] Comparing projector vs evaluation for ring_length_at_most ≤ 3
+[DEBUG] Analyzed 10000 molecules
+[DEBUG] Found 0 projector-evaluation discrepancies
+Sampling metrics {'test_sampling/NumNodesW1': 0.009, 'test_sampling/NodeTypesTV': 0.011, 'test_sampling/EdgeTypesTV': 0.12, 'test_sampling/Disconnected': 1.54, 'test_sampling/MeanComponents': 1.015, 'test_sampling/MaxComponents': 2.0, 'test_sampling/planarity': 1.0, 'test_sampling/no_cycles': 0.54, 'test_sampling/lobster_components': 0.54, 'test_sampling/generated_deg_hist': [0.001, 0.359, 0.421, 0.188, 0.031, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 'test_sampling/diff_deg_hist': [0.001, 0.359, 0.42, 0.153, -0.148, -0.298, -0.265, -0.147, -0.054, -0.017, -0.003, -0.0, -0.0], 'test_sampling/abs_diff_deg_hist': [0.001, 0.359, 0.42, 0.153, 0.148, 0.298, 0.265, 0.147, 0.054, 0.017, 0.003, 0.0, 0.0], 'test_sampling/ring_length_satisfaction': 1.0, 'test_sampling/ring_length_violation': 0.0, 'test_sampling/Validity': 99.32, 'test_sampling/Uniqueness': 90.334, 'test_sampling/Novelty': 91.964, 'test_sampling/fcd score': 5.161, 'test_sampling/ChargeW1': 0.004, 'test_sampling/ValencyW1': 0.254, 'test_ratio/fcd score': 5.981, 'test_ratio/average': 5.981}
+Done. Sampling took 6017.52 seconds
+
+Test ends.
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+       Test metric             DataLoader 0
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+        test/E_kl           63.322120666503906
+        test/X_kl           3.1082699298858643
+     test/charges_kl        0.5840032696723938
+     test/epoch_NLL          67.57009887695312
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+[rank: 0] Global seed set to 2000
+[rank: 0] Global seed set to 2000
+You are using a CUDA device ('NVIDIA RTX A5000') that has Tensor Cores. To properly utilize them, you should set `torch.set_float32_matmul_precision('medium' | 'high')` which will trade-off precision for performance. For more details, read https://pytorch.org/docs/stable/generated/torch.set_float32_matmul_precision.html#torch.set_float32_matmul_precision
+Restoring states from the checkpoint path at checkpoints/qm9_thesis_no_constraint/epoch-94.ckpt
+LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0]
+Loaded model weights from the checkpoint at checkpoints/qm9_thesis_no_constraint/epoch-94.ckpt
+SLURM auto-requeueing enabled. Setting signal handlers.
+Test loss: 67.4013
+Epoch 0: test/epoch_NLL: 67.4013 -- test/X_kl: 3.0448 -- test/E_kl: 63.2176 -- test/charges_kl: 0.5847 
+Sampling start on GR0
+Samples to generate: 10000 for each of the 1 devices
+Samples to save: 1000
+Sampling a batch with 230 graphs on local rank 0. Saving 230 visualization and 0 full chains.
+[2025-08-29 08:33:03,935][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0224s, mode=INCREMENTAL
+[2025-08-29 08:33:24,695][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0266s, mode=INCREMENTAL
+[2025-08-29 08:33:51,376][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0256s, mode=INCREMENTAL
+[2025-08-29 08:34:24,690][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0294s, mode=INCREMENTAL
+[2025-08-29 08:35:04,966][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0323s, mode=INCREMENTAL
+Visualizing 230 graphs out of 230
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b230/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b230/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b230/graph_2.png to wandb
+Done.
+Sampling a batch with 230 graphs on local rank 0. Saving 230 visualization and 0 full chains.
+[2025-08-29 08:35:25,324][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0256s, mode=INCREMENTAL
+[2025-08-29 08:35:45,417][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0213s, mode=INCREMENTAL
+[2025-08-29 08:36:11,863][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0286s, mode=INCREMENTAL
+[2025-08-29 08:36:45,367][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0273s, mode=INCREMENTAL
+[2025-08-29 08:37:26,027][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0280s, mode=INCREMENTAL
+Visualizing 230 graphs out of 230
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b460/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b460/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b460/graph_2.png to wandb
+Done.
+Sampling a batch with 230 graphs on local rank 0. Saving 230 visualization and 0 full chains.
+[2025-08-29 08:37:46,385][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0216s, mode=INCREMENTAL
+[2025-08-29 08:38:06,622][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0251s, mode=INCREMENTAL
+[2025-08-29 08:38:32,925][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0244s, mode=INCREMENTAL
+[2025-08-29 08:39:06,510][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0267s, mode=INCREMENTAL
+[2025-08-29 08:39:47,007][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0441s, mode=INCREMENTAL
+Visualizing 230 graphs out of 230
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b690/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b690/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b690/graph_2.png to wandb
+Done.
+Sampling a batch with 230 graphs on local rank 0. Saving 230 visualization and 0 full chains.
+[2025-08-29 08:40:07,084][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0209s, mode=INCREMENTAL
+[2025-08-29 08:40:27,460][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0242s, mode=INCREMENTAL
+[2025-08-29 08:40:54,065][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0240s, mode=INCREMENTAL
+[2025-08-29 08:41:27,738][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0256s, mode=INCREMENTAL
+[2025-08-29 08:42:08,479][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0384s, mode=INCREMENTAL
+Visualizing 230 graphs out of 230
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b920/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b920/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b920/graph_2.png to wandb
+Done.
+Sampling a batch with 80 graphs on local rank 0. Saving 80 visualization and 0 full chains.
+[2025-08-29 08:42:21,939][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0068s, mode=INCREMENTAL
+[2025-08-29 08:42:32,259][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0095s, mode=INCREMENTAL
+[2025-08-29 08:42:45,119][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0069s, mode=INCREMENTAL
+[2025-08-29 08:43:00,071][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0082s, mode=INCREMENTAL
+[2025-08-29 08:43:17,226][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0133s, mode=INCREMENTAL
+Visualizing 80 graphs out of 80
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b1000/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b1000/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b1000/graph_2.png to wandb
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 08:43:32,835][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0209s, mode=INCREMENTAL
+[2025-08-29 08:43:53,033][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0253s, mode=INCREMENTAL
+[2025-08-29 08:44:19,885][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0230s, mode=INCREMENTAL
+[2025-08-29 08:44:53,769][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0213s, mode=INCREMENTAL
+[2025-08-29 08:45:34,763][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0389s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 08:45:48,549][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0211s, mode=INCREMENTAL
+[2025-08-29 08:46:08,130][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0247s, mode=INCREMENTAL
+[2025-08-29 08:46:33,997][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0247s, mode=INCREMENTAL
+[2025-08-29 08:47:06,320][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0331s, mode=INCREMENTAL
+[2025-08-29 08:47:46,237][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0393s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 08:48:00,169][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0228s, mode=INCREMENTAL
+[2025-08-29 08:48:20,368][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0227s, mode=INCREMENTAL
+[2025-08-29 08:48:46,631][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0240s, mode=INCREMENTAL
+[2025-08-29 08:49:19,871][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0214s, mode=INCREMENTAL
+[2025-08-29 08:49:59,983][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0447s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 08:50:14,063][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0211s, mode=INCREMENTAL
+[2025-08-29 08:50:33,940][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0251s, mode=INCREMENTAL
+[2025-08-29 08:51:00,695][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0261s, mode=INCREMENTAL
+[2025-08-29 08:51:34,444][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0273s, mode=INCREMENTAL
+[2025-08-29 08:52:14,815][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0374s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 08:52:29,027][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0211s, mode=INCREMENTAL
+[2025-08-29 08:52:49,425][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0262s, mode=INCREMENTAL
+[2025-08-29 08:53:16,367][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0290s, mode=INCREMENTAL
+[2025-08-29 08:53:49,694][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0233s, mode=INCREMENTAL
+[2025-08-29 08:54:29,633][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0422s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 08:54:43,871][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0217s, mode=INCREMENTAL
+[2025-08-29 08:55:03,733][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0231s, mode=INCREMENTAL
+[2025-08-29 08:55:30,051][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0221s, mode=INCREMENTAL
+[2025-08-29 08:56:02,889][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0240s, mode=INCREMENTAL
+[2025-08-29 08:56:42,840][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0377s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 08:56:57,253][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0274s, mode=INCREMENTAL
+[2025-08-29 08:57:17,516][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0234s, mode=INCREMENTAL
+[2025-08-29 08:57:44,158][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0231s, mode=INCREMENTAL
+[2025-08-29 08:58:17,652][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0246s, mode=INCREMENTAL
+[2025-08-29 08:58:58,721][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0335s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 08:59:12,877][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0233s, mode=INCREMENTAL
+[2025-08-29 08:59:33,085][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0244s, mode=INCREMENTAL
+[2025-08-29 08:59:59,233][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0294s, mode=INCREMENTAL
+[2025-08-29 09:00:31,841][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0256s, mode=INCREMENTAL
+[2025-08-29 09:01:11,872][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0335s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 09:01:25,840][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0223s, mode=INCREMENTAL
+[2025-08-29 09:01:45,902][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0217s, mode=INCREMENTAL
+[2025-08-29 09:02:12,103][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0249s, mode=INCREMENTAL
+[2025-08-29 09:02:44,993][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0216s, mode=INCREMENTAL
+[2025-08-29 09:03:25,079][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0348s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 09:03:39,382][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0225s, mode=INCREMENTAL
+[2025-08-29 09:03:59,315][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0249s, mode=INCREMENTAL
+[2025-08-29 09:04:25,597][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0250s, mode=INCREMENTAL
+[2025-08-29 09:04:58,963][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0250s, mode=INCREMENTAL
+[2025-08-29 09:05:38,965][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0435s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 09:05:52,930][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0209s, mode=INCREMENTAL
+[2025-08-29 09:06:12,454][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0214s, mode=INCREMENTAL
+[2025-08-29 09:06:37,854][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0240s, mode=INCREMENTAL
+[2025-08-29 09:07:10,137][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0293s, mode=INCREMENTAL
+[2025-08-29 09:07:50,653][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0411s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 09:08:04,729][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0196s, mode=INCREMENTAL
+[2025-08-29 09:08:24,654][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0240s, mode=INCREMENTAL
+[2025-08-29 09:08:51,605][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0265s, mode=INCREMENTAL
+[2025-08-29 09:09:24,806][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0280s, mode=INCREMENTAL
+[2025-08-29 09:10:05,664][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0358s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 09:10:19,672][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0233s, mode=INCREMENTAL
+[2025-08-29 09:10:39,863][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0206s, mode=INCREMENTAL
+[2025-08-29 09:11:06,352][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0223s, mode=INCREMENTAL
+[2025-08-29 09:11:39,279][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0249s, mode=INCREMENTAL
+[2025-08-29 09:12:19,182][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0475s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 09:12:33,050][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0251s, mode=INCREMENTAL
+[2025-08-29 09:12:53,464][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0203s, mode=INCREMENTAL
+[2025-08-29 09:13:20,087][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0209s, mode=INCREMENTAL
+[2025-08-29 09:13:53,410][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0275s, mode=INCREMENTAL
+[2025-08-29 09:14:33,658][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0370s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 09:14:48,146][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0277s, mode=INCREMENTAL
+[2025-08-29 09:15:07,789][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0220s, mode=INCREMENTAL
+[2025-08-29 09:15:34,188][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0229s, mode=INCREMENTAL
+[2025-08-29 09:16:07,316][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0264s, mode=INCREMENTAL
+[2025-08-29 09:16:48,204][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0379s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 09:17:02,027][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0219s, mode=INCREMENTAL
+[2025-08-29 09:17:21,816][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0229s, mode=INCREMENTAL
+[2025-08-29 09:17:47,997][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0211s, mode=INCREMENTAL
+[2025-08-29 09:18:20,791][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0242s, mode=INCREMENTAL
+[2025-08-29 09:19:00,767][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0342s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 09:19:14,712][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0211s, mode=INCREMENTAL
+[2025-08-29 09:19:34,909][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0244s, mode=INCREMENTAL
+[2025-08-29 09:20:01,514][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0225s, mode=INCREMENTAL
+[2025-08-29 09:20:34,454][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0248s, mode=INCREMENTAL
+[2025-08-29 09:21:14,417][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0387s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 09:21:28,137][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0240s, mode=INCREMENTAL
+[2025-08-29 09:21:47,788][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0258s, mode=INCREMENTAL
+[2025-08-29 09:22:14,166][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0258s, mode=INCREMENTAL
+[2025-08-29 09:22:47,854][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0311s, mode=INCREMENTAL
+[2025-08-29 09:23:29,060][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0392s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 09:23:43,207][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0226s, mode=INCREMENTAL
+[2025-08-29 09:24:03,697][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0206s, mode=INCREMENTAL
+[2025-08-29 09:24:30,701][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0218s, mode=INCREMENTAL
+[2025-08-29 09:25:04,438][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0264s, mode=INCREMENTAL
+[2025-08-29 09:25:45,448][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0434s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 09:25:59,310][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0220s, mode=INCREMENTAL
+[2025-08-29 09:26:19,192][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0230s, mode=INCREMENTAL
+[2025-08-29 09:26:45,426][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0232s, mode=INCREMENTAL
+[2025-08-29 09:27:18,621][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0234s, mode=INCREMENTAL
+[2025-08-29 09:27:58,849][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0355s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 09:28:12,685][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0234s, mode=INCREMENTAL
+[2025-08-29 09:28:32,753][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0226s, mode=INCREMENTAL
+[2025-08-29 09:28:59,276][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0238s, mode=INCREMENTAL
+[2025-08-29 09:29:32,501][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0283s, mode=INCREMENTAL
+[2025-08-29 09:30:13,068][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0307s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 09:30:26,774][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0225s, mode=INCREMENTAL
+[2025-08-29 09:30:46,164][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0212s, mode=INCREMENTAL
+[2025-08-29 09:31:11,628][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0281s, mode=INCREMENTAL
+[2025-08-29 09:31:44,333][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0314s, mode=INCREMENTAL
+[2025-08-29 09:32:24,657][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0319s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 09:32:38,285][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0222s, mode=INCREMENTAL
+[2025-08-29 09:32:57,624][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0270s, mode=INCREMENTAL
+[2025-08-29 09:33:22,975][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0252s, mode=INCREMENTAL
+[2025-08-29 09:33:55,416][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0308s, mode=INCREMENTAL
+[2025-08-29 09:34:34,671][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0424s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 09:34:48,639][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0202s, mode=INCREMENTAL
+[2025-08-29 09:35:08,685][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0236s, mode=INCREMENTAL
+[2025-08-29 09:35:34,798][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0224s, mode=INCREMENTAL
+[2025-08-29 09:36:07,395][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0242s, mode=INCREMENTAL
+[2025-08-29 09:36:47,404][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0376s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 09:37:01,328][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0228s, mode=INCREMENTAL
+[2025-08-29 09:37:21,368][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0247s, mode=INCREMENTAL
+[2025-08-29 09:37:48,083][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0304s, mode=INCREMENTAL
+[2025-08-29 09:38:21,270][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0241s, mode=INCREMENTAL
+[2025-08-29 09:39:01,473][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0363s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 09:39:17,761][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0213s, mode=INCREMENTAL
+[2025-08-29 09:39:37,826][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0265s, mode=INCREMENTAL
+[2025-08-29 09:40:04,414][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0225s, mode=INCREMENTAL
+[2025-08-29 09:40:37,916][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0199s, mode=INCREMENTAL
+[2025-08-29 09:41:18,600][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0343s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 09:41:32,848][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0244s, mode=INCREMENTAL
+[2025-08-29 09:41:53,304][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0237s, mode=INCREMENTAL
+[2025-08-29 09:42:19,635][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0255s, mode=INCREMENTAL
+[2025-08-29 09:42:53,010][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0278s, mode=INCREMENTAL
+[2025-08-29 09:43:33,330][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0367s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 09:43:46,976][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0204s, mode=INCREMENTAL
+[2025-08-29 09:44:06,682][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0250s, mode=INCREMENTAL
+[2025-08-29 09:44:32,966][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0227s, mode=INCREMENTAL
+[2025-08-29 09:45:05,919][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0207s, mode=INCREMENTAL
+[2025-08-29 09:45:45,212][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0304s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 09:45:58,902][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0260s, mode=INCREMENTAL
+[2025-08-29 09:46:18,840][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0233s, mode=INCREMENTAL
+[2025-08-29 09:46:45,521][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0217s, mode=INCREMENTAL
+[2025-08-29 09:47:18,648][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0249s, mode=INCREMENTAL
+[2025-08-29 09:47:58,917][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0410s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 09:48:12,669][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0226s, mode=INCREMENTAL
+[2025-08-29 09:48:32,362][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0207s, mode=INCREMENTAL
+[2025-08-29 09:48:58,245][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0259s, mode=INCREMENTAL
+[2025-08-29 09:49:31,171][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0264s, mode=INCREMENTAL
+[2025-08-29 09:50:10,944][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0476s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 09:50:25,059][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0219s, mode=INCREMENTAL
+[2025-08-29 09:50:45,291][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0216s, mode=INCREMENTAL
+[2025-08-29 09:51:11,647][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0214s, mode=INCREMENTAL
+[2025-08-29 09:51:45,769][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0268s, mode=INCREMENTAL
+[2025-08-29 09:52:26,657][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0362s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 09:52:40,620][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0223s, mode=INCREMENTAL
+[2025-08-29 09:53:00,693][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0216s, mode=INCREMENTAL
+[2025-08-29 09:53:27,005][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0239s, mode=INCREMENTAL
+[2025-08-29 09:54:00,091][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0245s, mode=INCREMENTAL
+[2025-08-29 09:54:40,435][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0426s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 09:54:54,359][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0231s, mode=INCREMENTAL
+[2025-08-29 09:55:14,408][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0252s, mode=INCREMENTAL
+[2025-08-29 09:55:41,140][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0270s, mode=INCREMENTAL
+[2025-08-29 09:56:14,710][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0275s, mode=INCREMENTAL
+[2025-08-29 09:56:55,303][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0397s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 09:57:09,495][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0243s, mode=INCREMENTAL
+[2025-08-29 09:57:29,178][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0240s, mode=INCREMENTAL
+[2025-08-29 09:57:55,261][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0249s, mode=INCREMENTAL
+[2025-08-29 09:58:28,064][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0247s, mode=INCREMENTAL
+[2025-08-29 09:59:08,087][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0408s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 09:59:21,959][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0236s, mode=INCREMENTAL
+[2025-08-29 09:59:41,589][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0234s, mode=INCREMENTAL
+[2025-08-29 10:00:07,505][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0224s, mode=INCREMENTAL
+[2025-08-29 10:00:40,126][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0219s, mode=INCREMENTAL
+[2025-08-29 10:01:19,786][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0423s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 10:01:34,169][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0227s, mode=INCREMENTAL
+[2025-08-29 10:01:54,165][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0269s, mode=INCREMENTAL
+[2025-08-29 10:02:20,619][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0210s, mode=INCREMENTAL
+[2025-08-29 10:02:53,509][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0276s, mode=INCREMENTAL
+[2025-08-29 10:03:33,680][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0341s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 10:03:47,597][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0237s, mode=INCREMENTAL
+[2025-08-29 10:04:07,348][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0231s, mode=INCREMENTAL
+[2025-08-29 10:04:33,759][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0232s, mode=INCREMENTAL
+[2025-08-29 10:05:07,441][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0238s, mode=INCREMENTAL
+[2025-08-29 10:05:47,945][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0488s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 10:06:01,516][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0206s, mode=INCREMENTAL
+[2025-08-29 10:06:20,927][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0219s, mode=INCREMENTAL
+[2025-08-29 10:06:46,273][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0251s, mode=INCREMENTAL
+[2025-08-29 10:07:18,243][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0250s, mode=INCREMENTAL
+[2025-08-29 10:07:57,667][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0424s, mode=INCREMENTAL
+Done.
+Sampling a batch with 222 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 10:08:11,150][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0215s, mode=INCREMENTAL
+[2025-08-29 10:08:30,713][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0225s, mode=INCREMENTAL
+[2025-08-29 10:08:56,202][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0245s, mode=INCREMENTAL
+[2025-08-29 10:09:28,368][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0335s, mode=INCREMENTAL
+[2025-08-29 10:10:07,920][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0439s, mode=INCREMENTAL
+Done.
+Saving the generated graphs
+Saved.
+📊 Computing final sampling metrics...
+Error messages: AtomValence 50, Kekulize 0, other 1,  -- No error 9949
+[rank: 0] Received SIGTERM: 15
+[rank: 0] Received SIGTERM: 15
+[rank: 0] Received SIGTERM: 15
+Bypassing SIGTERM: 15
+Bypassing SIGTERM: 15
+Bypassing SIGTERM: 15
+Some generated smiles: CC(C)C(=O)NC(=O)O CC(C#N)C1CC1C C=C(CO)N(C)N=CN CCC=CC(N)C1CN1 CCCC1(OC)CC1C C#CC1(CC=O)CC1 NC(=O)C(N)=NC1CN1 COC1(C#N)CC12CO2 CC(C)CCN(C)C=O CC(C)OC1CN1C=O
+
+================================================================================
+📊 CONSTRAINT SATISFACTION RESULTS
+================================================================================
+
+📋 **Definitions**:
+• **FCD** — Fréchet ChemNet Distance computed on valid canonical SMILES; lower is better
+• **Unique/Novel/Valid** — proportions computed over all generated molecules (not only valid)
+• **Disconnected** — share of graphs with >1 connected component
+• **Property satisfied** — share of generated graphs meeting the enforced structural constraint
+• **V.U.N.** — product of Valid × Unique × Novel (in [0,100]%)
+
+🔍 **LOGGING TO WANDB**:
+============================================================
+  test_sampling/NumNodesW1: 0.0036217221058905125
+  test_sampling/NodeTypesTV: 0.004629224073141813
+  test_sampling/EdgeTypesTV: 0.12028530240058899
+  test_sampling/Disconnected: 1.6699999570846558
+  test_sampling/MeanComponents: 1.016700029373169
+  test_sampling/MaxComponents: 2.0
+  test_sampling/planarity: 1.0
+  test_sampling/no_cycles: 0.5491999983787537
+  test_sampling/lobster_components: 0.5491999983787537
+  test_sampling/generated_deg_hist: <wandb.sdk.data_types.histogram.Histogram object at 0x7fee3aecae20>
+  test_sampling/diff_deg_hist: <wandb.sdk.data_types.histogram.Histogram object at 0x7fee3aecaa30>
+  test_sampling/abs_diff_deg_hist: <wandb.sdk.data_types.histogram.Histogram object at 0x7fee3aeca9d0>
+  test_sampling/ring_length_satisfaction: 1.0
+  test_sampling/ring_length_violation: 0.0
+  test_sampling/Validity: 99.48999881744385
+  test_sampling/Uniqueness: 90.3306865011559
+  test_sampling/Novelty: 92.32224225997925
+  test_sampling/fcd score: 5.240725256111951
+============================================================
+
+
+🎯 CORE METRICS:
+================================================================================
+test_ring_length_3 — TEST — QM9
+Constraint: Ring length ≤ 3 · N=10,000 · diffusion_steps=500 · sampler=reverse
+
++-------------------------+--------------------+
+| Metric                  | Value                |
++-------------------------+--------------------+
+| Molecules generated (N) | 10,000               |
+| FCD                     | 5.241                |
+| Unique (%)              | 90.3307%             |
+| Novel (%)               | 92.3222%             |
+| Valid (%)               | 99.49%               |
+| Disconnected (%)        | 1.67%                |
+| Property satisfied (%)  | 100.0%               |
+| V.U.N. (%)              | 82.97%               |
++-------------------------+--------------------+
+
+
+🏗️ STRUCTURAL CONSTRAINT SATISFACTION:
+================================================================================
+test_ring_length_3 — TEST — QM9 — Structural
+Constraint: Ring length ≤ 3 · N=10,000 · diffusion_steps=500 · sampler=reverse
+
++---------------------------+--------------------+
+| Metric                    | Value                |
++---------------------------+--------------------+
+| Ring length satisfied (%) | 100.0%               |
+| Acyclic (max len 0) (%)   | 54.92%               |
+| Ring length 3 (max) (%)   | 45.08%               |
+| Ring length >3 (max) (%)  | 0.0%                 |
++---------------------------+--------------------+
+
+
+⏱️ TIMING METRICS:
+================================================================================
+test_ring_length_3 — TEST — QM9 — Timing
+Constraint: Ring length ≤ 3 · N=10,000 · diffusion_steps=500 · sampler=reverse
+
++---------------------------------+--------------------------------------------------+
+| Metric                          | Value                                              |
++---------------------------------+--------------------------------------------------+
+| Sampling time (s) for N         | 17453.63 for N=10,000                              |
+| Per-graph sampling time (ms)    | 1745.4                                             |
+| Sampling batches                | 132                                                |
+| Projector mean time (ms)        | 23.9                                               |
+| Projector share of sampling (%) | 9.0                                                |
+| Wall-clock elapsed (hh:mm)      | 04:58                                              |
+| Environment                     | gpu=NVIDIA RTX A5000, torch=2.0.1+cu118, cuda=...  |
++---------------------------------+--------------------------------------------------+
+
+
+🧪 CHEMISTRY METRICS:
+================================================================================
+test_ring_length_3 — TEST — QM9 — Chemistry
+Constraint: Ring length ≤ 3 · N=10,000 · diffusion_steps=500 · sampler=reverse
+
++---------------------------------+--------------------+
+| Metric                          | Value                |
++---------------------------------+--------------------+
+| Valid molecules used (chem)     | 9,949                |
+| Molecular weight (Da) mean ± sd | 124.8 ± 8.7          |
+| Heavy atoms mean ± sd           | 8.8 ± 0.6            |
+| Atom composition % (C/N/O/F)    | 72.2/11.5/16.1/0.2   |
++---------------------------------+--------------------+
+
+All smiles saved on rank 0
+[VIOLATION TRACKING] Detected constraint: ring_length_at_most, value: 3
+[VIOLATION TRACKING] Enforced constraint: ring_length_at_most
+[VIOLATION TRACKING] Tracking violations for: ['ring_length']
+[VIOLATION TRACKING] Ignoring violations for: ['ring_count', 'planarity']
+[VIOLATIONS] Summary saved to violation_summary_rank0_20250829_101217.txt
+
+[DEBUG] Comparing projector vs evaluation for ring_length_at_most ≤ 3
+[DEBUG] Analyzed 10000 molecules
+[DEBUG] Found 0 projector-evaluation discrepancies
+Sampling metrics {'test_sampling/NumNodesW1': 0.004, 'test_sampling/NodeTypesTV': 0.005, 'test_sampling/EdgeTypesTV': 0.12, 'test_sampling/Disconnected': 1.67, 'test_sampling/MeanComponents': 1.017, 'test_sampling/MaxComponents': 2.0, 'test_sampling/planarity': 1.0, 'test_sampling/no_cycles': 0.549, 'test_sampling/lobster_components': 0.549, 'test_sampling/generated_deg_hist': [0.001, 0.362, 0.419, 0.187, 0.032, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 'test_sampling/diff_deg_hist': [0.001, 0.362, 0.418, 0.152, -0.147, -0.298, -0.265, -0.147, -0.054, -0.017, -0.003, -0.0, -0.0], 'test_sampling/abs_diff_deg_hist': [0.001, 0.362, 0.418, 0.152, 0.147, 0.298, 0.265, 0.147, 0.054, 0.017, 0.003, 0.0, 0.0], 'test_sampling/ring_length_satisfaction': 1.0, 'test_sampling/ring_length_violation': 0.0, 'test_sampling/Validity': 99.49, 'test_sampling/Uniqueness': 90.331, 'test_sampling/Novelty': 92.322, 'test_sampling/fcd score': 5.241, 'test_sampling/ChargeW1': 0.002, 'test_sampling/ValencyW1': 0.258, 'test_ratio/fcd score': 6.073, 'test_ratio/average': 6.073}
+Done. Sampling took 6017.16 seconds
+
+Test ends.
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+       Test metric             DataLoader 0
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+        test/E_kl            63.21763229370117
+        test/X_kl            3.044785976409912
+     test/charges_kl        0.5846909284591675
+     test/epoch_NLL          67.4012680053711
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+[rank: 0] Global seed set to 3000
+[rank: 0] Global seed set to 3000
+You are using a CUDA device ('NVIDIA RTX A5000') that has Tensor Cores. To properly utilize them, you should set `torch.set_float32_matmul_precision('medium' | 'high')` which will trade-off precision for performance. For more details, read https://pytorch.org/docs/stable/generated/torch.set_float32_matmul_precision.html#torch.set_float32_matmul_precision
+Restoring states from the checkpoint path at checkpoints/qm9_thesis_no_constraint/epoch-94.ckpt
+LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0]
+Loaded model weights from the checkpoint at checkpoints/qm9_thesis_no_constraint/epoch-94.ckpt
+SLURM auto-requeueing enabled. Setting signal handlers.
+Test loss: 67.5689
+Epoch 0: test/epoch_NLL: 67.5689 -- test/X_kl: 3.0185 -- test/E_kl: 63.3991 -- test/charges_kl: 0.5963 
+Sampling start on GR0
+Samples to generate: 10000 for each of the 1 devices
+Samples to save: 1000
+Sampling a batch with 230 graphs on local rank 0. Saving 230 visualization and 0 full chains.
+[2025-08-29 10:13:30,843][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0213s, mode=INCREMENTAL
+[2025-08-29 10:13:50,710][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0214s, mode=INCREMENTAL
+[2025-08-29 10:14:17,330][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0265s, mode=INCREMENTAL
+[2025-08-29 10:14:50,805][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0234s, mode=INCREMENTAL
+[2025-08-29 10:15:31,304][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0374s, mode=INCREMENTAL
+Visualizing 230 graphs out of 230
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b230/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b230/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b230/graph_2.png to wandb
+Done.
+Sampling a batch with 230 graphs on local rank 0. Saving 230 visualization and 0 full chains.
+[2025-08-29 10:15:50,546][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0202s, mode=INCREMENTAL
+[2025-08-29 10:16:10,553][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0254s, mode=INCREMENTAL
+[2025-08-29 10:16:36,848][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0269s, mode=INCREMENTAL
+[2025-08-29 10:17:10,345][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0240s, mode=INCREMENTAL
+[2025-08-29 10:17:50,619][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0438s, mode=INCREMENTAL
+Visualizing 230 graphs out of 230
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b460/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b460/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b460/graph_2.png to wandb
+Done.
+Sampling a batch with 230 graphs on local rank 0. Saving 230 visualization and 0 full chains.
+[2025-08-29 10:18:09,011][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0266s, mode=INCREMENTAL
+[2025-08-29 10:18:29,168][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0237s, mode=INCREMENTAL
+[2025-08-29 10:18:55,722][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0245s, mode=INCREMENTAL
+[2025-08-29 10:19:29,192][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0213s, mode=INCREMENTAL
+[2025-08-29 10:20:09,588][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0299s, mode=INCREMENTAL
+Visualizing 230 graphs out of 230
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b690/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b690/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b690/graph_2.png to wandb
+Done.
+Sampling a batch with 230 graphs on local rank 0. Saving 230 visualization and 0 full chains.
+[2025-08-29 10:20:29,821][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0266s, mode=INCREMENTAL
+[2025-08-29 10:20:50,357][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0229s, mode=INCREMENTAL
+[2025-08-29 10:21:16,979][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0228s, mode=INCREMENTAL
+[2025-08-29 10:21:50,471][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0258s, mode=INCREMENTAL
+[2025-08-29 10:22:30,862][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0396s, mode=INCREMENTAL
+Visualizing 230 graphs out of 230
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b920/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b920/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b920/graph_2.png to wandb
+Done.
+Sampling a batch with 80 graphs on local rank 0. Saving 80 visualization and 0 full chains.
+[2025-08-29 10:22:43,266][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0099s, mode=INCREMENTAL
+[2025-08-29 10:22:54,062][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0089s, mode=INCREMENTAL
+[2025-08-29 10:23:06,963][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0094s, mode=INCREMENTAL
+[2025-08-29 10:23:22,000][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0108s, mode=INCREMENTAL
+[2025-08-29 10:23:39,031][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0123s, mode=INCREMENTAL
+Visualizing 80 graphs out of 80
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b1000/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b1000/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_length_3/epoch0_b1000/graph_2.png to wandb
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 10:23:54,392][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0210s, mode=INCREMENTAL
+[2025-08-29 10:24:14,635][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0266s, mode=INCREMENTAL
+[2025-08-29 10:24:41,311][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0212s, mode=INCREMENTAL
+[2025-08-29 10:25:15,292][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0263s, mode=INCREMENTAL
+[2025-08-29 10:25:55,922][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0373s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 10:26:10,263][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0241s, mode=INCREMENTAL
+[2025-08-29 10:26:30,463][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0229s, mode=INCREMENTAL
+[2025-08-29 10:26:56,857][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0253s, mode=INCREMENTAL
+[2025-08-29 10:27:29,831][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0247s, mode=INCREMENTAL
+[2025-08-29 10:28:09,832][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0434s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 10:28:23,908][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0253s, mode=INCREMENTAL
+[2025-08-29 10:28:44,029][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0252s, mode=INCREMENTAL
+[2025-08-29 10:29:10,756][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0276s, mode=INCREMENTAL
+[2025-08-29 10:29:44,612][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0240s, mode=INCREMENTAL
+[2025-08-29 10:30:25,137][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0407s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 10:30:39,338][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0243s, mode=INCREMENTAL
+[2025-08-29 10:31:00,802][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0235s, mode=INCREMENTAL
+[2025-08-29 10:31:27,954][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0233s, mode=INCREMENTAL
+[2025-08-29 10:32:02,732][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0260s, mode=INCREMENTAL
+[2025-08-29 10:32:43,743][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0363s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 10:32:58,152][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0260s, mode=INCREMENTAL
+[2025-08-29 10:33:18,269][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0209s, mode=INCREMENTAL
+[2025-08-29 10:33:44,618][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0233s, mode=INCREMENTAL
+[2025-08-29 10:34:17,994][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0259s, mode=INCREMENTAL
+[2025-08-29 10:34:58,729][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0345s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 10:35:12,618][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0239s, mode=INCREMENTAL
+[2025-08-29 10:35:33,008][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0249s, mode=INCREMENTAL
+[2025-08-29 10:35:59,704][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0270s, mode=INCREMENTAL
+[2025-08-29 10:36:33,137][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0225s, mode=INCREMENTAL
+[2025-08-29 10:37:14,200][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0416s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 10:37:28,195][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0230s, mode=INCREMENTAL
+[2025-08-29 10:37:49,180][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0270s, mode=INCREMENTAL
+[2025-08-29 10:38:16,045][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0280s, mode=INCREMENTAL
+[2025-08-29 10:38:49,507][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0244s, mode=INCREMENTAL
+[2025-08-29 10:39:29,291][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0345s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 10:39:43,701][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0231s, mode=INCREMENTAL
+[2025-08-29 10:40:03,875][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0233s, mode=INCREMENTAL
+[2025-08-29 10:40:29,979][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0221s, mode=INCREMENTAL
+[2025-08-29 10:41:02,969][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0237s, mode=INCREMENTAL
+[2025-08-29 10:41:43,298][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0370s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 10:41:57,203][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0217s, mode=INCREMENTAL
+[2025-08-29 10:42:17,641][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0242s, mode=INCREMENTAL
+[2025-08-29 10:42:44,030][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0213s, mode=INCREMENTAL
+[2025-08-29 10:43:17,542][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0228s, mode=INCREMENTAL
+[2025-08-29 10:43:58,554][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0409s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 10:44:12,464][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0210s, mode=INCREMENTAL
+[2025-08-29 10:44:32,394][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0219s, mode=INCREMENTAL
+[2025-08-29 10:44:58,661][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0267s, mode=INCREMENTAL
+[2025-08-29 10:45:31,760][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0278s, mode=INCREMENTAL
+[2025-08-29 10:46:11,987][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0339s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 10:46:26,002][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0231s, mode=INCREMENTAL
+[2025-08-29 10:46:46,682][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0243s, mode=INCREMENTAL
+[2025-08-29 10:47:13,463][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0242s, mode=INCREMENTAL
+[2025-08-29 10:47:46,837][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0208s, mode=INCREMENTAL
+[2025-08-29 10:48:27,203][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0351s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 10:48:41,377][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0239s, mode=INCREMENTAL
+[2025-08-29 10:49:01,696][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0223s, mode=INCREMENTAL
+[2025-08-29 10:49:28,396][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0259s, mode=INCREMENTAL
+[2025-08-29 10:50:01,766][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0290s, mode=INCREMENTAL
+[2025-08-29 10:50:42,338][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0450s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 10:50:56,418][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0240s, mode=INCREMENTAL
+[2025-08-29 10:51:16,247][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0253s, mode=INCREMENTAL
+[2025-08-29 10:51:42,456][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0215s, mode=INCREMENTAL
+[2025-08-29 10:52:15,435][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0258s, mode=INCREMENTAL
+[2025-08-29 10:52:55,424][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0353s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 10:53:09,228][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0218s, mode=INCREMENTAL
+[2025-08-29 10:53:28,873][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0241s, mode=INCREMENTAL
+[2025-08-29 10:53:54,741][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0268s, mode=INCREMENTAL
+[2025-08-29 10:54:26,995][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0273s, mode=INCREMENTAL
+[2025-08-29 10:55:06,288][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0395s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 10:55:20,424][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0261s, mode=INCREMENTAL
+[2025-08-29 10:55:40,771][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0235s, mode=INCREMENTAL
+[2025-08-29 10:56:08,021][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0268s, mode=INCREMENTAL
+[2025-08-29 10:56:41,996][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0247s, mode=INCREMENTAL
+[2025-08-29 10:57:22,156][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0459s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 10:57:36,193][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0234s, mode=INCREMENTAL
+[2025-08-29 10:57:55,738][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0244s, mode=INCREMENTAL
+[2025-08-29 10:58:21,775][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0227s, mode=INCREMENTAL
+[2025-08-29 10:58:55,074][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0253s, mode=INCREMENTAL
+[2025-08-29 10:59:35,636][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0363s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 10:59:49,797][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0225s, mode=INCREMENTAL
+[2025-08-29 11:00:09,868][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0290s, mode=INCREMENTAL
+[2025-08-29 11:00:36,249][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0250s, mode=INCREMENTAL
+[2025-08-29 11:01:09,991][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0234s, mode=INCREMENTAL
+[2025-08-29 11:01:50,870][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0426s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 11:02:04,656][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0226s, mode=INCREMENTAL
+[2025-08-29 11:02:24,094][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0287s, mode=INCREMENTAL
+[2025-08-29 11:02:50,707][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0251s, mode=INCREMENTAL
+[2025-08-29 11:03:24,487][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0261s, mode=INCREMENTAL
+[2025-08-29 11:04:05,330][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0363s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 11:04:19,750][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0219s, mode=INCREMENTAL
+[2025-08-29 11:04:40,012][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0257s, mode=INCREMENTAL
+[2025-08-29 11:05:06,121][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0281s, mode=INCREMENTAL
+[2025-08-29 11:05:39,563][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0274s, mode=INCREMENTAL
+[2025-08-29 11:06:20,572][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0387s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 11:06:35,123][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0223s, mode=INCREMENTAL
+[2025-08-29 11:06:55,427][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0256s, mode=INCREMENTAL
+[2025-08-29 11:07:21,915][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0295s, mode=INCREMENTAL
+[2025-08-29 11:07:55,456][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0322s, mode=INCREMENTAL
+[2025-08-29 11:08:35,580][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0320s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 11:08:49,660][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0246s, mode=INCREMENTAL
+[2025-08-29 11:09:09,771][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0204s, mode=INCREMENTAL
+[2025-08-29 11:09:36,161][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0251s, mode=INCREMENTAL
+[2025-08-29 11:10:09,596][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0275s, mode=INCREMENTAL
+[2025-08-29 11:10:50,351][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0448s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 11:11:04,507][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0263s, mode=INCREMENTAL
+[2025-08-29 11:11:24,616][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0265s, mode=INCREMENTAL
+[2025-08-29 11:11:50,952][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0255s, mode=INCREMENTAL
+[2025-08-29 11:12:24,221][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0261s, mode=INCREMENTAL
+[2025-08-29 11:13:04,555][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0326s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 11:13:18,594][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0223s, mode=INCREMENTAL
+[2025-08-29 11:13:39,093][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0216s, mode=INCREMENTAL
+[2025-08-29 11:14:06,145][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0257s, mode=INCREMENTAL
+[2025-08-29 11:14:40,925][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0242s, mode=INCREMENTAL
+[2025-08-29 11:15:22,246][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0385s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 11:15:36,353][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0234s, mode=INCREMENTAL
+[2025-08-29 11:15:56,410][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0243s, mode=INCREMENTAL
+[2025-08-29 11:16:22,133][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0267s, mode=INCREMENTAL
+[2025-08-29 11:16:54,735][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0344s, mode=INCREMENTAL
+[2025-08-29 11:17:34,509][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0392s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 11:17:48,669][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0244s, mode=INCREMENTAL
+[2025-08-29 11:18:08,466][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0253s, mode=INCREMENTAL
+[2025-08-29 11:18:34,423][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0250s, mode=INCREMENTAL
+[2025-08-29 11:19:07,487][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0240s, mode=INCREMENTAL
+[2025-08-29 11:19:47,943][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0409s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 11:20:01,865][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0226s, mode=INCREMENTAL
+[2025-08-29 11:20:21,926][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0217s, mode=INCREMENTAL
+[2025-08-29 11:20:48,409][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0231s, mode=INCREMENTAL
+[2025-08-29 11:21:22,195][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0244s, mode=INCREMENTAL
+[2025-08-29 11:22:03,203][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0312s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 11:22:17,332][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0217s, mode=INCREMENTAL
+[2025-08-29 11:22:37,378][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0234s, mode=INCREMENTAL
+[2025-08-29 11:23:03,744][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0265s, mode=INCREMENTAL
+[2025-08-29 11:23:36,692][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0227s, mode=INCREMENTAL
+[2025-08-29 11:24:17,207][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0444s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 11:24:31,085][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0232s, mode=INCREMENTAL
+[2025-08-29 11:24:50,932][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0267s, mode=INCREMENTAL
+[2025-08-29 11:25:17,241][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0263s, mode=INCREMENTAL
+[2025-08-29 11:25:50,517][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0274s, mode=INCREMENTAL
+[2025-08-29 11:26:30,626][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0353s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 11:26:44,892][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0229s, mode=INCREMENTAL
+[2025-08-29 11:27:05,123][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0206s, mode=INCREMENTAL
+[2025-08-29 11:27:31,512][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0259s, mode=INCREMENTAL
+[2025-08-29 11:28:05,019][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0266s, mode=INCREMENTAL
+[2025-08-29 11:28:45,393][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0413s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 11:28:59,316][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0227s, mode=INCREMENTAL
+[2025-08-29 11:29:19,077][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0229s, mode=INCREMENTAL
+[2025-08-29 11:29:44,972][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0211s, mode=INCREMENTAL
+[2025-08-29 11:30:18,250][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0242s, mode=INCREMENTAL
+[2025-08-29 11:30:58,690][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0421s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 11:31:12,566][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0227s, mode=INCREMENTAL
+[2025-08-29 11:31:32,515][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0253s, mode=INCREMENTAL
+[2025-08-29 11:31:58,871][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0210s, mode=INCREMENTAL
+[2025-08-29 11:32:32,515][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0217s, mode=INCREMENTAL
+[2025-08-29 11:33:12,956][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0417s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 11:33:27,388][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0201s, mode=INCREMENTAL
+[2025-08-29 11:33:47,838][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0241s, mode=INCREMENTAL
+[2025-08-29 11:34:14,704][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0248s, mode=INCREMENTAL
+[2025-08-29 11:34:48,441][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0255s, mode=INCREMENTAL
+[2025-08-29 11:35:29,208][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0388s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 11:35:43,017][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0215s, mode=INCREMENTAL
+[2025-08-29 11:36:02,629][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0252s, mode=INCREMENTAL
+[2025-08-29 11:36:27,942][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0232s, mode=INCREMENTAL
+[2025-08-29 11:37:00,189][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0268s, mode=INCREMENTAL
+[2025-08-29 11:37:39,132][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0389s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 11:37:53,245][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0243s, mode=INCREMENTAL
+[2025-08-29 11:38:13,413][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0247s, mode=INCREMENTAL
+[2025-08-29 11:38:39,550][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0258s, mode=INCREMENTAL
+[2025-08-29 11:39:12,533][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0209s, mode=INCREMENTAL
+[2025-08-29 11:39:52,422][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0465s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 11:40:06,950][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0224s, mode=INCREMENTAL
+[2025-08-29 11:40:27,712][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0202s, mode=INCREMENTAL
+[2025-08-29 11:40:54,664][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0239s, mode=INCREMENTAL
+[2025-08-29 11:41:28,958][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0246s, mode=INCREMENTAL
+[2025-08-29 11:42:10,144][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0318s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 11:42:24,204][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0238s, mode=INCREMENTAL
+[2025-08-29 11:42:44,283][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0218s, mode=INCREMENTAL
+[2025-08-29 11:43:10,807][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0285s, mode=INCREMENTAL
+[2025-08-29 11:43:43,976][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0304s, mode=INCREMENTAL
+[2025-08-29 11:44:24,544][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0362s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 11:44:38,792][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0217s, mode=INCREMENTAL
+[2025-08-29 11:44:59,265][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0269s, mode=INCREMENTAL
+[2025-08-29 11:45:25,865][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0244s, mode=INCREMENTAL
+[2025-08-29 11:45:59,275][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0262s, mode=INCREMENTAL
+[2025-08-29 11:46:40,015][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0377s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 11:46:53,890][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0213s, mode=INCREMENTAL
+[2025-08-29 11:47:13,236][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0233s, mode=INCREMENTAL
+[2025-08-29 11:47:38,848][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0265s, mode=INCREMENTAL
+[2025-08-29 11:48:11,747][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0288s, mode=INCREMENTAL
+[2025-08-29 11:48:51,903][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0347s, mode=INCREMENTAL
+Done.
+Sampling a batch with 222 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-29 11:49:05,790][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0227s, mode=INCREMENTAL
+[2025-08-29 11:49:25,356][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0210s, mode=INCREMENTAL
+[2025-08-29 11:49:50,920][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0230s, mode=INCREMENTAL
+[2025-08-29 11:50:23,256][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0236s, mode=INCREMENTAL
+[2025-08-29 11:51:02,352][ConStruct.projector.projector_utils][INFO] - ⏱️ RingLengthAtMostProjector: projection_time=0.0331s, mode=INCREMENTAL
+Done.
+Saving the generated graphs
+Saved.
+📊 Computing final sampling metrics...
+Error messages: AtomValence 54, Kekulize 0, other 0,  -- No error 9946
+[rank: 0] Received SIGTERM: 15
+[rank: 0] Received SIGTERM: 15
+[rank: 0] Received SIGTERM: 15
+[rank: 0] Received SIGTERM: 15
+Bypassing SIGTERM: 15
+Bypassing SIGTERM: 15
+Bypassing SIGTERM: 15
+Bypassing SIGTERM: 15
+slurmstepd-vgpu1-0: error: *** JOB 1083668 ON vgpu1-0 CANCELLED AT 2025-08-29T15:39:09 ***
+[rank: 0] Received SIGTERM: 15
+Bypassing SIGTERM: 15
+[rank: 0] Received SIGTERM: 15
+Bypassing SIGTERM: 15

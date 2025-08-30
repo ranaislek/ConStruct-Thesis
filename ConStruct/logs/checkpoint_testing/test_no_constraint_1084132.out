@@ -1,0 +1,1356 @@
+torch version: 2.0.1+cu118
+CUDA available: True
+CUDA device: NVIDIA RTX A5000
+=== Testing No Constraint (Baseline) ===
+Using No-Constraint Checkpoint: checkpoints/qm9_thesis_no_constraint/epoch-94.ckpt
+Constraint: No structural constraints (natural QM9 distribution)
+Job ID: 1084132
+Node: vgpu0-1
+Time: Fri 29 Aug 2025 10:39:16 PM UTC
+<frozen importlib._bootstrap>:228: RuntimeWarning: to-Python converter for std::pair<double, double> already registered; second conversion method ignored.
+[rank: 0] Global seed set to 0
+Loading reference metrics.
+Edge-deletion transition model (for 'at most' constraints)
+[INFO] Early stopping enabled: monitoring 'val/epoch_NLL' with patience 28
+GPU available: True (cuda), used: True
+TPU available: False, using: 0 TPU cores
+IPU available: False, using: 0 IPUs
+HPU available: False, using: 0 HPUs
+[rank: 0] Global seed set to 0
+[rank: 0] Global seed set to 0
+Initializing distributed: GLOBAL_RANK: 0, MEMBER: 1/1
+[2025-08-29 22:40:12,129][torch.distributed.distributed_c10d][INFO] - Added key: store_based_barrier_key:1 to store for rank: 0
+[2025-08-29 22:40:12,130][torch.distributed.distributed_c10d][INFO] - Rank 0: Completed store-based barrier for key:store_based_barrier_key:1 with 1 nodes.
+----------------------------------------------------------------------------------------------------
+distributed_backend=nccl
+All distributed processes registered. Starting with 1 processes
+----------------------------------------------------------------------------------------------------
+
+You are using a CUDA device ('NVIDIA RTX A5000') that has Tensor Cores. To properly utilize them, you should set `torch.set_float32_matmul_precision('medium' | 'high')` which will trade-off precision for performance. For more details, read https://pytorch.org/docs/stable/generated/torch.set_float32_matmul_precision.html#torch.set_float32_matmul_precision
+Restoring states from the checkpoint path at checkpoints/qm9_thesis_no_constraint/epoch-94.ckpt
+LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0]
+Loaded model weights from the checkpoint at checkpoints/qm9_thesis_no_constraint/epoch-94.ckpt
+SLURM auto-requeueing enabled. Setting signal handlers.
+Test loss: 67.4657
+Epoch 0: test/epoch_NLL: 67.4657 -- test/X_kl: 3.1520 -- test/E_kl: 63.2048 -- test/charges_kl: 0.5536 
+Sampling start on GR0
+Samples to generate: 10000 for each of the 1 devices
+Samples to save: 1000
+Sampling a batch with 230 graphs on local rank 0. Saving 230 visualization and 0 full chains.
+🔧 No constraint training - generating unrestricted graphs
+Visualizing 230 graphs out of 230
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b230/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b230/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b230/graph_2.png to wandb
+Done.
+Sampling a batch with 230 graphs on local rank 0. Saving 230 visualization and 0 full chains.
+Visualizing 230 graphs out of 230
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b460/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b460/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b460/graph_2.png to wandb
+Done.
+Sampling a batch with 230 graphs on local rank 0. Saving 230 visualization and 0 full chains.
+Visualizing 230 graphs out of 230
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b690/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b690/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b690/graph_2.png to wandb
+Done.
+Sampling a batch with 230 graphs on local rank 0. Saving 230 visualization and 0 full chains.
+Visualizing 230 graphs out of 230
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b920/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b920/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b920/graph_2.png to wandb
+Done.
+Sampling a batch with 80 graphs on local rank 0. Saving 80 visualization and 0 full chains.
+Visualizing 80 graphs out of 80
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b1000/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b1000/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b1000/graph_2.png to wandb
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 222 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Saving the generated graphs
+Saved.
+📊 Computing final sampling metrics...
+Error messages: AtomValence 141, Kekulize 0, other 0,  -- No error 9859
+[rank: 0] Received SIGTERM: 15
+Bypassing SIGTERM: 15
+[rank: 0] Received SIGTERM: 15
+Bypassing SIGTERM: 15
+[rank: 0] Received SIGTERM: 15
+Bypassing SIGTERM: 15
+Some generated smiles: CCC1CC2(CO2)C1=O O=C1OCC(C2CN2)O1 CCC(C)COCC=O CC1C=CC2CC(O)C12 C1OC23CC1C1(C2)OC31 C#CC1(CC)NC1C#N OCC1C2C3C4CC12C43 C#CCC(C#C)NC=O C#CC1C2C3CCC2[NH+]13 [NH-][CH+]NC12CC1OC2=O
+
+================================================================================
+📊 CONSTRAINT SATISFACTION RESULTS
+================================================================================
+
+📋 **Definitions**:
+• **FCD** — Fréchet ChemNet Distance computed on valid canonical SMILES; lower is better
+• **Unique/Novel/Valid** — proportions computed over all generated molecules (not only valid)
+• **Disconnected** — share of graphs with >1 connected component
+• **Property satisfied** — share of generated graphs meeting the enforced structural constraint
+• **V.U.N.** — product of Valid × Unique × Novel (in [0,100]%)
+
+🔍 **LOGGING TO WANDB**:
+============================================================
+  test_sampling/NumNodesW1: 0.007265243213623762
+  test_sampling/NodeTypesTV: 0.005500544793903828
+  test_sampling/EdgeTypesTV: 0.06550215929746628
+  test_sampling/Disconnected: 2.2299999371170998
+  test_sampling/MeanComponents: 1.0224000215530396
+  test_sampling/MaxComponents: 3.0
+  test_sampling/planarity: 0.9983999729156494
+  test_sampling/no_cycles: 0.10559999942779541
+  test_sampling/lobster_components: 0.10559999942779541
+  test_sampling/generated_deg_hist: <wandb.sdk.data_types.histogram.Histogram object at 0x7fb644ddb3d0>
+  test_sampling/diff_deg_hist: <wandb.sdk.data_types.histogram.Histogram object at 0x7fb644ddb8b0>
+  test_sampling/abs_diff_deg_hist: <wandb.sdk.data_types.histogram.Histogram object at 0x7fb644ddb250>
+  test_sampling/Validity: 98.58999848365784
+  test_sampling/Uniqueness: 97.55553301551882
+  test_sampling/Novelty: 88.82303833961487
+  test_sampling/fcd score: 1.0203340144204986
+============================================================
+
+
+🎯 CORE METRICS:
+================================================================================
+test_no_constraint — TEST — QM9
+Constraint: No structural constraint · N=10,000 · diffusion_steps=500 · sampler=reverse
+
++-------------------------+--------------------+
+| Metric                  | Value                |
++-------------------------+--------------------+
+| Molecules generated (N) | 10,000               |
+| FCD                     | 1.02                 |
+| Unique (%)              | 97.5555%             |
+| Novel (%)               | 88.823%              |
+| Valid (%)               | 98.59%               |
+| Disconnected (%)        | 2.23%                |
+| Property satisfied (%)  | —                    |
+| V.U.N. (%)              | 85.43%               |
++-------------------------+--------------------+
+
+
+🏗️ STRUCTURAL CONSTRAINT SATISFACTION:
+================================================================================
+test_no_constraint — TEST — QM9 — Structural
+Constraint: No structural constraint · N=10,000 · diffusion_steps=500 · sampler=reverse
+
++---------------------------+--------------------------+
+| Metric                    | Value                      |
++---------------------------+--------------------------+
+| Constraint                | No structural constraint   |
+| Ring count 0 (%)          | 10.56%                     |
+| Ring count 1 (%)          | 40.4%                      |
+| Ring count 2 (%)          | 7.2%                       |
+| Ring count 3 (%)          | 25.16%                     |
+| Ring count 4 (%)          | 2.05%                      |
+| Ring count 5 (%)          | 0.02%                      |
+| Ring count 6 (%)          | 6.14%                      |
+| Ring count 7 (%)          | 5.17%                      |
+| Ring count 8 (%)          | 0.17%                      |
+| Ring count 9+ (%)         | 3.13%                      |
+| Acyclic (max len 0) (%)   | 10.56%                     |
+| Ring length 3 (max) (%)   | 10.48%                     |
+| Ring length 4 (max) (%)   | 10.77%                     |
+| Ring length 5 (max) (%)   | 27.34%                     |
+| Ring length 6 (max) (%)   | 18.98%                     |
+| Ring length 7 (max) (%)   | 11.93%                     |
+| Ring length 8 (max) (%)   | 7.7%                       |
+| Ring length 9 (max) (%)   | 2.24%                      |
+| Ring length 10 (max) (%)  | 0.0%                       |
+| Ring length 11 (max) (%)  | 0.0%                       |
+| Ring length 12 (max) (%)  | 0.0%                       |
+| Ring length >12 (max) (%) | 0.0%                       |
++---------------------------+--------------------------+
+
+
+⏱️ TIMING METRICS:
+================================================================================
+test_no_constraint — TEST — QM9 — Timing
+Constraint: No structural constraint · N=10,000 · diffusion_steps=500 · sampler=reverse
+
++---------------------------------+--------------------------------------------------+
+| Metric                          | Value                                              |
++---------------------------------+--------------------------------------------------+
+| Sampling time (s) for N         | 1588.37 for N=10,000                               |
+| Per-graph sampling time (ms)    | 158.8                                              |
+| Sampling batches                | 44                                                 |
+| Projector mean time (ms)        | 0.0 (no projection)                                |
+| Projector share of sampling (%) | 0.0% (no projection)                               |
+| Wall-clock elapsed (hh:mm)      | 00:27                                              |
+| Environment                     | gpu=NVIDIA RTX A5000, torch=2.0.1+cu118, cuda=...  |
++---------------------------------+--------------------------------------------------+
+
+
+🧪 CHEMISTRY METRICS:
+================================================================================
+test_no_constraint — TEST — QM9 — Chemistry
+Constraint: No structural constraint · N=10,000 · diffusion_steps=500 · sampler=reverse
+
++---------------------------------+--------------------+
+| Metric                          | Value                |
++---------------------------------+--------------------+
+| Valid molecules used (chem)     | 9,859                |
+| Molecular weight (Da) mean ± sd | 122.4 ± 8.6          |
+| Heavy atoms mean ± sd           | 8.8 ± 0.6            |
+| Atom composition % (C/N/O/F)    | 72.4/11.7/15.6/0.2   |
++---------------------------------+--------------------+
+
+All smiles saved on rank 0
+[VIOLATION TRACKING] Detected constraint: None, value: None
+[VIOLATION TRACKING] Enforced constraint: None
+[VIOLATION TRACKING] Tracking violations for: []
+[VIOLATION TRACKING] Ignoring violations for: ['ring_count', 'ring_length', 'planarity']
+[VIOLATIONS] Summary saved to violation_summary_rank0_20250829_230802.txt
+Sampling metrics {'test_sampling/NumNodesW1': 0.007, 'test_sampling/NodeTypesTV': 0.006, 'test_sampling/EdgeTypesTV': 0.066, 'test_sampling/Disconnected': 2.23, 'test_sampling/MeanComponents': 1.022, 'test_sampling/MaxComponents': 3.0, 'test_sampling/planarity': 0.998, 'test_sampling/no_cycles': 0.106, 'test_sampling/lobster_components': 0.106, 'test_sampling/generated_deg_hist': [0.001, 0.239, 0.441, 0.268, 0.05, 0.001, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 'test_sampling/diff_deg_hist': [0.001, 0.239, 0.44, 0.233, -0.128, -0.298, -0.265, -0.147, -0.054, -0.017, -0.003, -0.0, -0.0], 'test_sampling/abs_diff_deg_hist': [0.001, 0.239, 0.44, 0.233, 0.128, 0.298, 0.265, 0.147, 0.054, 0.017, 0.003, 0.0, 0.0], 'test_sampling/Validity': 98.59, 'test_sampling/Uniqueness': 97.556, 'test_sampling/Novelty': 88.823, 'test_sampling/fcd score': 1.02, 'test_sampling/ChargeW1': 0.003, 'test_sampling/ValencyW1': 0.017, 'test_ratio/fcd score': 1.182, 'test_ratio/average': 1.182}
+Done. Sampling took 1659.13 seconds
+
+Test ends.
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+       Test metric             DataLoader 0
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+        test/E_kl             63.204833984375
+        test/X_kl           3.1520004272460938
+     test/charges_kl        0.5535587072372437
+     test/epoch_NLL          67.46573638916016
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+[rank: 0] Global seed set to 1000
+[rank: 0] Global seed set to 1000
+You are using a CUDA device ('NVIDIA RTX A5000') that has Tensor Cores. To properly utilize them, you should set `torch.set_float32_matmul_precision('medium' | 'high')` which will trade-off precision for performance. For more details, read https://pytorch.org/docs/stable/generated/torch.set_float32_matmul_precision.html#torch.set_float32_matmul_precision
+Restoring states from the checkpoint path at checkpoints/qm9_thesis_no_constraint/epoch-94.ckpt
+LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0]
+Loaded model weights from the checkpoint at checkpoints/qm9_thesis_no_constraint/epoch-94.ckpt
+SLURM auto-requeueing enabled. Setting signal handlers.
+Test loss: 67.5701
+Epoch 0: test/epoch_NLL: 67.5701 -- test/X_kl: 3.1083 -- test/E_kl: 63.3221 -- test/charges_kl: 0.5840 
+Sampling start on GR0
+Samples to generate: 10000 for each of the 1 devices
+Samples to save: 1000
+Sampling a batch with 230 graphs on local rank 0. Saving 230 visualization and 0 full chains.
+Visualizing 230 graphs out of 230
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b230/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b230/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b230/graph_2.png to wandb
+Done.
+Sampling a batch with 230 graphs on local rank 0. Saving 230 visualization and 0 full chains.
+Visualizing 230 graphs out of 230
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b460/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b460/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b460/graph_2.png to wandb
+Done.
+Sampling a batch with 230 graphs on local rank 0. Saving 230 visualization and 0 full chains.
+Visualizing 230 graphs out of 230
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b690/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b690/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b690/graph_2.png to wandb
+Done.
+Sampling a batch with 230 graphs on local rank 0. Saving 230 visualization and 0 full chains.
+Visualizing 230 graphs out of 230
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b920/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b920/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b920/graph_2.png to wandb
+Done.
+Sampling a batch with 80 graphs on local rank 0. Saving 80 visualization and 0 full chains.
+Visualizing 80 graphs out of 80
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b1000/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b1000/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b1000/graph_2.png to wandb
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 222 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Saving the generated graphs
+Saved.
+📊 Computing final sampling metrics...
+Error messages: AtomValence 166, Kekulize 0, other 0,  -- No error 9834
+[rank: 0] Received SIGTERM: 15
+[rank: 0] Received SIGTERM: 15
+Bypassing SIGTERM: 15
+Bypassing SIGTERM: 15
+Some generated smiles: CCC1=CCC(C)C1C CCC1C2OC1C1OC21 CC(N)(C#N)CCC#N CC12C3CC14CC3[NH+]2C4 N#CC1(CO)CCCC1 C#CC12C=CCC1(C)C2 CC12CC3COC1CC32 CC1CC2C=CC1=CC2 C#CCC1CC1(C)O CC1OC(C)(C#N)C1C
+
+================================================================================
+📊 CONSTRAINT SATISFACTION RESULTS
+================================================================================
+
+📋 **Definitions**:
+• **FCD** — Fréchet ChemNet Distance computed on valid canonical SMILES; lower is better
+• **Unique/Novel/Valid** — proportions computed over all generated molecules (not only valid)
+• **Disconnected** — share of graphs with >1 connected component
+• **Property satisfied** — share of generated graphs meeting the enforced structural constraint
+• **V.U.N.** — product of Valid × Unique × Novel (in [0,100]%)
+
+🔍 **LOGGING TO WANDB**:
+============================================================
+  test_sampling/NumNodesW1: 0.008965248242020607
+  test_sampling/NodeTypesTV: 0.00394839234650135
+  test_sampling/EdgeTypesTV: 0.06545546650886536
+  test_sampling/Disconnected: 2.0999999716877937
+  test_sampling/MeanComponents: 1.0210000276565552
+  test_sampling/MaxComponents: 2.0
+  test_sampling/planarity: 0.9976999759674072
+  test_sampling/no_cycles: 0.1062999963760376
+  test_sampling/lobster_components: 0.1062999963760376
+  test_sampling/generated_deg_hist: <wandb.sdk.data_types.histogram.Histogram object at 0x7fb63dda9be0>
+  test_sampling/diff_deg_hist: <wandb.sdk.data_types.histogram.Histogram object at 0x7fb644da2b20>
+  test_sampling/abs_diff_deg_hist: <wandb.sdk.data_types.histogram.Histogram object at 0x7fb60b92a970>
+  test_sampling/Validity: 98.33999872207642
+  test_sampling/Uniqueness: 97.31543624161074
+  test_sampling/Novelty: 88.76698017120361
+  test_sampling/fcd score: 1.0153282158403591
+============================================================
+
+
+🎯 CORE METRICS:
+================================================================================
+test_no_constraint — TEST — QM9
+Constraint: No structural constraint · N=10,000 · diffusion_steps=500 · sampler=reverse
+
++-------------------------+--------------------+
+| Metric                  | Value                |
++-------------------------+--------------------+
+| Molecules generated (N) | 10,000               |
+| FCD                     | 1.015                |
+| Unique (%)              | 97.3154%             |
+| Novel (%)               | 88.767%              |
+| Valid (%)               | 98.34%               |
+| Disconnected (%)        | 2.1%                 |
+| Property satisfied (%)  | —                    |
+| V.U.N. (%)              | 84.95%               |
++-------------------------+--------------------+
+
+
+🏗️ STRUCTURAL CONSTRAINT SATISFACTION:
+================================================================================
+test_no_constraint — TEST — QM9 — Structural
+Constraint: No structural constraint · N=10,000 · diffusion_steps=500 · sampler=reverse
+
++---------------------------+--------------------------+
+| Metric                    | Value                      |
++---------------------------+--------------------------+
+| Constraint                | No structural constraint   |
+| Ring count 0 (%)          | 10.63%                     |
+| Ring count 1 (%)          | 40.32%                     |
+| Ring count 2 (%)          | 7.46%                      |
+| Ring count 3 (%)          | 24.71%                     |
+| Ring count 4 (%)          | 2.06%                      |
+| Ring count 5 (%)          | 0.02%                      |
+| Ring count 6 (%)          | 6.18%                      |
+| Ring count 7 (%)          | 5.17%                      |
+| Ring count 8 (%)          | 0.12%                      |
+| Ring count 9+ (%)         | 3.33%                      |
+| Acyclic (max len 0) (%)   | 10.63%                     |
+| Ring length 3 (max) (%)   | 11.23%                     |
+| Ring length 4 (max) (%)   | 10.71%                     |
+| Ring length 5 (max) (%)   | 26.84%                     |
+| Ring length 6 (max) (%)   | 18.65%                     |
+| Ring length 7 (max) (%)   | 12.11%                     |
+| Ring length 8 (max) (%)   | 7.75%                      |
+| Ring length 9 (max) (%)   | 2.08%                      |
+| Ring length 10 (max) (%)  | 0.0%                       |
+| Ring length 11 (max) (%)  | 0.0%                       |
+| Ring length 12 (max) (%)  | 0.0%                       |
+| Ring length >12 (max) (%) | 0.0%                       |
++---------------------------+--------------------------+
+
+
+⏱️ TIMING METRICS:
+================================================================================
+test_no_constraint — TEST — QM9 — Timing
+Constraint: No structural constraint · N=10,000 · diffusion_steps=500 · sampler=reverse
+
++---------------------------------+--------------------------------------------------+
+| Metric                          | Value                                              |
++---------------------------------+--------------------------------------------------+
+| Sampling time (s) for N         | 3225.55 for N=10,000                               |
+| Per-graph sampling time (ms)    | 322.6                                              |
+| Sampling batches                | 88                                                 |
+| Projector mean time (ms)        | 0.0 (no projection)                                |
+| Projector share of sampling (%) | 0.0% (no projection)                               |
+| Wall-clock elapsed (hh:mm)      | 00:56                                              |
+| Environment                     | gpu=NVIDIA RTX A5000, torch=2.0.1+cu118, cuda=...  |
++---------------------------------+--------------------------------------------------+
+
+
+🧪 CHEMISTRY METRICS:
+================================================================================
+test_no_constraint — TEST — QM9 — Chemistry
+Constraint: No structural constraint · N=10,000 · diffusion_steps=500 · sampler=reverse
+
++---------------------------------+--------------------+
+| Metric                          | Value                |
++---------------------------------+--------------------+
+| Valid molecules used (chem)     | 9,834                |
+| Molecular weight (Da) mean ± sd | 122.4 ± 8.6          |
+| Heavy atoms mean ± sd           | 8.8 ± 0.6            |
+| Atom composition % (C/N/O/F)    | 72.4/11.7/15.7/0.2   |
++---------------------------------+--------------------+
+
+All smiles saved on rank 0
+[VIOLATION TRACKING] Detected constraint: None, value: None
+[VIOLATION TRACKING] Enforced constraint: None
+[VIOLATION TRACKING] Tracking violations for: []
+[VIOLATION TRACKING] Ignoring violations for: ['ring_count', 'ring_length', 'planarity']
+[VIOLATIONS] Summary saved to violation_summary_rank0_20250829_233648.txt
+Sampling metrics {'test_sampling/NumNodesW1': 0.009, 'test_sampling/NodeTypesTV': 0.004, 'test_sampling/EdgeTypesTV': 0.065, 'test_sampling/Disconnected': 2.1, 'test_sampling/MeanComponents': 1.021, 'test_sampling/MaxComponents': 2.0, 'test_sampling/planarity': 0.998, 'test_sampling/no_cycles': 0.106, 'test_sampling/lobster_components': 0.106, 'test_sampling/generated_deg_hist': [0.001, 0.239, 0.44, 0.269, 0.051, 0.001, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 'test_sampling/diff_deg_hist': [0.001, 0.239, 0.439, 0.234, -0.128, -0.298, -0.265, -0.147, -0.054, -0.017, -0.003, -0.0, -0.0], 'test_sampling/abs_diff_deg_hist': [0.001, 0.239, 0.439, 0.234, 0.128, 0.298, 0.265, 0.147, 0.054, 0.017, 0.003, 0.0, 0.0], 'test_sampling/Validity': 98.34, 'test_sampling/Uniqueness': 97.315, 'test_sampling/Novelty': 88.767, 'test_sampling/fcd score': 1.015, 'test_sampling/ChargeW1': 0.003, 'test_sampling/ValencyW1': 0.017, 'test_ratio/fcd score': 1.177, 'test_ratio/average': 1.177}
+Done. Sampling took 1714.80 seconds
+
+Test ends.
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+       Test metric             DataLoader 0
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+        test/E_kl           63.322120666503906
+        test/X_kl           3.1082699298858643
+     test/charges_kl        0.5840032696723938
+     test/epoch_NLL          67.57009887695312
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+[rank: 0] Global seed set to 2000
+[rank: 0] Global seed set to 2000
+You are using a CUDA device ('NVIDIA RTX A5000') that has Tensor Cores. To properly utilize them, you should set `torch.set_float32_matmul_precision('medium' | 'high')` which will trade-off precision for performance. For more details, read https://pytorch.org/docs/stable/generated/torch.set_float32_matmul_precision.html#torch.set_float32_matmul_precision
+Restoring states from the checkpoint path at checkpoints/qm9_thesis_no_constraint/epoch-94.ckpt
+LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0]
+Loaded model weights from the checkpoint at checkpoints/qm9_thesis_no_constraint/epoch-94.ckpt
+SLURM auto-requeueing enabled. Setting signal handlers.
+Test loss: 67.4013
+Epoch 0: test/epoch_NLL: 67.4013 -- test/X_kl: 3.0448 -- test/E_kl: 63.2176 -- test/charges_kl: 0.5847 
+Sampling start on GR0
+Samples to generate: 10000 for each of the 1 devices
+Samples to save: 1000
+Sampling a batch with 230 graphs on local rank 0. Saving 230 visualization and 0 full chains.
+Visualizing 230 graphs out of 230
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b230/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b230/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b230/graph_2.png to wandb
+Done.
+Sampling a batch with 230 graphs on local rank 0. Saving 230 visualization and 0 full chains.
+Visualizing 230 graphs out of 230
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b460/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b460/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b460/graph_2.png to wandb
+Done.
+Sampling a batch with 230 graphs on local rank 0. Saving 230 visualization and 0 full chains.
+Visualizing 230 graphs out of 230
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b690/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b690/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b690/graph_2.png to wandb
+Done.
+Sampling a batch with 230 graphs on local rank 0. Saving 230 visualization and 0 full chains.
+Visualizing 230 graphs out of 230
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b920/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b920/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b920/graph_2.png to wandb
+Done.
+Sampling a batch with 80 graphs on local rank 0. Saving 80 visualization and 0 full chains.
+Visualizing 80 graphs out of 80
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b1000/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b1000/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b1000/graph_2.png to wandb
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 222 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Saving the generated graphs
+Saved.
+📊 Computing final sampling metrics...
+Error messages: AtomValence 154, Kekulize 0, other 1,  -- No error 9845
+[rank: 0] Received SIGTERM: 15
+[rank: 0] Received SIGTERM: 15
+Bypassing SIGTERM: 15
+Bypassing SIGTERM: 15
+Some generated smiles: CN1C(=O)CCOC1=O CC1(C#N)CC2CC21 O=C(CO)n1cncn1 CC1=NC(C2CN2)C=C1 CCCC1(OC)CC1C C#CC1(CC=O)CC1 NC(=O)C(N)=NC1CN1 COC1(C#N)CC12CO2 CN1C2(C)CC1(C=O)C2 CC12C=CN(C=O)C1C2
+
+================================================================================
+📊 CONSTRAINT SATISFACTION RESULTS
+================================================================================
+
+📋 **Definitions**:
+• **FCD** — Fréchet ChemNet Distance computed on valid canonical SMILES; lower is better
+• **Unique/Novel/Valid** — proportions computed over all generated molecules (not only valid)
+• **Disconnected** — share of graphs with >1 connected component
+• **Property satisfied** — share of generated graphs meeting the enforced structural constraint
+• **V.U.N.** — product of Valid × Unique × Novel (in [0,100]%)
+
+🔍 **LOGGING TO WANDB**:
+============================================================
+  test_sampling/NumNodesW1: 0.0036217221058905125
+  test_sampling/NodeTypesTV: 0.007997317239642143
+  test_sampling/EdgeTypesTV: 0.06535844504833221
+  test_sampling/Disconnected: 2.2199999541044235
+  test_sampling/MeanComponents: 1.0223000049591064
+  test_sampling/MaxComponents: 3.0
+  test_sampling/planarity: 0.9980999827384949
+  test_sampling/no_cycles: 0.11050000041723251
+  test_sampling/lobster_components: 0.11050000041723251
+  test_sampling/generated_deg_hist: <wandb.sdk.data_types.histogram.Histogram object at 0x7fb644d97f70>
+  test_sampling/diff_deg_hist: <wandb.sdk.data_types.histogram.Histogram object at 0x7fb644e0a190>
+  test_sampling/abs_diff_deg_hist: <wandb.sdk.data_types.histogram.Histogram object at 0x7fb6283b63a0>
+  test_sampling/Validity: 98.4499990940094
+  test_sampling/Uniqueness: 97.18638902996445
+  test_sampling/Novelty: 88.77508640289307
+  test_sampling/fcd score: 1.0255438473630107
+============================================================
+
+
+🎯 CORE METRICS:
+================================================================================
+test_no_constraint — TEST — QM9
+Constraint: No structural constraint · N=10,000 · diffusion_steps=500 · sampler=reverse
+
++-------------------------+--------------------+
+| Metric                  | Value                |
++-------------------------+--------------------+
+| Molecules generated (N) | 10,000               |
+| FCD                     | 1.026                |
+| Unique (%)              | 97.1864%             |
+| Novel (%)               | 88.7751%             |
+| Valid (%)               | 98.45%               |
+| Disconnected (%)        | 2.22%                |
+| Property satisfied (%)  | —                    |
+| V.U.N. (%)              | 84.94%               |
++-------------------------+--------------------+
+
+
+🏗️ STRUCTURAL CONSTRAINT SATISFACTION:
+================================================================================
+test_no_constraint — TEST — QM9 — Structural
+Constraint: No structural constraint · N=10,000 · diffusion_steps=500 · sampler=reverse
+
++---------------------------+--------------------------+
+| Metric                    | Value                      |
++---------------------------+--------------------------+
+| Constraint                | No structural constraint   |
+| Ring count 0 (%)          | 11.05%                     |
+| Ring count 1 (%)          | 39.77%                     |
+| Ring count 2 (%)          | 6.93%                      |
+| Ring count 3 (%)          | 25.31%                     |
+| Ring count 4 (%)          | 2.2%                       |
+| Ring count 5 (%)          | 0.01%                      |
+| Ring count 6 (%)          | 6.41%                      |
+| Ring count 7 (%)          | 5.04%                      |
+| Ring count 8 (%)          | 0.08%                      |
+| Ring count 9+ (%)         | 3.2%                       |
+| Acyclic (max len 0) (%)   | 11.05%                     |
+| Ring length 3 (max) (%)   | 10.45%                     |
+| Ring length 4 (max) (%)   | 10.89%                     |
+| Ring length 5 (max) (%)   | 26.5%                      |
+| Ring length 6 (max) (%)   | 19.65%                     |
+| Ring length 7 (max) (%)   | 11.31%                     |
+| Ring length 8 (max) (%)   | 7.89%                      |
+| Ring length 9 (max) (%)   | 2.26%                      |
+| Ring length 10 (max) (%)  | 0.0%                       |
+| Ring length 11 (max) (%)  | 0.0%                       |
+| Ring length 12 (max) (%)  | 0.0%                       |
+| Ring length >12 (max) (%) | 0.0%                       |
++---------------------------+--------------------------+
+
+
+⏱️ TIMING METRICS:
+================================================================================
+test_no_constraint — TEST — QM9 — Timing
+Constraint: No structural constraint · N=10,000 · diffusion_steps=500 · sampler=reverse
+
++---------------------------------+--------------------------------------------------+
+| Metric                          | Value                                              |
++---------------------------------+--------------------------------------------------+
+| Sampling time (s) for N         | 4852.16 for N=10,000                               |
+| Per-graph sampling time (ms)    | 485.2                                              |
+| Sampling batches                | 132                                                |
+| Projector mean time (ms)        | 0.0 (no projection)                                |
+| Projector share of sampling (%) | 0.0% (no projection)                               |
+| Wall-clock elapsed (hh:mm)      | 01:24                                              |
+| Environment                     | gpu=NVIDIA RTX A5000, torch=2.0.1+cu118, cuda=...  |
++---------------------------------+--------------------------------------------------+
+
+
+🧪 CHEMISTRY METRICS:
+================================================================================
+test_no_constraint — TEST — QM9 — Chemistry
+Constraint: No structural constraint · N=10,000 · diffusion_steps=500 · sampler=reverse
+
++---------------------------------+--------------------+
+| Metric                          | Value                |
++---------------------------------+--------------------+
+| Valid molecules used (chem)     | 9,845                |
+| Molecular weight (Da) mean ± sd | 122.3 ± 8.7          |
+| Heavy atoms mean ± sd           | 8.8 ± 0.6            |
+| Atom composition % (C/N/O/F)    | 72.7/11.4/15.7/0.2   |
++---------------------------------+--------------------+
+
+All smiles saved on rank 0
+[VIOLATION TRACKING] Detected constraint: None, value: None
+[VIOLATION TRACKING] Enforced constraint: None
+[VIOLATION TRACKING] Tracking violations for: []
+[VIOLATION TRACKING] Ignoring violations for: ['ring_count', 'ring_length', 'planarity']
+[VIOLATIONS] Summary saved to violation_summary_rank0_20250830_000520.txt
+Sampling metrics {'test_sampling/NumNodesW1': 0.004, 'test_sampling/NodeTypesTV': 0.008, 'test_sampling/EdgeTypesTV': 0.065, 'test_sampling/Disconnected': 2.22, 'test_sampling/MeanComponents': 1.022, 'test_sampling/MaxComponents': 3.0, 'test_sampling/planarity': 0.998, 'test_sampling/no_cycles': 0.111, 'test_sampling/lobster_components': 0.111, 'test_sampling/generated_deg_hist': [0.001, 0.24, 0.44, 0.269, 0.05, 0.001, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 'test_sampling/diff_deg_hist': [0.001, 0.24, 0.439, 0.234, -0.129, -0.298, -0.265, -0.147, -0.054, -0.017, -0.003, -0.0, -0.0], 'test_sampling/abs_diff_deg_hist': [0.001, 0.24, 0.439, 0.234, 0.129, 0.298, 0.265, 0.147, 0.054, 0.017, 0.003, 0.0, 0.0], 'test_sampling/Validity': 98.45, 'test_sampling/Uniqueness': 97.186, 'test_sampling/Novelty': 88.775, 'test_sampling/fcd score': 1.026, 'test_sampling/ChargeW1': 0.002, 'test_sampling/ValencyW1': 0.017, 'test_ratio/fcd score': 1.188, 'test_ratio/average': 1.188}
+Done. Sampling took 1701.40 seconds
+
+Test ends.
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+       Test metric             DataLoader 0
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+        test/E_kl            63.21763229370117
+        test/X_kl            3.044785976409912
+     test/charges_kl        0.5846909284591675
+     test/epoch_NLL          67.4012680053711
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+[rank: 0] Global seed set to 3000
+[rank: 0] Global seed set to 3000
+You are using a CUDA device ('NVIDIA RTX A5000') that has Tensor Cores. To properly utilize them, you should set `torch.set_float32_matmul_precision('medium' | 'high')` which will trade-off precision for performance. For more details, read https://pytorch.org/docs/stable/generated/torch.set_float32_matmul_precision.html#torch.set_float32_matmul_precision
+Restoring states from the checkpoint path at checkpoints/qm9_thesis_no_constraint/epoch-94.ckpt
+LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0]
+Loaded model weights from the checkpoint at checkpoints/qm9_thesis_no_constraint/epoch-94.ckpt
+SLURM auto-requeueing enabled. Setting signal handlers.
+Test loss: 67.5689
+Epoch 0: test/epoch_NLL: 67.5689 -- test/X_kl: 3.0185 -- test/E_kl: 63.3991 -- test/charges_kl: 0.5963 
+Sampling start on GR0
+Samples to generate: 10000 for each of the 1 devices
+Samples to save: 1000
+Sampling a batch with 230 graphs on local rank 0. Saving 230 visualization and 0 full chains.
+Visualizing 230 graphs out of 230
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b230/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b230/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b230/graph_2.png to wandb
+Done.
+Sampling a batch with 230 graphs on local rank 0. Saving 230 visualization and 0 full chains.
+Visualizing 230 graphs out of 230
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b460/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b460/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b460/graph_2.png to wandb
+Done.
+Sampling a batch with 230 graphs on local rank 0. Saving 230 visualization and 0 full chains.
+Visualizing 230 graphs out of 230
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b690/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b690/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b690/graph_2.png to wandb
+Done.
+Sampling a batch with 230 graphs on local rank 0. Saving 230 visualization and 0 full chains.
+Visualizing 230 graphs out of 230
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b920/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b920/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b920/graph_2.png to wandb
+Done.
+Sampling a batch with 80 graphs on local rank 0. Saving 80 visualization and 0 full chains.
+Visualizing 80 graphs out of 80
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b1000/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b1000/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b1000/graph_2.png to wandb
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 222 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Saving the generated graphs
+Saved.
+📊 Computing final sampling metrics...
+Error messages: AtomValence 152, Kekulize 0, other 0,  -- No error 9848
+[rank: 0] Received SIGTERM: 15
+Bypassing SIGTERM: 15
+Some generated smiles: [CH2+]OC([NH-])CCC(C)=O C#CC12NC1C1NC12 C1OC2C3CC12C31CO1 C#CC(OC)C1(C)CC1 CC1C=C(C(O)O)CO1 CC1=CC(C)C(C=O)C1 OC1C2C3OC4C1C2C34 O=C1COCC(=O)N1 CCC(=O)C1CC([NH-])O1 CC(C)(C#N)CNC=O
+
+================================================================================
+📊 CONSTRAINT SATISFACTION RESULTS
+================================================================================
+
+📋 **Definitions**:
+• **FCD** — Fréchet ChemNet Distance computed on valid canonical SMILES; lower is better
+• **Unique/Novel/Valid** — proportions computed over all generated molecules (not only valid)
+• **Disconnected** — share of graphs with >1 connected component
+• **Property satisfied** — share of generated graphs meeting the enforced structural constraint
+• **V.U.N.** — product of Valid × Unique × Novel (in [0,100]%)
+
+🔍 **LOGGING TO WANDB**:
+============================================================
+  test_sampling/NumNodesW1: 0.003317150752991438
+  test_sampling/NodeTypesTV: 0.007676027249544859
+  test_sampling/EdgeTypesTV: 0.06554774194955826
+  test_sampling/Disconnected: 1.9099999219179153
+  test_sampling/MeanComponents: 1.0191999673843384
+  test_sampling/MaxComponents: 3.0
+  test_sampling/planarity: 0.9976000189781189
+  test_sampling/no_cycles: 0.11569999903440475
+  test_sampling/lobster_components: 0.11569999903440475
+  test_sampling/generated_deg_hist: <wandb.sdk.data_types.histogram.Histogram object at 0x7fb644df7ca0>
+  test_sampling/diff_deg_hist: <wandb.sdk.data_types.histogram.Histogram object at 0x7fb644df75b0>
+  test_sampling/abs_diff_deg_hist: <wandb.sdk.data_types.histogram.Histogram object at 0x7fb644df7ee0>
+  test_sampling/Validity: 98.47999811172485
+  test_sampling/Uniqueness: 97.40048740861089
+  test_sampling/Novelty: 88.59466314315796
+  test_sampling/fcd score: 1.0217391332343908
+============================================================
+
+
+🎯 CORE METRICS:
+================================================================================
+test_no_constraint — TEST — QM9
+Constraint: No structural constraint · N=10,000 · diffusion_steps=500 · sampler=reverse
+
++-------------------------+--------------------+
+| Metric                  | Value                |
++-------------------------+--------------------+
+| Molecules generated (N) | 10,000               |
+| FCD                     | 1.022                |
+| Unique (%)              | 97.4005%             |
+| Novel (%)               | 88.5947%             |
+| Valid (%)               | 98.48%               |
+| Disconnected (%)        | 1.91%                |
+| Property satisfied (%)  | —                    |
+| V.U.N. (%)              | 84.98%               |
++-------------------------+--------------------+
+
+
+🏗️ STRUCTURAL CONSTRAINT SATISFACTION:
+================================================================================
+test_no_constraint — TEST — QM9 — Structural
+Constraint: No structural constraint · N=10,000 · diffusion_steps=500 · sampler=reverse
+
++---------------------------+--------------------------+
+| Metric                    | Value                      |
++---------------------------+--------------------------+
+| Constraint                | No structural constraint   |
+| Ring count 0 (%)          | 11.57%                     |
+| Ring count 1 (%)          | 39.29%                     |
+| Ring count 2 (%)          | 7.32%                      |
+| Ring count 3 (%)          | 25.21%                     |
+| Ring count 4 (%)          | 1.91%                      |
+| Ring count 5 (%)          | 0.0%                       |
+| Ring count 6 (%)          | 6.29%                      |
+| Ring count 7 (%)          | 5.04%                      |
+| Ring count 8 (%)          | 0.15%                      |
+| Ring count 9+ (%)         | 3.22%                      |
+| Acyclic (max len 0) (%)   | 11.57%                     |
+| Ring length 3 (max) (%)   | 10.62%                     |
+| Ring length 4 (max) (%)   | 10.72%                     |
+| Ring length 5 (max) (%)   | 26.01%                     |
+| Ring length 6 (max) (%)   | 18.75%                     |
+| Ring length 7 (max) (%)   | 11.6%                      |
+| Ring length 8 (max) (%)   | 8.19%                      |
+| Ring length 9 (max) (%)   | 2.54%                      |
+| Ring length 10 (max) (%)  | 0.0%                       |
+| Ring length 11 (max) (%)  | 0.0%                       |
+| Ring length 12 (max) (%)  | 0.0%                       |
+| Ring length >12 (max) (%) | 0.0%                       |
++---------------------------+--------------------------+
+
+
+⏱️ TIMING METRICS:
+================================================================================
+test_no_constraint — TEST — QM9 — Timing
+Constraint: No structural constraint · N=10,000 · diffusion_steps=500 · sampler=reverse
+
++---------------------------------+--------------------------------------------------+
+| Metric                          | Value                                              |
++---------------------------------+--------------------------------------------------+
+| Sampling time (s) for N         | 6466.89 for N=10,000                               |
+| Per-graph sampling time (ms)    | 646.7                                              |
+| Sampling batches                | 176                                                |
+| Projector mean time (ms)        | 0.0 (no projection)                                |
+| Projector share of sampling (%) | 0.0% (no projection)                               |
+| Wall-clock elapsed (hh:mm)      | 01:53                                              |
+| Environment                     | gpu=NVIDIA RTX A5000, torch=2.0.1+cu118, cuda=...  |
++---------------------------------+--------------------------------------------------+
+
+
+🧪 CHEMISTRY METRICS:
+================================================================================
+test_no_constraint — TEST — QM9 — Chemistry
+Constraint: No structural constraint · N=10,000 · diffusion_steps=500 · sampler=reverse
+
++---------------------------------+--------------------+
+| Metric                          | Value                |
++---------------------------------+--------------------+
+| Valid molecules used (chem)     | 9,848                |
+| Molecular weight (Da) mean ± sd | 122.3 ± 8.7          |
+| Heavy atoms mean ± sd           | 8.8 ± 0.6            |
+| Atom composition % (C/N/O/F)    | 72.6/11.6/15.5/0.2   |
++---------------------------------+--------------------+
+
+All smiles saved on rank 0
+[VIOLATION TRACKING] Detected constraint: None, value: None
+[VIOLATION TRACKING] Enforced constraint: None
+[VIOLATION TRACKING] Tracking violations for: []
+[VIOLATION TRACKING] Ignoring violations for: ['ring_count', 'ring_length', 'planarity']
+[VIOLATIONS] Summary saved to violation_summary_rank0_20250830_003338.txt
+Sampling metrics {'test_sampling/NumNodesW1': 0.003, 'test_sampling/NodeTypesTV': 0.008, 'test_sampling/EdgeTypesTV': 0.066, 'test_sampling/Disconnected': 1.91, 'test_sampling/MeanComponents': 1.019, 'test_sampling/MaxComponents': 3.0, 'test_sampling/planarity': 0.998, 'test_sampling/no_cycles': 0.116, 'test_sampling/lobster_components': 0.116, 'test_sampling/generated_deg_hist': [0.001, 0.239, 0.443, 0.266, 0.051, 0.001, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 'test_sampling/diff_deg_hist': [0.001, 0.239, 0.442, 0.231, -0.128, -0.298, -0.265, -0.147, -0.054, -0.017, -0.003, -0.0, -0.0], 'test_sampling/abs_diff_deg_hist': [0.001, 0.239, 0.442, 0.231, 0.128, 0.298, 0.265, 0.147, 0.054, 0.017, 0.003, 0.0, 0.0], 'test_sampling/Validity': 98.48, 'test_sampling/Uniqueness': 97.4, 'test_sampling/Novelty': 88.595, 'test_sampling/fcd score': 1.022, 'test_sampling/ChargeW1': 0.003, 'test_sampling/ValencyW1': 0.017, 'test_ratio/fcd score': 1.184, 'test_ratio/average': 1.184}
+Done. Sampling took 1686.71 seconds
+
+Test ends.
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+       Test metric             DataLoader 0
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+        test/E_kl           63.399078369140625
+        test/X_kl            3.018460988998413
+     test/charges_kl        0.5963122844696045
+     test/epoch_NLL          67.56888580322266
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+[rank: 0] Global seed set to 4000
+[rank: 0] Global seed set to 4000
+You are using a CUDA device ('NVIDIA RTX A5000') that has Tensor Cores. To properly utilize them, you should set `torch.set_float32_matmul_precision('medium' | 'high')` which will trade-off precision for performance. For more details, read https://pytorch.org/docs/stable/generated/torch.set_float32_matmul_precision.html#torch.set_float32_matmul_precision
+Restoring states from the checkpoint path at checkpoints/qm9_thesis_no_constraint/epoch-94.ckpt
+LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0]
+Loaded model weights from the checkpoint at checkpoints/qm9_thesis_no_constraint/epoch-94.ckpt
+SLURM auto-requeueing enabled. Setting signal handlers.
+Test loss: 67.7365
+Epoch 0: test/epoch_NLL: 67.7365 -- test/X_kl: 3.1450 -- test/E_kl: 63.4284 -- test/charges_kl: 0.6074 
+Sampling start on GR0
+Samples to generate: 10000 for each of the 1 devices
+Samples to save: 1000
+Sampling a batch with 230 graphs on local rank 0. Saving 230 visualization and 0 full chains.
+Visualizing 230 graphs out of 230
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b230/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b230/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b230/graph_2.png to wandb
+Done.
+Sampling a batch with 230 graphs on local rank 0. Saving 230 visualization and 0 full chains.
+Visualizing 230 graphs out of 230
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b460/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b460/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b460/graph_2.png to wandb
+Done.
+Sampling a batch with 230 graphs on local rank 0. Saving 230 visualization and 0 full chains.
+Visualizing 230 graphs out of 230
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b690/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b690/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b690/graph_2.png to wandb
+Done.
+Sampling a batch with 230 graphs on local rank 0. Saving 230 visualization and 0 full chains.
+Visualizing 230 graphs out of 230
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b920/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b920/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b920/graph_2.png to wandb
+Done.
+Sampling a batch with 80 graphs on local rank 0. Saving 80 visualization and 0 full chains.
+Visualizing 80 graphs out of 80
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b1000/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b1000/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_no_constraint/epoch0_b1000/graph_2.png to wandb
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Sampling a batch with 222 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+Done.
+Saving the generated graphs
+Saved.
+📊 Computing final sampling metrics...
+Error messages: AtomValence 162, Kekulize 0, other 0,  -- No error 9838
+[rank: 0] Received SIGTERM: 15
+Bypassing SIGTERM: 15
+[rank: 0] Received SIGTERM: 15
+[rank: 0] Received SIGTERM: 15
+Bypassing SIGTERM: 15
+Bypassing SIGTERM: 15
+Some generated smiles: CC1OC(CO)CC1O C#CC1C[NH+]1CC(N)=O Nc1occ2occc12 O=C1NC2C(O)C3C1C23 COc1oc(C)cc1O CC12C3OC4C3C1C42 CC12CC3C4C3C1CC42 OCC12CCOC1C2 CC(CC=O)C1CCO1 N#CC1C2CC3CC2[NH+]31
+
+================================================================================
+📊 CONSTRAINT SATISFACTION RESULTS
+================================================================================
+
+📋 **Definitions**:
+• **FCD** — Fréchet ChemNet Distance computed on valid canonical SMILES; lower is better
+• **Unique/Novel/Valid** — proportions computed over all generated molecules (not only valid)
+• **Disconnected** — share of graphs with >1 connected component
+• **Property satisfied** — share of generated graphs meeting the enforced structural constraint
+• **V.U.N.** — product of Valid × Unique × Novel (in [0,100]%)
+
+🔍 **LOGGING TO WANDB**:
+============================================================
+  test_sampling/NumNodesW1: 0.004112107679247856
+  test_sampling/NodeTypesTV: 0.0026059807278215885
+  test_sampling/EdgeTypesTV: 0.0656026303768158
+  test_sampling/Disconnected: 2.2299999371170998
+  test_sampling/MeanComponents: 1.0225000381469727
+  test_sampling/MaxComponents: 3.0
+  test_sampling/planarity: 0.9980000257492065
+  test_sampling/no_cycles: 0.11169999837875366
+  test_sampling/lobster_components: 0.11169999837875366
+  test_sampling/generated_deg_hist: <wandb.sdk.data_types.histogram.Histogram object at 0x7fb6281c1f10>
+  test_sampling/diff_deg_hist: <wandb.sdk.data_types.histogram.Histogram object at 0x7fb6281c1280>
+  test_sampling/abs_diff_deg_hist: <wandb.sdk.data_types.histogram.Histogram object at 0x7fb6281c1af0>
+  test_sampling/Validity: 98.37999939918518
+  test_sampling/Uniqueness: 97.5808091075422
+  test_sampling/Novelty: 88.64583373069763
+  test_sampling/fcd score: 1.0445195688564546
+============================================================
+
+
+🎯 CORE METRICS:
+================================================================================
+test_no_constraint — TEST — QM9
+Constraint: No structural constraint · N=10,000 · diffusion_steps=500 · sampler=reverse
+
++-------------------------+--------------------+
+| Metric                  | Value                |
++-------------------------+--------------------+
+| Molecules generated (N) | 10,000               |
+| FCD                     | 1.045                |
+| Unique (%)              | 97.5808%             |
+| Novel (%)               | 88.6458%             |
+| Valid (%)               | 98.38%               |
+| Disconnected (%)        | 2.23%                |
+| Property satisfied (%)  | —                    |
+| V.U.N. (%)              | 85.1%                |
++-------------------------+--------------------+
+
+
+🏗️ STRUCTURAL CONSTRAINT SATISFACTION:
+================================================================================
+test_no_constraint — TEST — QM9 — Structural
+Constraint: No structural constraint · N=10,000 · diffusion_steps=500 · sampler=reverse
+
++---------------------------+--------------------------+
+| Metric                    | Value                      |
++---------------------------+--------------------------+
+| Constraint                | No structural constraint   |
+| Ring count 0 (%)          | 11.17%                     |
+| Ring count 1 (%)          | 40.05%                     |
+| Ring count 2 (%)          | 7.26%                      |
+| Ring count 3 (%)          | 24.66%                     |
+| Ring count 4 (%)          | 2.14%                      |
+| Ring count 5 (%)          | 0.01%                      |
+| Ring count 6 (%)          | 6.09%                      |
+| Ring count 7 (%)          | 5.23%                      |
+| Ring count 8 (%)          | 0.17%                      |
+| Ring count 9+ (%)         | 3.22%                      |
+| Acyclic (max len 0) (%)   | 11.17%                     |
+| Ring length 3 (max) (%)   | 11.06%                     |
+| Ring length 4 (max) (%)   | 10.53%                     |
+| Ring length 5 (max) (%)   | 26.26%                     |
+| Ring length 6 (max) (%)   | 19.08%                     |
+| Ring length 7 (max) (%)   | 11.66%                     |
+| Ring length 8 (max) (%)   | 8.25%                      |
+| Ring length 9 (max) (%)   | 1.99%                      |
+| Ring length 10 (max) (%)  | 0.0%                       |
+| Ring length 11 (max) (%)  | 0.0%                       |
+| Ring length 12 (max) (%)  | 0.0%                       |
+| Ring length >12 (max) (%) | 0.0%                       |
++---------------------------+--------------------------+
+
+
+⏱️ TIMING METRICS:
+================================================================================
+test_no_constraint — TEST — QM9 — Timing
+Constraint: No structural constraint · N=10,000 · diffusion_steps=500 · sampler=reverse
+
++---------------------------------+--------------------------------------------------+
+| Metric                          | Value                                              |
++---------------------------------+--------------------------------------------------+
+| Sampling time (s) for N         | 8088.37 for N=10,000                               |
+| Per-graph sampling time (ms)    | 808.8                                              |
+| Sampling batches                | 220                                                |
+| Projector mean time (ms)        | 0.0 (no projection)                                |
+| Projector share of sampling (%) | 0.0% (no projection)                               |
+| Wall-clock elapsed (hh:mm)      | 02:21                                              |
+| Environment                     | gpu=NVIDIA RTX A5000, torch=2.0.1+cu118, cuda=...  |
++---------------------------------+--------------------------------------------------+
+
+
+🧪 CHEMISTRY METRICS:
+================================================================================
+test_no_constraint — TEST — QM9 — Chemistry
+Constraint: No structural constraint · N=10,000 · diffusion_steps=500 · sampler=reverse
+
++---------------------------------+--------------------+
+| Metric                          | Value                |
++---------------------------------+--------------------+
+| Valid molecules used (chem)     | 9,838                |
+| Molecular weight (Da) mean ± sd | 122.4 ± 8.4          |
+| Heavy atoms mean ± sd           | 8.8 ± 0.6            |
+| Atom composition % (C/N/O/F)    | 72.5/11.5/15.8/0.2   |
++---------------------------------+--------------------+
+
+All smiles saved on rank 0
+[VIOLATION TRACKING] Detected constraint: None, value: None
+[VIOLATION TRACKING] Enforced constraint: None
+[VIOLATION TRACKING] Tracking violations for: []
+[VIOLATION TRACKING] Ignoring violations for: ['ring_count', 'ring_length', 'planarity']
+[VIOLATIONS] Summary saved to violation_summary_rank0_20250830_010202.txt
+Sampling metrics {'test_sampling/NumNodesW1': 0.004, 'test_sampling/NodeTypesTV': 0.003, 'test_sampling/EdgeTypesTV': 0.066, 'test_sampling/Disconnected': 2.23, 'test_sampling/MeanComponents': 1.023, 'test_sampling/MaxComponents': 3.0, 'test_sampling/planarity': 0.998, 'test_sampling/no_cycles': 0.112, 'test_sampling/lobster_components': 0.112, 'test_sampling/generated_deg_hist': [0.001, 0.239, 0.441, 0.267, 0.05, 0.001, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 'test_sampling/diff_deg_hist': [0.001, 0.239, 0.44, 0.232, -0.129, -0.297, -0.265, -0.147, -0.054, -0.017, -0.003, -0.0, -0.0], 'test_sampling/abs_diff_deg_hist': [0.001, 0.239, 0.44, 0.232, 0.129, 0.297, 0.265, 0.147, 0.054, 0.017, 0.003, 0.0, 0.0], 'test_sampling/Validity': 98.38, 'test_sampling/Uniqueness': 97.581, 'test_sampling/Novelty': 88.646, 'test_sampling/fcd score': 1.045, 'test_sampling/ChargeW1': 0.002, 'test_sampling/ValencyW1': 0.018, 'test_ratio/fcd score': 1.21, 'test_ratio/average': 1.21}
+Done. Sampling took 1692.77 seconds
+
+Test ends.
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+       Test metric             DataLoader 0
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+        test/E_kl            63.42844772338867
+        test/X_kl            3.144993782043457
+     test/charges_kl            0.607421875
+     test/epoch_NLL          67.73653411865234
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+No constraint test completed at Sat 30 Aug 2025 01:02:04 AM UTC
+Results saved to: outputs/checkpoint_testing/no_constraint/

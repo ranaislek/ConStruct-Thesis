@@ -1,0 +1,167 @@
+torch version: 2.0.1+cu118
+CUDA available: True
+CUDA device: NVIDIA RTX A5000
+=== Testing Ring Count ≤ 3 Constraint ===
+Using No-Constraint Checkpoint: checkpoints/qm9_thesis_no_constraint/epoch-94.ckpt
+Constraint: Maximum 3 rings allowed
+Job ID: 1083600
+Node: vgpu1-0
+Time: Thu 28 Aug 2025 12:00:59 PM UTC
+<frozen importlib._bootstrap>:228: RuntimeWarning: to-Python converter for std::pair<double, double> already registered; second conversion method ignored.
+[rank: 0] Global seed set to 0
+Loading reference metrics.
+Edge-deletion transition model (for 'at most' constraints)
+[INFO] Early stopping enabled: monitoring 'val/epoch_NLL' with patience 28
+GPU available: True (cuda), used: True
+TPU available: False, using: 0 TPU cores
+IPU available: False, using: 0 IPUs
+HPU available: False, using: 0 HPUs
+[rank: 0] Global seed set to 0
+[rank: 0] Global seed set to 0
+Initializing distributed: GLOBAL_RANK: 0, MEMBER: 1/1
+[2025-08-28 12:01:53,289][torch.distributed.distributed_c10d][INFO] - Added key: store_based_barrier_key:1 to store for rank: 0
+[2025-08-28 12:01:53,290][torch.distributed.distributed_c10d][INFO] - Rank 0: Completed store-based barrier for key:store_based_barrier_key:1 with 1 nodes.
+----------------------------------------------------------------------------------------------------
+distributed_backend=nccl
+All distributed processes registered. Starting with 1 processes
+----------------------------------------------------------------------------------------------------
+
+You are using a CUDA device ('NVIDIA RTX A5000') that has Tensor Cores. To properly utilize them, you should set `torch.set_float32_matmul_precision('medium' | 'high')` which will trade-off precision for performance. For more details, read https://pytorch.org/docs/stable/generated/torch.set_float32_matmul_precision.html#torch.set_float32_matmul_precision
+Restoring states from the checkpoint path at checkpoints/qm9_thesis_no_constraint/epoch-94.ckpt
+LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0]
+Loaded model weights from the checkpoint at checkpoints/qm9_thesis_no_constraint/epoch-94.ckpt
+SLURM auto-requeueing enabled. Setting signal handlers.
+Test loss: 67.4657
+Epoch 0: test/epoch_NLL: 67.4657 -- test/X_kl: 3.1520 -- test/E_kl: 63.2048 -- test/charges_kl: 0.5536 
+Sampling start on GR0
+Samples to generate: 10000 for each of the 1 devices
+Samples to save: 1000
+Sampling a batch with 230 graphs on local rank 0. Saving 230 visualization and 0 full chains.
+[2025-08-28 12:03:10,532][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.1481s, mode=INCREMENTAL
+[2025-08-28 12:03:52,969][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.1411s, mode=INCREMENTAL
+[2025-08-28 12:04:34,866][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.1180s, mode=INCREMENTAL
+[2025-08-28 12:05:17,315][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.1457s, mode=INCREMENTAL
+[2025-08-28 12:06:00,004][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.1800s, mode=INCREMENTAL
+Visualizing 230 graphs out of 230
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_count_3/epoch0_b230/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_count_3/epoch0_b230/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_count_3/epoch0_b230/graph_2.png to wandb
+Done.
+Sampling a batch with 230 graphs on local rank 0. Saving 230 visualization and 0 full chains.
+[2025-08-28 12:06:48,812][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.1487s, mode=INCREMENTAL
+[2025-08-28 12:07:30,714][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.1145s, mode=INCREMENTAL
+[2025-08-28 12:08:12,719][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.1403s, mode=INCREMENTAL
+[2025-08-28 12:08:55,128][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.1495s, mode=INCREMENTAL
+[2025-08-28 12:09:37,341][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.1785s, mode=INCREMENTAL
+Visualizing 230 graphs out of 230
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_count_3/epoch0_b460/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_count_3/epoch0_b460/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_count_3/epoch0_b460/graph_2.png to wandb
+Done.
+Sampling a batch with 230 graphs on local rank 0. Saving 230 visualization and 0 full chains.
+[2025-08-28 12:10:25,307][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.1534s, mode=INCREMENTAL
+[2025-08-28 12:11:06,918][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.1377s, mode=INCREMENTAL
+[2025-08-28 12:11:49,443][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.1171s, mode=INCREMENTAL
+[2025-08-28 12:12:31,872][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.1477s, mode=INCREMENTAL
+[2025-08-28 12:13:14,673][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.1723s, mode=INCREMENTAL
+Visualizing 230 graphs out of 230
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_count_3/epoch0_b690/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_count_3/epoch0_b690/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_count_3/epoch0_b690/graph_2.png to wandb
+Done.
+Sampling a batch with 230 graphs on local rank 0. Saving 230 visualization and 0 full chains.
+[2025-08-28 12:14:00,980][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.1388s, mode=INCREMENTAL
+[2025-08-28 12:14:43,495][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.1225s, mode=INCREMENTAL
+[2025-08-28 12:15:25,599][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.1218s, mode=INCREMENTAL
+[2025-08-28 12:16:07,850][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.1135s, mode=INCREMENTAL
+[2025-08-28 12:16:50,593][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.1530s, mode=INCREMENTAL
+Visualizing 230 graphs out of 230
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_count_3/epoch0_b920/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_count_3/epoch0_b920/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_count_3/epoch0_b920/graph_2.png to wandb
+Done.
+Sampling a batch with 80 graphs on local rank 0. Saving 80 visualization and 0 full chains.
+[2025-08-28 12:17:28,323][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0491s, mode=INCREMENTAL
+[2025-08-28 12:17:56,014][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0517s, mode=INCREMENTAL
+[2025-08-28 12:18:23,626][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0567s, mode=INCREMENTAL
+[2025-08-28 12:18:51,227][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0574s, mode=INCREMENTAL
+[2025-08-28 12:19:18,522][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.0518s, mode=INCREMENTAL
+Visualizing 80 graphs out of 80
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_count_3/epoch0_b1000/graph_0.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_count_3/epoch0_b1000/graph_1.png to wandb
+Saving /extra/rislek/ConStruct-Thesis/ConStruct/graphs/test_ring_count_3/epoch0_b1000/graph_2.png to wandb
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-28 12:20:04,884][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.1543s, mode=INCREMENTAL
+[2025-08-28 12:20:46,902][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.1308s, mode=INCREMENTAL
+[2025-08-28 12:21:29,268][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.1297s, mode=INCREMENTAL
+[2025-08-28 12:22:11,907][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.1319s, mode=INCREMENTAL
+[2025-08-28 12:22:54,673][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.1673s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-28 12:23:35,961][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.1381s, mode=INCREMENTAL
+[2025-08-28 12:24:17,921][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.1477s, mode=INCREMENTAL
+[2025-08-28 12:24:59,999][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.1189s, mode=INCREMENTAL
+[2025-08-28 12:25:42,499][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.1332s, mode=INCREMENTAL
+[2025-08-28 12:26:25,202][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.1706s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-28 12:27:08,061][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.1315s, mode=INCREMENTAL
+[2025-08-28 12:27:49,686][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.1198s, mode=INCREMENTAL
+[2025-08-28 12:28:31,960][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.1093s, mode=INCREMENTAL
+[2025-08-28 12:29:14,344][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.1504s, mode=INCREMENTAL
+[2025-08-28 12:29:57,179][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.1806s, mode=INCREMENTAL
+Done.
+Sampling a batch with 231 graphs on local rank 0. Saving 0 visualization and 0 full chains.
+[2025-08-28 12:30:39,807][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.1129s, mode=INCREMENTAL
+[2025-08-28 12:31:21,912][ConStruct.projector.projector_utils][INFO] - ⏱️ RingCountAtMostProjector: projection_time=0.1199s, mode=INCREMENTAL
+slurmstepd-vgpu1-0: error: *** JOB 1083600 ON vgpu1-0 CANCELLED AT 2025-08-28T12:31:46 ***
+[rank: 0] Received SIGTERM: 15
+Bypassing SIGTERM: 15
+Error executing job with overrides: ['+experiment=thesis/no_constraint/qm9_thesis_no_constraint', 'general.test_only=checkpoints/qm9_thesis_no_constraint/epoch-94.ckpt', 'general.name=test_ring_count_3', 'general.final_model_samples_to_generate=10000', 'model.rev_proj=ring_count_at_most', 'model.max_rings=3', 'model.use_incremental=true', 'general.wandb=disabled', 'general.final_model_chains_to_save=0']
+Traceback (most recent call last):
+  File "/extra/rislek/ConStruct-Thesis/ConStruct/main.py", line 177, in main
+    trainer.test(
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/pytorch_lightning/trainer/trainer.py", line 737, in test
+    return call._call_and_handle_interrupt(
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/pytorch_lightning/trainer/call.py", line 41, in _call_and_handle_interrupt
+    return trainer.strategy.launcher.launch(trainer_fn, *args, trainer=trainer, **kwargs)
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/pytorch_lightning/strategies/launchers/subprocess_script.py", line 91, in launch
+    return function(*args, **kwargs)
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/pytorch_lightning/trainer/trainer.py", line 780, in _test_impl
+    results = self._run(model, ckpt_path=ckpt_path)
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/pytorch_lightning/trainer/trainer.py", line 975, in _run
+    results = self._run_stage()
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/pytorch_lightning/trainer/trainer.py", line 1011, in _run_stage
+    return self._evaluation_loop.run()
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/pytorch_lightning/loops/utilities.py", line 177, in _decorator
+    return loop_run(self, *args, **kwargs)
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/pytorch_lightning/loops/evaluation_loop.py", line 122, in run
+    return self.on_run_end()
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/pytorch_lightning/loops/evaluation_loop.py", line 244, in on_run_end
+    self._on_evaluation_epoch_end()
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/pytorch_lightning/loops/evaluation_loop.py", line 326, in _on_evaluation_epoch_end
+    call._call_lightning_module_hook(trainer, hook_name)
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/pytorch_lightning/trainer/call.py", line 140, in _call_lightning_module_hook
+    output = fn(*args, **kwargs)
+  File "/extra/rislek/ConStruct-Thesis/ConStruct/diffusion_model_discrete.py", line 512, in on_test_epoch_end
+    )
+  File "/extra/rislek/ConStruct-Thesis/ConStruct/diffusion_model_discrete.py", line 1253, in sample_n_graphs
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/torch/utils/_contextlib.py", line 115, in decorate_context
+    return func(*args, **kwargs)
+  File "/extra/rislek/ConStruct-Thesis/ConStruct/diffusion_model_discrete.py", line 859, in sample_batch
+    # Time the model forward pass
+  File "/extra/rislek/ConStruct-Thesis/ConStruct/diffusion_model_discrete.py", line 1162, in sample_zs_from_zt
+  File "/extra/rislek/ConStruct-Thesis/ConStruct/diffusion_model_discrete.py", line 255, in forward
+    def forward(self, z_t):
+  File "/extra/rislek/ConStruct-Thesis/ConStruct/diffusion/extra_features.py", line 68, in __call__
+    eval_feat, evec_feat = self.eigenfeatures.compute_features(noisy_data)
+  File "/extra/rislek/ConStruct-Thesis/ConStruct/diffusion/extra_features.py", line 100, in compute_features
+    n_connected_comp, batch_eigenvalues = self.eigenvalues_features(
+  File "/extra/rislek/ConStruct-Thesis/ConStruct/diffusion/extra_features.py", line 149, in eigenvalues_features
+    to_extend = max(n_connected_components) + num_eigenvalues - n
+  File "/home/rislek/.conda/envs/construct-env/lib/python3.9/site-packages/torch/utils/data/_utils/signal_handling.py", line 66, in handler
+    _error_if_any_worker_fails()
+RuntimeError: DataLoader worker (pid 273736) is killed by signal: Terminated. 
+
+Set the environment variable HYDRA_FULL_ERROR=1 for a complete stack trace.
