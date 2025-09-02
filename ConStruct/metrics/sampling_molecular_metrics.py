@@ -327,9 +327,6 @@ class SamplingMolecularMetrics(nn.Module):
                 if wandb.run:
                     wandb.log(stability_dict, commit=False)
 
-        # Track constraint violations BEFORE computing other metrics
-        self._track_constraint_violations(generated_graphs, local_rank)
-
         # Validity, uniqueness, novelty
         all_generated_smiles, metrics = self.evaluate(molecules)
         
