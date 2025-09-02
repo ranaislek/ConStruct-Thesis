@@ -38,32 +38,35 @@ Distribution of molecules by ring count:
 
 RING LENGTH ANALYSIS
 --------------------
-Distribution of rings by length:
-  3-atom rings: 6,615 rings
-  4-atom rings: 7,707 rings
-  5-atom rings: 9,384 rings
-  6-atom rings: 6,035 rings
-  7-atom rings: 3,050 rings
-  8-atom rings: 1,363 rings
-  9-atom rings: 285 rings
+Distribution of molecules by maximum ring length:
+  0-atom rings (acyclic): 1,259 molecules (9.645%)
+  3-atom rings: 1,414 molecules (10.832%)
+  4-atom rings: 1,470 molecules (11.261%)
+  5-atom rings: 3,588 molecules (27.486%)
+  6-atom rings: 2,601 molecules (19.925%)
+  7-atom rings: 1,543 molecules (11.820%)
+  8-atom rings: 924 molecules (7.078%)
+  9-atom rings: 255 molecules (1.953%)
 
 CONSTRAINT SATISFACTION RATES
 ------------------------------
-Ring Count Constraints:
-  ≤0: 0.096 (9.6%)
-  ≤1: 0.498 (49.8%)
-  ≤2: 0.575 (57.5%)
-  ≤3: 0.816 (81.6%)
-  ≤4: 0.843 (84.3%)
-  ≤5: 0.843 (84.3%)
+Ring Count Constraints (cumulative per molecule):
+  ≤0: 9.645%
+  ≤1: 49.801%
+  ≤2: 57.523%
+  ≤3: 81.569%
+  ≤4: 84.250%
+  ≤5: 84.273%
 
-Ring Length Constraints:
-  ≤3: 0.205 (20.5%)
-  ≤4: 0.317 (31.7%)
-  ≤5: 0.592 (59.2%)
-  ≤6: 0.791 (79.1%)
-  ≤7: 0.910 (91.0%)
-  ≤8: 0.980 (98.0%)
+Ring Length Constraints (cumulative per molecule by max ring length):
+  ≤0: 9.645%
+  ≤3: 20.476%
+  ≤4: 31.737%
+  ≤5: 59.223%
+  ≤6: 79.148%
+  ≤7: 90.968%
+  ≤8: 98.047%
+  ≤9: 100.000%
 
 PLANARITY ANALYSIS
 --------------------
@@ -72,4 +75,4 @@ Non-planar molecules: 0
 Planarity rate: 1.000 (100.0%)
 
 
-Analysis completed on: 2025-08-28 17:00:27
+Analysis completed on: 2025-09-01 14:18:05

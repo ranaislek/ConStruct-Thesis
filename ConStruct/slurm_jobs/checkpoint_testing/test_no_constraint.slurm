@@ -6,7 +6,7 @@
 #SBATCH --mem=16G  
 #SBATCH --gres=gpu:1
 #SBATCH --exclude=vgpu5-0
-#SBATCH --time=24:00:00
+#SBATCH --time=40:00:00
 #SBATCH --constraint=A6000|A5000
 #SBATCH --partition=allgroups,testing
 
@@ -39,10 +39,6 @@ echo "Constraint: No structural constraints (natural QM9 distribution)"
 echo "Job ID: $SLURM_JOB_ID"
 echo "Node: $SLURM_NODELIST"
 echo "Time: $(date)"
-
-# Create output directories
-mkdir -p /home/rislek/ConStruct-Thesis/ConStruct/outputs/checkpoint_testing/no_constraint
-mkdir -p /home/rislek/ConStruct-Thesis/ConStruct/logs/checkpoint_testing
 
 # Run the experiment with no constraint (baseline)
 cd ConStruct

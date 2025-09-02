@@ -40,10 +40,6 @@ echo "Job ID: $SLURM_JOB_ID"
 echo "Node: $SLURM_NODELIST"
 echo "Time: $(date)"
 
-# Create output directories
-mkdir -p /home/rislek/ConStruct-Thesis/ConStruct/outputs/checkpoint_testing/ring_length_5
-mkdir -p /home/rislek/ConStruct-Thesis/ConStruct/logs/checkpoint_testing
-
 # Run the experiment with ring length ≤ 5 constraint
 cd ConStruct
 python main.py \
@@ -53,7 +49,6 @@ python main.py \
     general.final_model_samples_to_generate=10000 \
     model.rev_proj=ring_length_at_most \
     model.max_ring_length=5 \
-    model.use_incremental_length=true \
     general.wandb=disabled \
     general.final_model_chains_to_save=0
 

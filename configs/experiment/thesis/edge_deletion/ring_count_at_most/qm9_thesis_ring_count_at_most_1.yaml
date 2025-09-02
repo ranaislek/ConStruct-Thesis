@@ -26,4 +26,3 @@ model:
   transition: absorbing_edges
 
   # If the code supports incremental projectors; otherwise omit without error:
-  use_incremental: true

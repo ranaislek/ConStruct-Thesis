@@ -28,4 +28,3 @@ model:
   transition: absorbing_edges       # Edge-deletion transition
 
   # If the code supports incremental projectors; otherwise omit without error:
-  use_incremental: true

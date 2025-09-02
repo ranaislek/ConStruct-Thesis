@@ -40,10 +40,6 @@ echo "Job ID: $SLURM_JOB_ID"
 echo "Node: $SLURM_NODELIST"
 echo "Time: $(date)"
 
-# Create output directories
-mkdir -p /home/rislek/ConStruct-Thesis/ConStruct/outputs/checkpoint_testing/ring_count_4
-mkdir -p /home/rislek/ConStruct-Thesis/ConStruct/logs/checkpoint_testing
-
 # Run the experiment with ring count ≤ 4 constraint
 cd ConStruct
 python main.py \
@@ -53,7 +49,6 @@ python main.py \
     general.final_model_samples_to_generate=10000 \
     model.rev_proj=ring_count_at_most \
     model.max_rings=4 \
-    model.use_incremental=true \
     general.wandb=disabled \
     general.final_model_chains_to_save=0
 

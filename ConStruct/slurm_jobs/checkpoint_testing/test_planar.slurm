@@ -40,10 +40,6 @@ echo "Job ID: $SLURM_JOB_ID"
 echo "Node: $SLURM_NODELIST"
 echo "Time: $(date)"
 
-# Create output directories
-mkdir -p /home/rislek/ConStruct-Thesis/ConStruct/outputs/checkpoint_testing/planar
-mkdir -p /home/rislek/ConStruct-Thesis/ConStruct/logs/checkpoint_testing
-
 # Run the experiment with planarity constraint
 cd ConStruct
 python main.py \

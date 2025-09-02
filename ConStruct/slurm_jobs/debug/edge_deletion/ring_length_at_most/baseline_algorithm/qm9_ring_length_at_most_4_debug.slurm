@@ -38,6 +38,6 @@ echo "Time: $(date)"
 
 # Run the experiment
 cd ConStruct
-python main.py +experiment=debug/edge_deletion/ring_length_at_most/qm9_debug_ring_length_at_most_4 model.use_incremental_length=False 
+python main.py +experiment=debug/edge_deletion/ring_length_at_most/qm9_debug_ring_length_at_most_4 
 
 echo "Experiment completed at $(date)"

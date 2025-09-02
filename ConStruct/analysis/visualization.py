@@ -97,7 +97,9 @@ class Visualizer:
         num_graphs = graphs.X.shape[0]
         num_graphs_to_visualize = min(num_graphs_to_visualize, num_graphs)
         if num_graphs_to_visualize > 0:
-            print(f"Visualizing {num_graphs_to_visualize} graphs out of {num_graphs}")
+            from datetime import datetime
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            print(f"[{timestamp}] Visualizing {num_graphs_to_visualize} graphs out of {num_graphs}")
 
         graph_list = graphs.split()
         for i in range(num_graphs_to_visualize):

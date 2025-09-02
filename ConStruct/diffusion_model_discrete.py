@@ -3,6 +3,7 @@ import os
 import pickle
 import time
 import logging
+from datetime import datetime
 
 import networkx as nx
 import numpy as np
@@ -16,6 +17,8 @@ import wandb
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+from ConStruct.reporting.report_builder import setup_additional_logging, log_and_print
 
 from ConStruct.models.transformer_model import GraphTransformer
 from ConStruct.diffusion.noise_model import (
@@ -437,7 +440,8 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
             self.val_counter % self.cfg.general.sample_every_val == 0
             and self.current_epoch > 0
         ):
-            self.print(f"Sampling start")
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            self.print(f"[{timestamp}] Sampling start")
             start = time.time()
             gen = self.cfg.general
             samples = self.sample_n_graphs(
@@ -448,10 +452,12 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
                 samples_to_save=gen.samples_to_save if self.local_rank == 0 else 0,
                 test=False,
             )
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             print(
-                f"Sampled {len(samples)} batches on local rank {self.local_rank}. Sampling took {time.time() - start:.2f} seconds\n"
+                f"[{timestamp}] Sampled {len(samples)} batches on local rank {self.local_rank}. Sampling took {time.time() - start:.2f} seconds\n"
             )
-            print(f"Computing sampling metrics on {self.local_rank}...")
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            print(f"[{timestamp}] Computing sampling metrics on {self.local_rank}...")
             self.val_sampling_metrics.compute_all_metrics(
                 generated_graphs=samples,
                 current_epoch=self.current_epoch,
@@ -501,7 +507,8 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
         if wandb.run:
             wandb.log(log_dict)
 
-        print(f"Sampling start on GR{self.global_rank}")
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        print(f"[{timestamp}] Sampling start on GR{self.global_rank}")
         start = time.time()
         to_sample = math.ceil(
             self.cfg.general.final_model_samples_to_generate
@@ -588,8 +595,10 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
             current_epoch=self.current_epoch,
             local_rank=self.local_rank,
         )
-        print(f"Done. Sampling took {time.time() - start:.2f} seconds\n")
-        print(f"Test ends.")
+        # Setup additional logging and log the completion message
+        additional_logger = setup_additional_logging()
+        log_and_print(f"Done. Sampling took {time.time() - start:.2f} seconds\n", additional_logger)
+        log_and_print(f"Test ends.", additional_logger)
 
         # Close wandb
         wandb.finish()
@@ -764,8 +773,10 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
         :return: molecule_list. Each element of this list is a tuple (atom_types, charges, positions)
         """
 
+        from datetime import datetime
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         print(
-            f"Sampling a batch with {len(n_nodes)} graphs on local rank {self.local_rank}."
+            f"[{timestamp}] Sampling a batch with {len(n_nodes)} graphs on local rank {self.local_rank}."
             f" Saving {save_final} visualization and {keep_chain} full chains."
         )
         assert keep_chain >= 0
@@ -811,28 +822,30 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
             rev_projector = LobsterProjector(z_t)
         elif self.cfg.model.rev_proj == "ring_count_at_most":
             max_rings = getattr(self.cfg.model, "max_rings", 0)
-            use_incremental = getattr(self.cfg.model, "use_incremental", False)
             atom_decoder = getattr(self.dataset_infos, "atom_decoder", None)
             if not hasattr(self, '_printed_ring_count_mode'):
-                # print(f"🔧 RingCountAtMostProjector: max_rings={max_rings}, use_incremental={use_incremental}")
+                # print(f"🔧 RingCountAtMostProjector: max_rings={max_rings}")
                 self._printed_ring_count_mode = True
-            rev_projector = RingCountAtMostProjector(z_t, max_rings, atom_decoder, use_incremental)
+            rev_projector = RingCountAtMostProjector(z_t, max_rings, atom_decoder)
         elif self.cfg.model.rev_proj == "ring_count_at_least":
-            min_rings = getattr(self.cfg.model, "min_rings", 2)
-            atom_decoder = getattr(self.dataset_infos, "atom_decoder", None)
-            rev_projector = RingCountAtLeastProjector(z_t, min_rings, atom_decoder)
+            # TODO: FUTURE WORK - RingCountAtLeastProjector implementation removed for simplification
+            raise NotImplementedError(
+                "ring_count_at_least projector is marked for future work. "
+                "Use ring_count_at_most for production workloads."
+            )
         elif self.cfg.model.rev_proj == "ring_length_at_most":
             max_ring_length = getattr(self.cfg.model, "max_ring_length", 6)
-            use_incremental_length = getattr(self.cfg.model, "use_incremental_length", False)
             atom_decoder = getattr(self.dataset_infos, "atom_decoder", None)
             if not hasattr(self, '_printed_ring_length_mode'):
-                # print(f"🔧 RingLengthAtMostProjector: max_ring_length={max_ring_length}, use_incremental_length={use_incremental_length}")
+                # print(f"🔧 RingLengthAtMostProjector: max_ring_length={max_ring_length}")
                 self._printed_ring_length_mode = True
-            rev_projector = RingLengthAtMostProjector(z_t, max_ring_length, atom_decoder, use_incremental_length)
+            rev_projector = RingLengthAtMostProjector(z_t, max_ring_length, atom_decoder)
         elif self.cfg.model.rev_proj == "ring_length_at_least":
-            min_ring_length = getattr(self.cfg.model, "min_ring_length", 4)
-            atom_decoder = getattr(self.dataset_infos, "atom_decoder", None)
-            rev_projector = RingLengthAtLeastProjector(z_t, min_ring_length, atom_decoder)
+            # TODO: FUTURE WORK - RingLengthAtLeastProjector implementation removed for simplification
+            raise NotImplementedError(
+                "ring_length_at_least projector is marked for future work. "
+                "Use ring_length_at_most for production workloads."
+            )
         elif self.cfg.model.rev_proj is None or self.cfg.model.rev_proj == "":
             # No constraint training - no projector needed
             rev_projector = None
@@ -891,7 +904,7 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
                         total_rings_after += ring_count
                         if ring_count > rev_projector.max_rings:
                             graph_valid = False
-                            logger.warning(f"⚠️ Graph {graph_idx} has {ring_count} rings > {rev_projector.max_rings} at timestep {s_int}")
+                            # logger.warning(f"⚠️ Graph {graph_idx} has {ring_count} rings > {rev_projector.max_rings} at timestep {s_int}")
                 
                 # Check ring length constraint after projection and check validity
                 elif hasattr(rev_projector, 'max_ring_length'):
@@ -902,32 +915,38 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
                         max_ring_length_after = max(max_ring_length_after, max_cycle_length)
                         if max_cycle_length > rev_projector.max_ring_length:
                             graph_valid = False
-                            logger.warning(f"⚠️ Graph {graph_idx} has max cycle length {max_cycle_length} > {rev_projector.max_ring_length} at timestep {s_int}")
+                            # logger.warning(f"⚠️ Graph {graph_idx} has max cycle length {max_cycle_length} > {rev_projector.max_ring_length} at timestep {s_int}")
                 
                 # Assert constraint at t == 0
                 if s_int == 0:
-                    if not graph_valid:
-                        logger.error(f"❌ CONSTRAINT VIOLATION at t=0: {total_rings_after} rings > {rev_projector.max_rings}")
-                        raise AssertionError(f"Ring constraint violated at t=0: {total_rings_after} rings > {rev_projector.max_rings}")
-                
-                # Assert constraint at t == 0
-                if s_int == 0:
-                    if not graph_valid:
-                        logger.error(f"❌ RING LENGTH CONSTRAINT VIOLATION at t=0: max cycle length {max_ring_length_after} > {rev_projector.max_ring_length}")
-                        raise AssertionError(f"Ring length constraint violated at t=0: max cycle length {max_ring_length_after} > {rev_projector.max_ring_length}")
-                        
-                    # Ring-length-at-most: assert at the final step too
-                    if hasattr(rev_projector, 'max_ring_length'):
-                        from networkx import cycle_basis
+                    # Final projection at t=0 for both constraints
+                    constraint_kind = None
+                    if hasattr(rev_projector, 'max_rings'):
+                        constraint_kind = "ring_count"
+                        from ConStruct.projector.is_ring.is_ring_count_at_most.is_ring_count_at_most import ring_count_at_most_sanitize, has_at_most_n_rings
+                        K = rev_projector.max_rings
+                        for g_idx, g in enumerate(rev_projector.nx_graphs_list):
+                            # Apply sanitizer
+                            g = ring_count_at_most_sanitize(g, K)
+                            rev_projector.nx_graphs_list[g_idx] = g
+                            # Final assert
+                            assert has_at_most_n_rings(g, K), f"Post-pass ring-count assertion failed: graph {g_idx} has > {K} cycles at t=0"
+                    
+                    elif hasattr(rev_projector, 'max_ring_length'):
+                        constraint_kind = "ring_length"
+                        from ConStruct.projector.is_ring.is_ring_length_at_most.is_ring_length_at_most import ring_length_at_most_sanitize, has_rings_of_length_at_most
                         L = rev_projector.max_ring_length
                         for g_idx, g in enumerate(rev_projector.nx_graphs_list):
-                            try:
-                                cycles = cycle_basis(g)
-                                if any(len(c) > L for c in cycles):
-                                    raise AssertionError(f"Ring-length-at-most violated at t=0 on graph {g_idx}: found cycle length > {L}")
-                            except Exception as e:
-                                # If we cannot verify, fail loudly to avoid silent violations
-                                raise
+                            # Apply sanitizer
+                            g = ring_length_at_most_sanitize(g, L)
+                            rev_projector.nx_graphs_list[g_idx] = g
+                            # Final assert
+                            assert has_rings_of_length_at_most(g, L), f"Post-pass ring-length assertion failed: graph {g_idx} has cycles > length {L} at t=0"
+                    
+                    # Log final projection info
+                    if constraint_kind:
+                        blocked_edges_total = sum(len(blocked_set) for blocked_set in rev_projector.blocked_edges.values()) if hasattr(rev_projector, 'blocked_edges') else 0
+                        # logger.info(f"Final projection at t=0: constraint={constraint_kind}, blocked_edges={blocked_edges_total}")
             
                 # Planarity-specific validation
                 elif self.cfg.model.rev_proj == "planar":
@@ -937,7 +956,7 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
                         if not rev_projector.valid_graph_fn(nx_graph):
                             planarity_valid = False
                             non_planar_graphs.append(graph_idx)
-                            logger.warning(f"⚠️ Graph {graph_idx} is non-planar at timestep {s_int}")
+                            # logger.warning(f"⚠️ Graph {graph_idx} is non-planar at timestep {s_int}")
                     
                     # Log planarity status at t == 0
                     if s_int == 0:
@@ -1095,7 +1114,8 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
 
         # Visualize chains
         if keep_chain > 0:
-            self.print("Batch sampled. Visualizing chains starts!")
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            self.print(f"[{timestamp}] Batch sampled. Visualizing chains starts!")
             chains_path = os.path.join(
                 os.getcwd(),
                 f"chains/epoch{self.current_epoch}/",
@@ -1127,7 +1147,8 @@ class DiscreteDenoisingDiffusion(pl.LightningModule):
             ),
             num_graphs_to_visualize=save_final,
         )
-        self.print("Done.")
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.print(f"[{timestamp}] Done.")
 
         # During testing, move the graphs to cpu so that they can be aggregated for metrics computation
         if test:

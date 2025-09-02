@@ -109,7 +109,7 @@ def analyze_ring_properties(dataset, dataset_name="dataset"):
     print(f"\n🔍 Analyzing ring properties for {dataset_name}...")
     
     ring_count_dist = Counter()
-    ring_length_dist = Counter()
+    ring_length_dist = Counter()  # Now distribution of molecules by max ring length
     max_ring_length_per_mol = []
     total_rings = 0
     
@@ -135,13 +135,14 @@ def analyze_ring_properties(dataset, dataset_name="dataset"):
         ring_count_dist[ring_count] += 1
         total_rings += ring_count
         
-        # Analyze ring lengths
+        # Analyze maximum ring length per molecule (for consistency with sampling evaluation)
         max_length_in_mol = 0
         for cycle in cycles:
             ring_length = len(cycle)
-            ring_length_dist[ring_length] += 1
             max_length_in_mol = max(max_length_in_mol, ring_length)
         
+        # Count molecules by their maximum ring length (0 for acyclic molecules)
+        ring_length_dist[max_length_in_mol] += 1
         max_ring_length_per_mol.append(max_length_in_mol)
     
     return ring_count_dist, ring_length_dist, max_ring_length_per_mol, total_rings
@@ -192,16 +193,16 @@ def calculate_constraint_rates(ring_count_dist, ring_length_dist, max_ring_lengt
     for max_rings in [0, 1, 2, 3, 4, 5]:
         count = sum(ring_count_dist[i] for i in range(max_rings + 1))
         rate = count / total_molecules
-        ring_count_rates[f"≤{max_rings}"] = rate
-        print(f"  Ring count ≤{max_rings}: {count}/{total_molecules} = {rate:.3f} ({rate*100:.1f}%)")
+        ring_count_rates[f"≤{max_rings}"] = (rate, count)
+        print(f"  Ring count ≤{max_rings}: {count}/{total_molecules} = {rate:.3f} ({rate*100:.3f}%)")
     
-    # Ring length rates (≤3, ≤4, ≤5, ≤6, ≤7, ≤8)
+    # Ring length rates (≤0, ≤3, ≤4, ≤5, ≤6, ≤7, ≤8, ≤9)
     ring_length_rates = {}
-    for max_length in [3, 4, 5, 6, 7, 8]:
+    for max_length in [0, 3, 4, 5, 6, 7, 8, 9]:
         count = sum(1 for max_len in max_ring_length_per_mol if max_len <= max_length)
         rate = count / total_molecules
-        ring_length_rates[f"≤{max_length}"] = rate
-        print(f"  Ring length ≤{max_length}: {count}/{total_molecules} = {rate:.3f} ({rate*100:.1f}%)")
+        ring_length_rates[f"≤{max_length}"] = (rate, count)
+        print(f"  Ring length ≤{max_length}: {count}/{total_molecules} = {rate:.3f} ({rate*100:.3f}%)")
     
     return ring_count_rates, ring_length_rates
 
@@ -233,14 +234,14 @@ def create_plots(ring_count_dist, ring_length_dist, planar_count, non_planar_cou
     plt.savefig(output_dir / f"ring_count_distribution_{analysis_name}.png", dpi=300, bbox_inches='tight')
     plt.close()
     
-    # 2. Ring Length Distribution
+    # 2. Ring Length Distribution (by maximum ring length per molecule)
     plt.figure(figsize=(10, 6))
     ring_lengths = sorted(ring_length_dist.keys())
     ring_length_values = [ring_length_dist[l] for l in ring_lengths]
     bars = plt.bar(ring_lengths, ring_length_values, alpha=0.7, color='lightcoral', edgecolor='darkred')
-    plt.title(f'QM9 {analysis_name}: Ring Length Distribution', fontsize=14, fontweight='bold')
-    plt.xlabel('Ring Length (Number of Atoms)', fontsize=12)
-    plt.ylabel('Number of Rings', fontsize=12)
+    plt.title(f'QM9 {analysis_name}: Maximum Ring Length Distribution', fontsize=14, fontweight='bold')
+    plt.xlabel('Maximum Ring Length (Number of Atoms)', fontsize=12)
+    plt.ylabel('Number of Molecules', fontsize=12)
     plt.xticks(ring_lengths)
     plt.grid(True, alpha=0.3)
     
@@ -280,7 +281,7 @@ def create_plots(ring_count_dist, ring_length_dist, planar_count, non_planar_cou
     # Ring count rates
     plt.subplot(2, 1, 1)
     ring_count_constraints = ['≤0', '≤1', '≤2', '≤3', '≤4', '≤5']
-    ring_count_rates_list = [ring_count_rates[c] for c in ring_count_constraints]
+    ring_count_rates_list = [ring_count_rates[c][0] for c in ring_count_constraints]
     
     bars = plt.bar(ring_count_constraints, ring_count_rates_list, alpha=0.7, color='gold', edgecolor='orange')
     plt.title(f'Ring Count Constraint Satisfaction Rates ({analysis_name})', fontsize=12, fontweight='bold')
@@ -295,8 +296,8 @@ def create_plots(ring_count_dist, ring_length_dist, planar_count, non_planar_cou
     
     # Ring length rates
     plt.subplot(2, 1, 2)
-    ring_length_constraints = ['≤3', '≤4', '≤5', '≤6', '≤7', '≤8']
-    ring_length_rates_list = [ring_length_rates[c] for c in ring_length_constraints]
+    ring_length_constraints = ['≤0', '≤3', '≤4', '≤5', '≤6', '≤7', '≤8', '≤9']
+    ring_length_rates_list = [ring_length_rates[c][0] for c in ring_length_constraints]
     
     bars = plt.bar(ring_length_constraints, ring_length_rates_list, alpha=0.7, color='lightblue', edgecolor='navy')
     plt.title(f'Ring Length Constraint Satisfaction Rates ({analysis_name})', fontsize=12, fontweight='bold')
@@ -365,19 +366,23 @@ def save_results(ring_count_dist, ring_length_dist, ring_count_rates, ring_lengt
         
         f.write("\nRING LENGTH ANALYSIS\n")
         f.write("-" * 20 + "\n")
-        f.write("Distribution of rings by length:\n")
-        for length, num_rings in sorted(ring_length_dist.items()):
-            f.write(f"  {length}-atom rings: {num_rings:,} rings\n")
+        f.write("Distribution of molecules by maximum ring length:\n")
+        for length, num_molecules in sorted(ring_length_dist.items()):
+            percentage = (num_molecules / total_molecules) * 100
+            if length == 0:
+                f.write(f"  0-atom rings (acyclic): {num_molecules:,} molecules ({percentage:.3f}%)\n")
+            else:
+                f.write(f"  {length}-atom rings: {num_molecules:,} molecules ({percentage:.3f}%)\n")
         
         f.write("\nCONSTRAINT SATISFACTION RATES\n")
         f.write("-" * 30 + "\n")
-        f.write("Ring Count Constraints:\n")
-        for constraint, rate in ring_count_rates.items():
-            f.write(f"  {constraint}: {rate:.3f} ({rate*100:.1f}%)\n")
+        f.write("Ring Count Constraints (cumulative per molecule):\n")
+        for constraint, (rate, count) in ring_count_rates.items():
+            f.write(f"  {constraint}: {rate*100:.3f}%\n")
         
-        f.write("\nRing Length Constraints:\n")
-        for constraint, rate in ring_length_rates.items():
-            f.write(f"  {constraint}: {rate:.3f} ({rate*100:.1f}%)\n")
+        f.write("\nRing Length Constraints (cumulative per molecule by max ring length):\n")
+        for constraint, (rate, count) in ring_length_rates.items():
+            f.write(f"  {constraint}: {rate*100:.3f}%\n")
         
         if planar_count is not None:
             f.write(f"\nPLANARITY ANALYSIS\n")
@@ -399,10 +404,10 @@ def create_comparison_analysis(train_results, val_results, test_results, full_re
     
     # Ring count comparison
     plt.subplot(3, 3, 1)
-    train_rates = [train_results['ring_count_rates'][f"≤{i}"] for i in range(6)]
-    val_rates = [val_results['ring_count_rates'][f"≤{i}"] for i in range(6)]
-    test_rates = [test_results['ring_count_rates'][f"≤{i}"] for i in range(6)]
-    full_rates = [full_results['ring_count_rates'][f"≤{i}"] for i in range(6)]
+    train_rates = [train_results['ring_count_rates'][f"≤{i}"][0] for i in range(6)]
+    val_rates = [val_results['ring_count_rates'][f"≤{i}"][0] for i in range(6)]
+    test_rates = [test_results['ring_count_rates'][f"≤{i}"][0] for i in range(6)]
+    full_rates = [full_results['ring_count_rates'][f"≤{i}"][0] for i in range(6)]
     x = range(6)
     
     plt.plot(x, train_rates, 'o-', label='Training', linewidth=2, markersize=8)
@@ -417,11 +422,12 @@ def create_comparison_analysis(train_results, val_results, test_results, full_re
     
     # Ring length comparison
     plt.subplot(3, 3, 2)
-    train_length_rates = [train_results['ring_length_rates'][f"≤{i}"] for i in range(3, 9)]
-    val_length_rates = [val_results['ring_length_rates'][f"≤{i}"] for i in range(3, 9)]
-    test_length_rates = [test_results['ring_length_rates'][f"≤{i}"] for i in range(3, 9)]
-    full_length_rates = [full_results['ring_length_rates'][f"≤{i}"] for i in range(3, 9)]
-    x = range(3, 9)
+    ring_length_values = [0, 3, 4, 5, 6, 7, 8, 9]
+    train_length_rates = [train_results['ring_length_rates'][f"≤{i}"][0] for i in ring_length_values]
+    val_length_rates = [val_results['ring_length_rates'][f"≤{i}"][0] for i in ring_length_values]
+    test_length_rates = [test_results['ring_length_rates'][f"≤{i}"][0] for i in ring_length_values]
+    full_length_rates = [full_results['ring_length_rates'][f"≤{i}"][0] for i in ring_length_values]
+    x = range(len(ring_length_values))
     
     plt.plot(x, train_length_rates, 'o-', label='Training', linewidth=2, markersize=8)
     plt.plot(x, val_length_rates, 's-', label='Validation', linewidth=2, markersize=8)
@@ -430,6 +436,7 @@ def create_comparison_analysis(train_results, val_results, test_results, full_re
     plt.title('Ring Length Constraint Satisfaction Comparison', fontweight='bold')
     plt.xlabel('Maximum Ring Length')
     plt.ylabel('Satisfaction Rate')
+    plt.xticks(x, ring_length_values)
     plt.legend()
     plt.grid(True, alpha=0.3)
     
@@ -471,16 +478,16 @@ def create_comparison_analysis(train_results, val_results, test_results, full_re
     
     # Ring count distribution comparison
     plt.subplot(3, 3, 5)
-    max_rings = max(max(train_results['ring_count_distribution'].keys()),
-                   max(val_results['ring_count_distribution'].keys()),
-                   max(test_results['ring_count_distribution'].keys()),
-                   max(full_results['ring_count_distribution'].keys()))
+    max_rings = max(max(int(k) for k in train_results['ring_count_distribution'].keys()),
+                   max(int(k) for k in val_results['ring_count_distribution'].keys()),
+                   max(int(k) for k in test_results['ring_count_distribution'].keys()),
+                   max(int(k) for k in full_results['ring_count_distribution'].keys()))
     
     x = range(max_rings + 1)
-    train_dist = [train_results['ring_count_distribution'].get(i, 0) for i in x]
-    val_dist = [val_results['ring_count_distribution'].get(i, 0) for i in x]
-    test_dist = [test_results['ring_count_distribution'].get(i, 0) for i in x]
-    full_dist = [full_results['ring_count_distribution'].get(i, 0) for i in x]
+    train_dist = [train_results['ring_count_distribution'].get(str(i), 0) for i in x]
+    val_dist = [val_results['ring_count_distribution'].get(str(i), 0) for i in x]
+    test_dist = [test_results['ring_count_distribution'].get(str(i), 0) for i in x]
+    full_dist = [full_results['ring_count_distribution'].get(str(i), 0) for i in x]
     
     # Normalize to percentages
     train_dist = [v/sum(train_dist)*100 for v in train_dist]
@@ -500,16 +507,16 @@ def create_comparison_analysis(train_results, val_results, test_results, full_re
     
     # Ring length distribution comparison
     plt.subplot(3, 3, 6)
-    max_length = max(max(train_results['ring_length_distribution'].keys()),
-                    max(val_results['ring_length_distribution'].keys()),
-                    max(test_results['ring_length_distribution'].keys()),
-                    max(full_results['ring_length_distribution'].keys()))
+    max_length = max(max(int(k) for k in train_results['ring_length_distribution'].keys()),
+                    max(int(k) for k in val_results['ring_length_distribution'].keys()),
+                    max(int(k) for k in test_results['ring_length_distribution'].keys()),
+                    max(int(k) for k in full_results['ring_length_distribution'].keys()))
     
-    x = range(3, max_length + 1)
-    train_length_dist = [train_results['ring_length_distribution'].get(i, 0) for i in x]
-    val_length_dist = [val_results['ring_length_distribution'].get(i, 0) for i in x]
-    test_length_dist = [test_results['ring_length_distribution'].get(i, 0) for i in x]
-    full_length_dist = [full_results['ring_length_distribution'].get(i, 0) for i in x]
+    x = range(0, max_length + 1)  # Include 0 for acyclic molecules
+    train_length_dist = [train_results['ring_length_distribution'].get(str(i), 0) for i in x]
+    val_length_dist = [val_results['ring_length_distribution'].get(str(i), 0) for i in x]
+    test_length_dist = [test_results['ring_length_distribution'].get(str(i), 0) for i in x]
+    full_length_dist = [full_results['ring_length_distribution'].get(str(i), 0) for i in x]
     
     # Normalize to percentages
     train_length_dist = [v/sum(train_length_dist)*100 for v in train_length_dist]
@@ -553,7 +560,7 @@ def create_comparison_analysis(train_results, val_results, test_results, full_re
     # Ring count rates
     rates_matrix = []
     for dataset_results in [train_results, val_results, test_results, full_results]:
-        rates = [dataset_results['ring_count_rates'][c] for c in constraints]
+        rates = [dataset_results['ring_count_rates'][c][0] for c in constraints]
         rates_matrix.append(rates)
     
     im = plt.imshow(rates_matrix, cmap='YlOrRd', aspect='auto')
@@ -572,12 +579,12 @@ def create_comparison_analysis(train_results, val_results, test_results, full_re
     
     # Ring length constraint heatmap
     plt.subplot(3, 3, 9)
-    length_constraints = ['≤3', '≤4', '≤5', '≤6', '≤7', '≤8']
+    length_constraints = ['≤0', '≤3', '≤4', '≤5', '≤6', '≤7', '≤8', '≤9']
     
     # Ring length rates
     length_rates_matrix = []
     for dataset_results in [train_results, val_results, test_results, full_results]:
-        rates = [dataset_results['ring_length_rates'][c] for c in length_constraints]
+        rates = [dataset_results['ring_length_rates'][c][0] for c in length_constraints]
         length_rates_matrix.append(rates)
     
     im = plt.imshow(length_rates_matrix, cmap='Blues', aspect='auto')
@@ -621,19 +628,19 @@ def create_comparison_analysis(train_results, val_results, test_results, full_re
         f.write("RING COUNT COMPARISON\n")
         f.write("-" * 25 + "\n")
         for i in range(6):
-            train_rate = train_results['ring_count_rates'][f"≤{i}"]
-            val_rate = val_results['ring_count_rates'][f"≤{i}"]
-            test_rate = test_results['ring_count_rates'][f"≤{i}"]
-            full_rate = full_results['ring_count_rates'][f"≤{i}"]
+            train_rate = train_results['ring_count_rates'][f"≤{i}"][0]
+            val_rate = val_results['ring_count_rates'][f"≤{i}"][0]
+            test_rate = test_results['ring_count_rates'][f"≤{i}"][0]
+            full_rate = full_results['ring_count_rates'][f"≤{i}"][0]
             f.write(f"≤{i} rings: Train={train_rate:.3f}, Val={val_rate:.3f}, Test={test_rate:.3f}, Full={full_rate:.3f}\n")
         
         f.write("\nRING LENGTH COMPARISON\n")
         f.write("-" * 27 + "\n")
-        for i in range(3, 9):
-            train_rate = train_results['ring_length_rates'][f"≤{i}"]
-            val_rate = val_results['ring_length_rates'][f"≤{i}"]
-            test_rate = test_results['ring_length_rates'][f"≤{i}"]
-            full_rate = full_results['ring_length_rates'][f"≤{i}"]
+        for i in [0, 3, 4, 5, 6, 7, 8, 9]:
+            train_rate = train_results['ring_length_rates'][f"≤{i}"][0]
+            val_rate = val_results['ring_length_rates'][f"≤{i}"][0]
+            test_rate = test_results['ring_length_rates'][f"≤{i}"][0]
+            full_rate = full_results['ring_length_rates'][f"≤{i}"][0]
             f.write(f"≤{i} atoms: Train={train_rate:.3f}, Val={val_rate:.3f}, Test={test_rate:.3f}, Full={full_rate:.3f}\n")
         
         f.write(f"\n\nComprehensive comparison completed on: {time.strftime('%Y-%m-%d %H:%M:%S')}\n")

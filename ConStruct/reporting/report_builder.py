@@ -1,4 +1,5 @@
 import os, statistics
+import logging
 from typing import Dict, Any, List, Optional, Tuple
 
 # -------- formatting (no arrows, consistent precision) --------
@@ -10,6 +11,75 @@ def pct(x: Optional[float]) -> str:
 
 def f3(x: Optional[float]) -> str:
     return "NA" if x is None else f"{round(x, 3)}"
+
+# --- new: helper function to setup additional logging to main.log ---
+def setup_additional_logging() -> Optional[logging.Logger]:
+    """
+    Set up additional logging to the main.log file in the outputs directory.
+    Returns the logger if successful, None otherwise.
+    """
+    try:
+        # Get current working directory (should be project root due to chdir: False)
+        cwd = os.getcwd()
+        
+        # Look for outputs directory and find the most recent run directory
+        outputs_dir = os.path.join(cwd, "outputs")
+        if not os.path.exists(outputs_dir):
+            return None
+            
+        # Find the most recent date directory
+        date_dirs = [d for d in os.listdir(outputs_dir) if os.path.isdir(os.path.join(outputs_dir, d))]
+        if not date_dirs:
+            return None
+            
+        latest_date = max(date_dirs)
+        date_path = os.path.join(outputs_dir, latest_date)
+        
+        # Find the most recent run directory within the date directory
+        run_dirs = [d for d in os.listdir(date_path) if os.path.isdir(os.path.join(date_path, d))]
+        if not run_dirs:
+            return None
+            
+        latest_run = max(run_dirs)
+        run_path = os.path.join(date_path, latest_run)
+        
+        # Check if main.log exists
+        main_log_path = os.path.join(run_path, "main.log")
+        if not os.path.exists(main_log_path):
+            return None
+            
+        # Create a logger for additional logging
+        logger = logging.getLogger("report_builder_additional")
+        logger.setLevel(logging.INFO)
+        
+        # Remove existing handlers to avoid duplicates
+        for handler in logger.handlers[:]:
+            logger.removeHandler(handler)
+            
+        # Create file handler for main.log
+        file_handler = logging.FileHandler(main_log_path, mode='a')
+        file_handler.setLevel(logging.INFO)
+        
+        # Create formatter (no timestamp since we're appending to existing log)
+        formatter = logging.Formatter('%(message)s')
+        file_handler.setFormatter(formatter)
+        
+        logger.addHandler(file_handler)
+        logger.propagate = False  # Prevent propagation to root logger
+        
+        return logger
+        
+    except Exception as e:
+        # Silently fail - don't interrupt the main functionality
+        return None
+
+def log_and_print(message: str, logger: Optional[logging.Logger] = None):
+    """
+    Print message to console and optionally log to main.log file.
+    """
+    print(message)
+    if logger:
+        logger.info(message)
 
 # --- new: robust scalar coercion for hist/arrays/tensors/W&B Histogram ---
 def to_scalar(value) -> Optional[float]:
@@ -218,7 +288,7 @@ def collect_structural(split: str, metrics: Dict[str, Any], N_total: Optional[in
             # >12
             count_gt = ring_length_counts[-1] if len(ring_length_counts) > 0 else 0
             pct_gt = (100.0 * count_gt / N_total) if N_total else 0.0
-            rows.append(("Ring length >12 (max) (%)", f"{round(pct_val, 4)}%"))
+            rows.append(("Ring length >12 (max) (%)", f"{round(pct_gt, 4)}%"))
 
     # For planarity constraints: show only planarity satisfaction, no ring distributions
     elif kind == "planarity":
@@ -417,7 +487,7 @@ def write_tables(outdir: str, split: str, exp_name: str, dataset: str, constrain
     # Structural subtitle explains the calculation:
     sub_struct = (
         sub
-        + " · Structural cycles via NetworkX cycle_basis; "
+        + " · Structural cycles via unique simple cycles; "
           "ring-length rows = per-molecule MAX ring length; "
           "aromatic bonds included"
     )
