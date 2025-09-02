@@ -50,21 +50,24 @@ STRUCTURAL_PATTERNS = {
     "ring_count_6": r"^\|\s*Ring count 6\s*\(\%\)\s*\|",
     "ring_count_7": r"^\|\s*Ring count 7\s*\(\%\)\s*\|",
     "ring_count_8": r"^\|\s*Ring count 8\s*\(\%\)\s*\|",
+    "ring_count_9": r"^\|\s*Ring count 9\s*\(\%\)\s*\|",
     "ring_count_9plus": r"^\|\s*Ring count 9\+\s*\(\%\)\s*\|",
+    "ring_count_12": r"^\|\s*Ring count 12\s*\(\%\)\s*\|",
+    "ring_count_40": r"^\|\s*Ring count 40\s*\(\%\)\s*\|",
     "acyclic": r"^\|\s*Acyclic\s*\(max len 0\)\s*\(\%\)\s*\|",
     
     # Ring length patterns (using actual output format: Cycle length X (max) (%))
-    "ring_length_3": r"^\|\s*Cycle length 3\s*\(max\)\s*\(\%\)\s*\|",
-    "ring_length_4": r"^\|\s*Cycle length 4\s*\(max\)\s*\(\%\)\s*\|",
-    "ring_length_5": r"^\|\s*Cycle length 5\s*\(max\)\s*\(\%\)\s*\|",
-    "ring_length_6": r"^\|\s*Cycle length 6\s*\(max\)\s*\(\%\)\s*\|",
-    "ring_length_7": r"^\|\s*Cycle length 7\s*\(max\)\s*\(\%\)\s*\|",
-    "ring_length_8": r"^\|\s*Cycle length 8\s*\(max\)\s*\(\%\)\s*\|",
-    "ring_length_9": r"^\|\s*Cycle length 9\s*\(max\)\s*\(\%\)\s*\|",
-    "ring_length_10": r"^\|\s*Cycle length 10\s*\(max\)\s*\(\%\)\s*\|",
-    "ring_length_11": r"^\|\s*Cycle length 11\s*\(max\)\s*\(\%\)\s*\|",
-    "ring_length_12": r"^\|\s*Cycle length 12\s*\(max\)\s*\(\%\)\s*\|",
-    "ring_length_12plus": r"^\|\s*Cycle length >12\s*\(max\)\s*\(\%\)\s*\|",
+    "ring_length_3": r"^\|\s*(?:Cycle|Ring) length 3\s*\(max\)\s*\(\%\)\s*\|",
+    "ring_length_4": r"^\|\s*(?:Cycle|Ring) length 4\s*\(max\)\s*\(\%\)\s*\|",
+    "ring_length_5": r"^\|\s*(?:Cycle|Ring) length 5\s*\(max\)\s*\(\%\)\s*\|",
+    "ring_length_6": r"^\|\s*(?:Cycle|Ring) length 6\s*\(max\)\s*\(\%\)\s*\|",
+    "ring_length_7": r"^\|\s*(?:Cycle|Ring) length 7\s*\(max\)\s*\(\%\)\s*\|",
+    "ring_length_8": r"^\|\s*(?:Cycle|Ring) length 8\s*\(max\)\s*\(\%\)\s*\|",
+    "ring_length_9": r"^\|\s*(?:Cycle|Ring) length 9\s*\(max\)\s*\(\%\)\s*\|",
+    "ring_length_10": r"^\|\s*(?:Cycle|Ring) length 10\s*\(max\)\s*\(\%\)\s*\|",
+    "ring_length_11": r"^\|\s*(?:Cycle|Ring) length 11\s*\(max\)\s*\(\%\)\s*\|",
+    "ring_length_12": r"^\|\s*(?:Cycle|Ring) length 12\s*\(max\)\s*\(\%\)\s*\|",
+    "ring_length_12plus": r"^\|\s*(?:Cycle|Ring) length >12\s*\(max\)\s*\(\%\)\s*\|",
     
     # Violation patterns (greater than thresholds) - using actual output format
     "ring_count_gt0": r"^\|\s*Ring count >0\s*\(\%\)\s*\|",
@@ -73,12 +76,19 @@ STRUCTURAL_PATTERNS = {
     "ring_count_gt3": r"^\|\s*Ring count >3\s*\(\%\)\s*\|",
     "ring_count_gt4": r"^\|\s*Ring count >4\s*\(\%\)\s*\|",
     "ring_count_gt5": r"^\|\s*Ring count >5\s*\(\%\)\s*\|",
-    "ring_length_gt3": r"^\|\s*Cycle length >3\s*\(max\)\s*\(\%\)\s*\|",
-    "ring_length_gt4": r"^\|\s*Cycle length >4\s*\(max\)\s*\(\%\)\s*\|",
-    "ring_length_gt5": r"^\|\s*Cycle length >5\s*\(max\)\s*\(\%\)\s*\|",
-    "ring_length_gt6": r"^\|\s*Cycle length >6\s*\(max\)\s*\(\%\)\s*\|",
-    "ring_length_gt7": r"^\|\s*Cycle length >7\s*\(max\)\s*\(\%\)\s*\|",
-    "ring_length_gt8": r"^\|\s*Cycle length >8\s*\(max\)\s*\(\%\)\s*\|",
+    "ring_count_gt6": r"^\|\s*Ring count >6\s*\(\%\)\s*\|",
+    "ring_count_gt7": r"^\|\s*Ring count >7\s*\(\%\)\s*\|",
+    "ring_count_gt9": r"^\|\s*Ring count >9\s*\(\%\)\s*\|",
+    "ring_count_gt12": r"^\|\s*Ring count >12\s*\(\%\)\s*\|",
+    "ring_count_gt40": r"^\|\s*Ring count >40\s*\(\%\)\s*\|",
+    "ring_length_gt3": r"^\|\s*(?:Cycle|Ring) length >3\s*\(max\)\s*\(\%\)\s*\|",
+    "ring_length_gt4": r"^\|\s*(?:Cycle|Ring) length >4\s*\(max\)\s*\(\%\)\s*\|",
+    "ring_length_gt5": r"^\|\s*(?:Cycle|Ring) length >5\s*\(max\)\s*\(\%\)\s*\|",
+    "ring_length_gt6": r"^\|\s*(?:Cycle|Ring) length >6\s*\(max\)\s*\(\%\)\s*\|",
+    "ring_length_gt7": r"^\|\s*(?:Cycle|Ring) length >7\s*\(max\)\s*\(\%\)\s*\|",
+    "ring_length_gt8": r"^\|\s*(?:Cycle|Ring) length >8\s*\(max\)\s*\(\%\)\s*\|",
+    "ring_length_gt9": r"^\|\s*(?:Cycle|Ring) length >9\s*\(max\)\s*\(\%\)\s*\|",
+    "ring_length_gt12": r"^\|\s*(?:Cycle|Ring) length >12\s*\(max\)\s*\(\%\)\s*\|",
 }
 
 def _parse_table_style(text):
@@ -277,6 +287,9 @@ def _parse_single_structural_section(text):
                     try:
                         value = float(m.group(1))
                         
+                        # Normalize for ring vs cycle wording
+                        normalized_metric = metric_name.replace("Ring length", "Cycle length")
+                        
                         # Map metric names to our standardized keys
                         if "Ring count 0" in metric_name or "Cycle rank 0" in metric_name:
                             key = "ring_count_0"
@@ -296,31 +309,37 @@ def _parse_single_structural_section(text):
                             key = "ring_count_7"
                         elif "Ring count 8" in metric_name or "Cycle rank 8" in metric_name:
                             key = "ring_count_8"
+                        elif "Ring count 9" in metric_name or "Cycle rank 9" in metric_name:
+                            key = "ring_count_9"
                         elif "Ring count 9+" in metric_name or "Cycle rank 9+" in metric_name:
                             key = "ring_count_9plus"
+                        elif "Ring count 12" in metric_name or "Cycle rank 12" in metric_name:
+                            key = "ring_count_12"
+                        elif "Ring count 40" in metric_name or "Cycle rank 40" in metric_name:
+                            key = "ring_count_40"
                         elif "Acyclic" in metric_name:
                             key = "acyclic"
-                        elif "Cycle length 3" in metric_name:
+                        elif "Cycle length 3" in normalized_metric:
                             key = "ring_length_3"
-                        elif "Cycle length 4" in metric_name:
+                        elif "Cycle length 4" in normalized_metric:
                             key = "ring_length_4"
-                        elif "Cycle length 5" in metric_name:
+                        elif "Cycle length 5" in normalized_metric:
                             key = "ring_length_5"
-                        elif "Cycle length 6" in metric_name:
+                        elif "Cycle length 6" in normalized_metric:
                             key = "ring_length_6"
-                        elif "Cycle length 7" in metric_name:
+                        elif "Cycle length 7" in normalized_metric:
                             key = "ring_length_7"
-                        elif "Cycle length 8" in metric_name:
+                        elif "Cycle length 8" in normalized_metric:
                             key = "ring_length_8"
-                        elif "Cycle length 9" in metric_name:
+                        elif "Cycle length 9" in normalized_metric:
                             key = "ring_length_9"
-                        elif "Cycle length 10" in metric_name:
+                        elif "Cycle length 10" in normalized_metric:
                             key = "ring_length_10"
-                        elif "Cycle length 11" in metric_name:
+                        elif "Cycle length 11" in normalized_metric:
                             key = "ring_length_11"
-                        elif "Cycle length 12" in metric_name:
+                        elif "Cycle length 12" in normalized_metric:
                             key = "ring_length_12"
-                        elif "Cycle length >12" in metric_name:
+                        elif "Cycle length >12" in normalized_metric:
                             key = "ring_length_12plus"
                         elif "Ring count >0" in metric_name:
                             key = "ring_count_gt0"
@@ -334,18 +353,32 @@ def _parse_single_structural_section(text):
                             key = "ring_count_gt4"
                         elif "Ring count >5" in metric_name:
                             key = "ring_count_gt5"
-                        elif "Cycle length >3" in metric_name:
+                        elif "Ring count >6" in metric_name:
+                            key = "ring_count_gt6"
+                        elif "Ring count >7" in metric_name:
+                            key = "ring_count_gt7"
+                        elif "Ring count >9" in metric_name:
+                            key = "ring_count_gt9"
+                        elif "Ring count >12" in metric_name:
+                            key = "ring_count_gt12"
+                        elif "Ring count >40" in metric_name:
+                            key = "ring_count_gt40"
+                        elif "Cycle length >3" in normalized_metric:
                             key = "ring_length_gt3"
-                        elif "Cycle length >4" in metric_name:
+                        elif "Cycle length >4" in normalized_metric:
                             key = "ring_length_gt4"
-                        elif "Cycle length >5" in metric_name:
+                        elif "Cycle length >5" in normalized_metric:
                             key = "ring_length_gt5"
-                        elif "Cycle length >6" in metric_name:
+                        elif "Cycle length >6" in normalized_metric:
                             key = "ring_length_gt6"
-                        elif "Cycle length >7" in metric_name:
+                        elif "Cycle length >7" in normalized_metric:
                             key = "ring_length_gt7"
-                        elif "Cycle length >8" in metric_name:
+                        elif "Cycle length >8" in normalized_metric:
                             key = "ring_length_gt8"
+                        elif "Cycle length >9" in normalized_metric:
+                            key = "ring_length_gt9"
+                        elif "Cycle length >12" in normalized_metric:
+                            key = "ring_length_gt12"
                         else:
                             continue
                             
@@ -433,14 +466,23 @@ def aggregate_with_counts(files):
         if vals:
             mean = np.mean(vals)
             std = np.std(vals)
+            
+            # Handle molecules_generated specially - it's not a percentage
+            if k == "molecules_generated":
+                # Show total count across all seeds (same as other metrics)
+                mean_total = mean * 1000 * 5  # Convert from thousands to actual count, then multiply by 5 seeds
+                std_total = std * 1000 * 5
+                summary_counts[k] = f"{mean_total} ± {std_total}"
+                continue
+            
             summary_percent[k] = f"{mean} ± {std}"
             
             # Convert percentages to counts (assuming 10,000 molecules per seed, 5 seeds total)
-            mean_count = mean * 50  # 10,000 * 5 seeds / 100 for percentage
-            std_count = std * 50
+            mean_count = mean * 500  # 10,000 * 5 seeds / 100 for percentage
+            std_count = std * 500
             
             # Format counts as integers if they're close to zero
-            if mean_count < 0.5:
+            if mean_count < 5.0:
                 summary_counts[k] = "0 ± 0"
             else:
                 summary_counts[k] = f"{mean_count} ± {std_count}"
@@ -468,13 +510,18 @@ def generate_latex_tables(summary_data):
         ("ring_count_3", "Ring Count ≤ 3"),
         ("ring_count_4", "Ring Count ≤ 4"),
         ("ring_count_5", "Ring Count ≤ 5"),
+        ("ring_count_6", "Ring Count ≤ 6"),
+        ("ring_count_7", "Ring Count ≤ 7"),
+        ("ring_count_9", "Ring Count ≤ 9"),
+        ("ring_count_12", "Ring Count ≤ 12"),
+        ("ring_count_40", "Ring Count ≤ 40"),
     ]
     
     for constraint_key, constraint_name in constraints:
         if constraint_key not in summary_data:
             continue
-            
-        row = f"        {constraint_name} Gen."
+        
+        row = f"        {constraint_name}"
         for rank in range(10):
             if rank == 9:
                 key = f"ring_count_9plus"
@@ -511,13 +558,15 @@ def generate_latex_tables(summary_data):
         ("ring_length_6", "Ring Length ≤ 6"),
         ("ring_length_7", "Ring Length ≤ 7"),
         ("ring_length_8", "Ring Length ≤ 8"),
+        ("ring_length_9", "Ring Length ≤ 9"),
+        ("ring_length_12", "Ring Length ≤ 12"),
     ]
     
     for constraint_key, constraint_name in length_constraints:
         if constraint_key not in summary_data:
             continue
-            
-        row = f"        {constraint_name} Gen."
+        
+        row = f"        {constraint_name}"
         
         # Acyclic (0)
         if "acyclic" in summary_data[constraint_key]:
@@ -564,13 +613,18 @@ def generate_latex_tables_with_counts(summary_data):
         ("ring_count_3", "Ring Count ≤ 3"),
         ("ring_count_4", "Ring Count ≤ 4"),
         ("ring_count_5", "Ring Count ≤ 5"),
+        ("ring_count_6", "Ring Count ≤ 6"),
+        ("ring_count_7", "Ring Count ≤ 7"),
+        ("ring_count_9", "Ring Count ≤ 9"),
+        ("ring_count_12", "Ring Count ≤ 12"),
+        ("ring_count_40", "Ring Count ≤ 40"),
     ]
     
     for constraint_key, constraint_name in constraints:
         if constraint_key not in summary_data:
             continue
-            
-        row = f"        {constraint_name} Gen."
+        
+        row = f"        {constraint_name}"
         for rank in range(10):
             if rank == 9:
                 key = f"ring_count_9plus"
@@ -587,34 +641,6 @@ def generate_latex_tables_with_counts(summary_data):
     latex_content.append("        \\bottomrule")
     latex_content.append("    \\end{tabular}")
     latex_content.append("    \\caption{Cycle rank distribution (\\%) across different constraint configurations.}")
-    latex_content.append("\\end{table}")
-    latex_content.append("")
-    
-    # Cycle rank violations table - Percentages
-    latex_content.append("\\begin{table}[H]")
-    latex_content.append("    \\centering")
-    latex_content.append("    \\begin{tabular}{l c c c c c c c}")
-    latex_content.append("        \\toprule")
-    latex_content.append("        \\textbf{Constraint} & $>0$ & $>1$ & $>2$ & $>3$ & $>4$ & $>5$ \\\\")
-    latex_content.append("        \\midrule")
-    
-    for constraint_key, constraint_name in constraints:
-        if constraint_key not in summary_data:
-            continue
-            
-        row = f"        {constraint_name} Gen."
-        for gt_rank in range(1, 7):
-            key = f"ring_count_gt{gt_rank}"
-            if key in summary_data[constraint_key]:
-                row += f" & {summary_data[constraint_key][key]}"
-            else:
-                row += " & 0 ± 0"
-        row += " \\\\"
-        latex_content.append(row)
-    
-    latex_content.append("        \\bottomrule")
-    latex_content.append("    \\end{tabular}")
-    latex_content.append("    \\caption{Ring count violations (\\%) across different constraint configurations.}")
     latex_content.append("\\end{table}")
     latex_content.append("")
     
@@ -635,13 +661,15 @@ def generate_latex_tables_with_counts(summary_data):
         ("ring_length_6", "Ring Length ≤ 6"),
         ("ring_length_7", "Ring Length ≤ 7"),
         ("ring_length_8", "Ring Length ≤ 8"),
+        ("ring_length_9", "Ring Length ≤ 9"),
+        ("ring_length_12", "Ring Length ≤ 12"),
     ]
     
     for constraint_key, constraint_name in length_constraints:
         if constraint_key not in summary_data:
             continue
-            
-        row = f"        {constraint_name} Gen."
+        
+        row = f"        {constraint_name}"
         
         # Acyclic (0)
         if "acyclic" in summary_data[constraint_key]:
@@ -663,34 +691,6 @@ def generate_latex_tables_with_counts(summary_data):
     latex_content.append("        \\bottomrule")
     latex_content.append("    \\end{tabular}")
     latex_content.append("    \\caption{Ring length distribution (\\%) across different constraint configurations.}")
-    latex_content.append("\\end{table}")
-    latex_content.append("")
-    
-    # Cycle length violations table - Percentages
-    latex_content.append("\\begin{table}[H]")
-    latex_content.append("    \\centering")
-    latex_content.append("    \\begin{tabular}{l c c c c c c}")
-    latex_content.append("        \\toprule")
-    latex_content.append("        \\textbf{Constraint} & $>3$ & $>4$ & $>5$ & $>6$ & $>7$ & $>8$ \\\\")
-    latex_content.append("        \\midrule")
-    
-    for constraint_key, constraint_name in length_constraints:
-        if constraint_key not in summary_data:
-            continue
-            
-        row = f"        {constraint_name} Gen."
-        for gt_length in [3, 4, 5, 6, 7, 8]:
-            key = f"ring_length_gt{gt_length}"
-            if key in summary_data[constraint_key]:
-                row += f" & {summary_data[constraint_key][key]}"
-            else:
-                row += " & 0 ± 0"
-        row += " \\\\"
-        latex_content.append(row)
-    
-    latex_content.append("        \\bottomrule")
-    latex_content.append("    \\end{tabular}")
-    latex_content.append("    \\caption{Ring length violations (\\%) across different constraint configurations.}")
     latex_content.append("\\end{table}")
     
     return "\n".join(latex_content)
@@ -716,13 +716,18 @@ def generate_latex_tables_counts(summary_data):
         ("ring_count_3", "Ring Count ≤ 3"),
         ("ring_count_4", "Ring Count ≤ 4"),
         ("ring_count_5", "Ring Count ≤ 5"),
+        ("ring_count_6", "Ring Count ≤ 6"),
+        ("ring_count_7", "Ring Count ≤ 7"),
+        ("ring_count_9", "Ring Count ≤ 9"),
+        ("ring_count_12", "Ring Count ≤ 12"),
+        ("ring_count_40", "Ring Count ≤ 40"),
     ]
     
     for constraint_key, constraint_name in constraints:
         if constraint_key not in summary_data:
             continue
-            
-        row = f"        {constraint_name} Gen."
+        
+        row = f"        {constraint_name}"
         for rank in range(10):
             if rank == 9:
                 key = f"ring_count_9plus"
@@ -739,34 +744,6 @@ def generate_latex_tables_counts(summary_data):
     latex_content.append("        \\bottomrule")
     latex_content.append("    \\end{tabular}")
     latex_content.append("    \\caption{Ring count distribution (molecule counts) across different constraint configurations.}")
-    latex_content.append("\\end{table}")
-    latex_content.append("")
-    
-    # Cycle rank violations table - Counts
-    latex_content.append("\\begin{table}[H]")
-    latex_content.append("    \\centering")
-    latex_content.append("    \\begin{tabular}{l c c c c c c c}")
-    latex_content.append("        \\toprule")
-    latex_content.append("        \\textbf{Constraint} & $>0$ & $>1$ & $>2$ & $>3$ & $>4$ & $>5$ \\\\")
-    latex_content.append("        \\midrule")
-    
-    for constraint_key, constraint_name in constraints:
-        if constraint_key not in summary_data:
-            continue
-            
-        row = f"        {constraint_name} Gen."
-        for gt_rank in range(1, 7):
-            key = f"ring_count_gt{gt_rank}"
-            if key in summary_data[constraint_key]:
-                row += f" & {summary_data[constraint_key][key]}"
-            else:
-                row += " & 0 ± 0"
-        row += " \\\\"
-        latex_content.append(row)
-    
-    latex_content.append("        \\bottomrule")
-    latex_content.append("    \\end{tabular}")
-    latex_content.append("    \\caption{Ring count violations (molecule counts) across different constraint configurations.}")
     latex_content.append("\\end{table}")
     latex_content.append("")
     
@@ -787,13 +764,15 @@ def generate_latex_tables_counts(summary_data):
         ("ring_length_6", "Ring Length ≤ 6"),
         ("ring_length_7", "Ring Length ≤ 7"),
         ("ring_length_8", "Ring Length ≤ 8"),
+        ("ring_length_9", "Ring Length ≤ 9"),
+        ("ring_length_12", "Ring Length ≤ 12"),
     ]
     
     for constraint_key, constraint_name in length_constraints:
         if constraint_key not in summary_data:
             continue
-            
-        row = f"        {constraint_name} Gen."
+        
+        row = f"        {constraint_name}"
         
         # Acyclic (0)
         if "acyclic" in summary_data[constraint_key]:
@@ -816,34 +795,6 @@ def generate_latex_tables_counts(summary_data):
     latex_content.append("    \\end{tabular}")
     latex_content.append("    \\caption{Ring length distribution (including acyclic, molecule counts) across different constraint configurations.}")
     latex_content.append("\\end{table}")
-    latex_content.append("")
-    
-    # Cycle length violations table - Counts
-    latex_content.append("\\begin{table}[H]")
-    latex_content.append("    \\centering")
-    latex_content.append("    \\begin{tabular}{l c c c c c c}")
-    latex_content.append("        \\toprule")
-    latex_content.append("        \\textbf{Constraint} & $>3$ & $>4$ & $>5$ & $>6$ & $>7$ & $>8$ \\\\")
-    latex_content.append("        \\midrule")
-    
-    for constraint_key, constraint_name in length_constraints:
-        if constraint_key not in summary_data:
-            continue
-            
-        row = f"        {constraint_name} Gen."
-        for gt_length in [3, 4, 5, 6, 7, 8]:
-            key = f"ring_length_gt{gt_length}"
-            if key in summary_data[constraint_key]:
-                row += f" & {summary_data[constraint_key][key]}"
-            else:
-                row += " & 0 ± 0"
-        row += " \\\\"
-        latex_content.append(row)
-    
-    latex_content.append("        \\bottomrule")
-    latex_content.append("    \\end{tabular}")
-    latex_content.append("    \\caption{Ring length violations (molecule counts) across different constraint configurations.}")
-    latex_content.append("\\end{table}")
     
     return "\n".join(latex_content)
 
@@ -856,7 +807,7 @@ def generate_core_metrics_tables(summary_data):
     latex_content.append("    \\centering")
     latex_content.append("    \\begin{tabular}{l c c c c c c c}")
     latex_content.append("        \\toprule")
-    latex_content.append("        \\textbf{Constraint} & \\textbf{FCD} & \\textbf{Unique} & \\textbf{Novel} & \\textbf{Valid} & \\textbf{Disconnected} & \\textbf{Satisfied} & \\textbf{V.U.N.} \\\\")
+    latex_content.append("        \\textbf{Constraint} & \\textbf{FCD} & \\textbf{Unique} & \\textbf{Novel} & \\textbf{Valid} & \\textbf{Disconnected} & \\textbf{Property satisfied} & \\textbf{V.U.N.} \\\\")
     latex_content.append("        \\midrule")
     
     # Add rows for each constraint type
@@ -869,12 +820,19 @@ def generate_core_metrics_tables(summary_data):
         ("ring_count_3", "Ring Count ≤ 3"),
         ("ring_count_4", "Ring Count ≤ 4"),
         ("ring_count_5", "Ring Count ≤ 5"),
+        ("ring_count_6", "Ring Count ≤ 6"),
+        ("ring_count_7", "Ring Count ≤ 7"),
+        ("ring_count_9", "Ring Count ≤ 9"),
+        ("ring_count_12", "Ring Count ≤ 12"),
+        ("ring_count_40", "Ring Count ≤ 40"),
         ("ring_length_3", "Ring Length ≤ 3"),
         ("ring_length_4", "Ring Length ≤ 4"),
         ("ring_length_5", "Ring Length ≤ 5"),
         ("ring_length_6", "Ring Length ≤ 6"),
         ("ring_length_7", "Ring Length ≤ 7"),
         ("ring_length_8", "Ring Length ≤ 8"),
+        ("ring_length_9", "Ring Length ≤ 9"),
+        ("ring_length_12", "Ring Length ≤ 12"),
     ]
     
     for constraint_key, constraint_name in constraints:
@@ -944,7 +902,7 @@ def generate_core_metrics_tables_counts(summary_data):
     latex_content.append("    \\centering")
     latex_content.append("    \\begin{tabular}{l c c c c c c c}")
     latex_content.append("        \\toprule")
-    latex_content.append("        \\textbf{Constraint} & \\textbf{FCD} & \\textbf{Unique} & \\textbf{Novel} & \\textbf{Valid} & \\textbf{Disconnected} & \\textbf{Satisfied} & \\textbf{V.U.N.} \\\\")
+    latex_content.append("        \\textbf{Constraint} & \\textbf{FCD} & \\textbf{Unique} & \\textbf{Novel} & \\textbf{Valid} & \\textbf{Disconnected} & \\textbf{Property satisfied} & \\textbf{V.U.N.} \\\\")
     latex_content.append("        \\midrule")
     
     # Add rows for each constraint type
@@ -957,12 +915,19 @@ def generate_core_metrics_tables_counts(summary_data):
         ("ring_count_3", "Ring Count ≤ 3"),
         ("ring_count_4", "Ring Count ≤ 4"),
         ("ring_count_5", "Ring Count ≤ 5"),
+        ("ring_count_6", "Ring Count ≤ 6"),
+        ("ring_count_7", "Ring Count ≤ 7"),
+        ("ring_count_9", "Ring Count ≤ 9"),
+        ("ring_count_12", "Ring Count ≤ 12"),
+        ("ring_count_40", "Ring Count ≤ 40"),
         ("ring_length_3", "Ring Length ≤ 3"),
         ("ring_length_4", "Ring Length ≤ 4"),
         ("ring_length_5", "Ring Length ≤ 5"),
         ("ring_length_6", "Ring Length ≤ 6"),
         ("ring_length_7", "Ring Length ≤ 7"),
         ("ring_length_8", "Ring Length ≤ 8"),
+        ("ring_length_9", "Ring Length ≤ 9"),
+        ("ring_length_12", "Ring Length ≤ 12"),
     ]
     
     for constraint_key, constraint_name in constraints:
@@ -1036,47 +1001,43 @@ def generate_report() -> str:
         "ring_count_3",
         "ring_count_4",
         "ring_count_5",
+        "ring_count_6",
+        "ring_count_7",
+        "ring_count_9",
+        "ring_count_12",
+        "ring_count_40",
         "ring_length_3",
         "ring_length_4",
         "ring_length_5",
         "ring_length_6",
         "ring_length_7",
         "ring_length_8",
+        "ring_length_9",
+        "ring_length_12",
     ]
     
     all_summaries = {}
     all_summaries_counts = {}
     
     for constraint in constraint_types:
-        files = glob.glob(f"test_{constraint}_*.out")
+        files = glob.glob(f"../simple_cycle_done/test_{constraint}_*.out")
         if not files:
             continue
         
         lines.append("")
         lines.append(f"=== {constraint} ===")
         summary_percent, summary_counts = aggregate_with_counts(files)
+        # Remove redundant 'Satisfied' metric from summaries
+        if 'Satisfied' in summary_percent:
+            del summary_percent['Satisfied']
+        if 'Satisfied' in summary_counts:
+            del summary_counts['Satisfied']
         all_summaries[constraint] = summary_percent
         all_summaries_counts[constraint] = summary_counts
         lines.append("Percentages: " + str(summary_percent))
         lines.append("Counts: " + str(summary_counts))
         
-        # For ring length constraints, show distribution that should sum to 100%
-        if constraint.startswith("ring_length_"):
-            lines.append("Ring Length Distribution (should sum to 100%):")
-            acyclic = summary_percent.get("acyclic", "0 ± 0")
-            lines.append(f"  Acyclic: {acyclic}")
-            
-            # Show cycle lengths that are present
-            for length in [3, 4, 5, 6, 7, 8]:
-                key = f"ring_length_{length}"
-                if key in summary_percent:
-                    lines.append(f"  Ring length {length}: {summary_percent[key]}")
-            
-            # Show violations
-            for gt_length in [3, 4, 5, 6, 7, 8]:
-                key = f"ring_length_gt{gt_length}"
-                if key in summary_percent:
-                    lines.append(f"  Ring length >{gt_length}: {summary_percent[key]}")
+        # Ring length distribution section removed for cleaner aggregate output
     
     return "\n".join(lines).rstrip() + "\n", all_summaries, all_summaries_counts
 
