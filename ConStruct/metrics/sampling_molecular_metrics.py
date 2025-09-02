@@ -22,6 +22,7 @@ import pandas as pd
 
 from ConStruct.projector.projector_utils import build_simple_graph_from_edge_tensor
 from ConStruct.projector.graph_cycles import enumerate_simple_cycles_unique, count_simple_cycles, max_simple_cycle_length
+from ConStruct.projector.is_planar import is_planar
 
 allowed_bonds = {
     "H": {0: 1, 1: 0, -1: 0},
@@ -326,6 +327,9 @@ class SamplingMolecularMetrics(nn.Module):
                 if wandb.run:
                     wandb.log(stability_dict, commit=False)
 
+        # Track constraint violations BEFORE computing other metrics
+        self._track_constraint_violations(generated_graphs, local_rank)
+
         # Validity, uniqueness, novelty
         all_generated_smiles, metrics = self.evaluate(molecules)
         
@@ -590,18 +594,17 @@ class SamplingMolecularMetrics(nn.Module):
         return metrics
 
     def _track_constraint_violations(self, generated_graphs: list[PlaceHolder], local_rank: int):
-        """Track constraint violations during sampling and save detailed reports."""
+        """Track constraint violations for generated graphs."""
         violations = {
             'ring_count': [],
-            'ring_length': [], 
+            'ring_length': [],
             'planarity': []
         }
         
-        # Get constraint info from config instead of dataset_infos
+        # Detect constraint type from config
         constraint_type = None
         constraint_value = None
         
-        # Try to get constraint info from config
         if hasattr(self, 'cfg') and self.cfg is not None:
             if hasattr(self.cfg.model, 'rev_proj'):
                 if self.cfg.model.rev_proj == 'ring_count_at_most':
@@ -637,119 +640,26 @@ class SamplingMolecularMetrics(nn.Module):
                         })
                 
                 # Check ring length constraint - ONLY if it's the enforced constraint
-                elif constraint_type == "ring_length_at_most" and constraint_value is not None:
+                if constraint_type == "ring_length_at_most" and constraint_value is not None:
                     from ConStruct.projector.is_ring.is_ring_length_at_most import has_rings_of_length_at_most
-                    
-                    # Get detailed cycle information using the SAME method as projectors
-                    from ConStruct.projector.graph_cycles import enumerate_simple_cycles_unique, max_simple_cycle_length
-                    cycles = list(enumerate_simple_cycles_unique(nx_graph))
-                    max_ring_len = max_simple_cycle_length(nx_graph)
-                    
-                    # Check if projector would allow this (using the SAME function)
-                    projector_allows = has_rings_of_length_at_most(nx_graph, constraint_value)
-                    
-                    # Check if evaluation would flag this as violation
-                    evaluation_violates = max_ring_len > constraint_value
-                    
-                    if evaluation_violates:
-                        # Detailed debugging for ring length violations
-                        cycle_details = []
-                        for i, cycle in enumerate(cycles):
-                            cycle_details.append(f"Cycle{i}: {len(cycle)} atoms")
-                        
-                        # Try to get SMILES for debugging (but don't rely on it for constraint checking)
-                        try:
-                            # Create molecule for SMILES generation
-                            mol = Molecule(batch.split()[graph_idx], self.atom_decoder)
-                            smiles = Chem.MolToSmiles(mol.rdkit_mol) if mol.rdkit_mol else "INVALID"
-                        except Exception:
-                            smiles = "CONVERSION_FAILED"
-                        
-                        # CRITICAL: Check if projector logic matches evaluation logic
-                        if not projector_allows and evaluation_violates:
-                            print(f"🔍 [CONSISTENCY CHECK] Projector and evaluation AGREE on violation")
-                        elif projector_allows and evaluation_violates:
-                            print(f"🚨 [CONSISTENCY CHECK] PROJECTOR MISSED VIOLATION! This indicates a bug!")
-                            print(f"   Projector says: ALLOWED (should have blocked)")
-                            print(f"   Evaluation says: VIOLATION (max length {max_ring_len} > {constraint_value})")
-                        elif not projector_allows and not evaluation_violates:
-                            print(f"🚨 [CONSISTENCY CHECK] PROJECTOR OVER-BLOCKED! This indicates a bug!")
-                            print(f"   Projector says: BLOCKED (should have allowed)")
-                            print(f"   Evaluation says: SATISFIED (max length {max_ring_len} ≤ {constraint_value})")
-                        
+                    if not has_rings_of_length_at_most(nx_graph, constraint_value):
                         violations['ring_length'].append({
                             'index': f"{batch_idx}_{graph_idx}",
-                            'smiles': smiles,
-                            'max_ring_length': max_ring_len,
                             'max_allowed': constraint_value,
-                            'projector_allows': projector_allows,
-                            'evaluation_violates': evaluation_violates,
-                            'cycle_details': cycle_details,
-                            'total_cycles': len(cycles),
                             'source': f'rank{local_rank}'
                         })
-                        
-                        # Print immediate debugging info for first few violations
-                        if len(violations['ring_length']) <= 5:
-                            print(f"[RING LENGTH VIOLATION #{len(violations['ring_length'])}]")
-                            print(f"  SMILES: {smiles}")
-                            print(f"  Max ring length: {max_ring_len} (allowed: {constraint_value})")
-                            print(f"  Projector allows: {projector_allows}")
-                            print(f"  Cycles: {cycle_details}")
-                            print(f"  Total cycles: {len(cycles)}")
-                            print()
                 
-                # Check planarity - ONLY if it's the enforced constraint
-                elif constraint_type == "planar":
-                    try:
-                        is_planar, _ = nx.check_planarity(nx_graph, counterexample=False)
-                        if not is_planar:
-                            violations['planarity'].append({
-                                'index': f"{batch_idx}_{graph_idx}",
-                                'source': f'rank{local_rank}'
-                            })
-                    except Exception:
-                        pass
+                # Check planarity constraint - ONLY if it's the enforced constraint
+                if constraint_type == "planar":
+                    if not is_planar(nx_graph):
+                        violations['planarity'].append({
+                            'index': f"{batch_idx}_{graph_idx}",
+                            'source': f'rank{local_rank}'
+                        })
         
         # Save violation reports
         self._save_violation_reports(violations, local_rank)
-        
-        # Add consistency check summary for ring length violations
-        if constraint_type == "ring_length_at_most" and violations['ring_length']:
-            print(f"\n🔍 [CONSISTENCY CHECK SUMMARY] Ring Length Constraint ≤ {constraint_value}")
-            print("=" * 60)
-            
-            total_violations = len(violations['ring_length'])
-            projector_agrees = sum(1 for v in violations['ring_length'] if not v['projector_allows'])
-            projector_disagrees = total_violations - projector_agrees
-            
-            print(f"Total violations: {total_violations}")
-            print(f"Projector agrees with evaluation: {projector_agrees}")
-            print(f"Projector disagrees with evaluation: {projector_disagrees}")
-            
-            if projector_disagrees > 0:
-                print(f"🚨 {projector_disagrees} violations indicate projector logic bugs!")
-                print(f"   This suggests the constraint enforcement during sampling is incomplete.")
-            else:
-                print(f"✅ All violations are consistent with projector logic.")
-                print(f"   This suggests the issue is in post-sampling processing or edge cases.")
-        
-        return violations
-    
-    def _rdkit_to_nx(self, mol):
-        """Convert RDKit Mol to NetworkX graph."""
-        G = nx.Graph()
-        if mol is None:
-            return G
-        num_atoms = mol.GetNumAtoms()
-        G.add_nodes_from(range(num_atoms))
-        for bond in mol.GetBonds():
-            u = bond.GetBeginAtomIdx()
-            v = bond.GetEndAtomIdx()
-            if u != v:
-                G.add_edge(u, v)
-        return G
-    
+
     def _save_violation_reports(self, violations, local_rank):
         """Save detailed violation reports to files."""
         # Use a single timestamp for all files to ensure consistency
@@ -790,7 +700,6 @@ class SamplingMolecularMetrics(nn.Module):
         
         # Save summary report with consistent timestamp
         summary_filename = f"violation_summary_rank{local_rank}_{timestamp}.txt"
-        
         try:
             with open(summary_filename, 'w') as f:
                 f.write(f"Constraint Violation Summary - Rank {local_rank}\n")
@@ -805,47 +714,19 @@ class SamplingMolecularMetrics(nn.Module):
                     elif constraint_type == 'ring_length_at_most':
                         constraint_value = getattr(self.cfg.model, 'max_ring_length', None)
                 
-                f.write(f"Constraint Value: {constraint_value}\n\n")
+                if constraint_value is not None:
+                    f.write(f"Constraint Value: {constraint_value}\n")
+                f.write("\n")
                 
-                # Summary by violation type
+                # Write violation counts
                 for violation_type, violation_list in enforced_violations.items():
                     f.write(f"{violation_type.upper()} VIOLATIONS: {len(violation_list)}\n")
-                    if violation_list:
-                        f.write("Sample violations:\n")
-                        for i, violation in enumerate(violation_list[:5]):  # Show first 5
-                            f.write(f"  {i+1}. {violation}\n")
-                    f.write("\n")
                 
-                # Add consistency check summary
-                if constraint_type == "ring_length_at_most" and enforced_violations.get('ring_length'):
-                    total_violations = len(enforced_violations['ring_length'])
-                    projector_agrees = sum(1 for v in enforced_violations['ring_length'] if not v.get('projector_allows', True))
-                    projector_disagrees = total_violations - projector_agrees
-                    
-                    f.write(f"CONSISTENCY CHECK SUMMARY:\n")
-                    f.write(f"Total violations: {total_violations}\n")
-                    f.write(f"Projector agrees with evaluation: {projector_agrees}\n")
-                    f.write(f"Projector disagrees with evaluation: {projector_disagrees}\n")
-                    
-                    if projector_disagrees > 0:
-                        f.write(f"WARNING: {projector_disagrees} violations indicate projector logic bugs!\n")
-                    else:
-                        f.write(f"SUCCESS: All violations are consistent with projector logic.\n")
+                f.write("\n")
             
             print(f"[VIOLATIONS] Summary saved to {summary_filename}")
-            
         except Exception as e:
             print(f"[WARNING] Failed to save violation summary: {e}")
-            # Create a minimal summary file as fallback
-            try:
-                with open(f"violation_summary_rank{local_rank}_{timestamp}_fallback.txt", 'w') as f:
-                    f.write(f"Constraint Violation Summary - Rank {local_rank}\n")
-                    f.write(f"Timestamp: {timestamp}\n")
-                    f.write(f"Error creating detailed summary: {e}\n")
-                    for violation_type, violation_list in enforced_violations.items():
-                        f.write(f"{violation_type}: {len(violation_list)} violations\n")
-            except Exception as fallback_error:
-                print(f"[ERROR] Failed to create fallback summary: {fallback_error}")
 
     def _compare_projector_vs_evaluation(self, generated_graphs, constraint_type, constraint_value):
         """Compare projector logic with evaluation logic to identify discrepancies."""
@@ -902,11 +783,21 @@ class SamplingMolecularMetrics(nn.Module):
 
     def compute_fcd(self, generated_smiles):
         fcd_model = fcd.load_ref_model()
-        generated_smiles = [
-            smile
-            for smile in fcd.canonical_smiles(generated_smiles)
-            if smile is not None
-        ]
+        
+        # Use single-threaded canonicalization to avoid multiprocessing conflicts
+        # in SLURM/PyTorch Lightning environments
+        # This fixes the hanging issue on second seed runs
+        canonical_smiles_list = []
+        for smile in generated_smiles:
+            try:
+                mol = Chem.MolFromSmiles(smile)
+                if mol is not None:
+                    canonical_smile = Chem.MolToSmiles(mol, canonical=True)
+                    canonical_smiles_list.append(canonical_smile)
+            except:
+                continue
+        
+        generated_smiles = [smile for smile in canonical_smiles_list if smile is not None]
 
         if len(generated_smiles) <= 1:
             print("Not enough (<=1) valid smiles for FCD computation.")
@@ -943,10 +834,6 @@ class SamplingMolecularMetrics(nn.Module):
 
         key = "val_sampling" if not self.test else "test_sampling"
         return {f"{key}/fcd score": fcd_score}
-
-    # No chemical validation metrics method in initial commit - removed to match exactly
-
-
 
     def record_sampling_time(self, sampling_time: float):
         """Record sampling time for timing metrics."""

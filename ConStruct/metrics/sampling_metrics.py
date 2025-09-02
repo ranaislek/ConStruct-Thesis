@@ -192,10 +192,10 @@ class SamplingMetrics(nn.Module):
         ring_constraint_info = None
         if hasattr(self, 'cfg') and self.cfg and hasattr(self.cfg.model, 'rev_proj'):
             if self.cfg.model.rev_proj == 'ring_count_at_most':
-                max_ring_count = getattr(self.cfg.model, 'max_rings', 3)
-                ring_count_ratios = ring_count_satisfaction_ratio(generated_graphs, max_ring_count).to(device)
+                max_rings = getattr(self.cfg.model, 'max_rings', 3)
+                ring_count_ratios = ring_count_satisfaction_ratio(generated_graphs, max_rings).to(device)
                 self.mean_ring_count_satisfaction(ring_count_ratios)
-                ring_constraint_info = ('ring_count_at_most', max_ring_count)
+                ring_constraint_info = ('ring_count_at_most', max_rings)
             
             elif self.cfg.model.rev_proj == 'ring_length_at_most':
                 max_ring_length = getattr(self.cfg.model, 'max_ring_length', 6)
@@ -458,13 +458,13 @@ def lobster_components_ratio(generated_graphs: List[PlaceHolder]):
     return lobster_components_tg
 
 
-def ring_count_satisfaction_ratio(generated_graphs: List[PlaceHolder], max_ring_count: int):
+def ring_count_satisfaction_ratio(generated_graphs: List[PlaceHolder], max_rings: int):
     """
     Calculate the ratio of graphs that satisfy ring count constraint (structural).
     
     Args:
         generated_graphs: List of generated graph batches
-        max_ring_count: Maximum allowed ring count (constraint value)
+        max_rings: Maximum allowed ring count (constraint value)
     
     Returns:
         Tensor of satisfaction ratios (1 for satisfied, 0 for not satisfied)
@@ -480,7 +480,7 @@ def ring_count_satisfaction_ratio(generated_graphs: List[PlaceHolder], max_ring_
             # Check if graph satisfies ring count constraint (structural; all simple rings)
             try:
                 ring_count = count_simple_cycles(nx_graph)
-                satisfies_constraint = int(ring_count <= max_ring_count)
+                satisfies_constraint = int(ring_count <= max_rings)
             except Exception:
                 # Conservative fallback: treat failure as not satisfied
                 satisfies_constraint = 0
