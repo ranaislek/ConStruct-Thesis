@@ -1,7 +1,5 @@
 ## Generative Modelling of Structurally Constrained Graphs
 
----
-
 ### 🚦 Bulletproof Environment Setup Instructions (with `fcd`)
 > **Read this section before touching the old instructions below!**
 > 
