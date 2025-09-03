@@ -1,6 +1,3 @@
-Here’s how you should **update your original README** so that **no one loses days of their life** fighting dependency hell again. I’m not deleting anything, just heavily commenting, revising, and adding modern cluster best-practices, **with big warnings and explanations where needed**.
-
----
 ## Generative Modelling of Structurally Constrained Graphs
 
 ---
@@ -344,13 +341,3 @@ sbatch ConStruct/slurm_jobs/thesis/edge_deletion/ring_count_at_most/submit_ring_
 * To test the obtained models, specify the path to a model with the flag `general.test_only`, it will load the model and test it, e.g., `python3 main.py +experiment=tree general.test_only=<path>`
 * The projector is controlled by the flag `model.rev_proj` (options: `planar`, `tree`, `lobster`, `ring_count_at_most`, `ring_count_at_least`, `ring_length_at_most`, `ring_length_at_least`)
 * The transition mechanism is set through `model.transition` (options: `absorbing_edges`, `edge_insertion`, `marginal`, `uniform`).
-
----
-
-```
-**If you ever want this as a standalone README or script, let me know and I’ll format it for you.**
-```
-
----
-
-If you follow this, **you’ll never waste time on cluster setup hell again**.
