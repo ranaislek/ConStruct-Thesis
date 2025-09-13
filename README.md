@@ -28,7 +28,6 @@ This repository is a **fork and extension** of the original [ConStruct](https://
 ---
 
 ### 🚦 Bulletproof Environment Setup Instructions 
-> **Read this section before touching the old instructions below!**
 > 
 > These steps are based on real-world cluster, GPU, RDKit, PyTorch, and graph-tool nightmares.
 >  
@@ -225,7 +224,9 @@ If all these work: **your env is cluster-proof**.
 
 ### 🚀 **Organized Experiment Structure**
 
-The codebase includes a comprehensive, organized experiment structure for testing different constraint types. **Note**: Edge-insertion constraints are documented but not yet implemented in the current codebase.
+The codebase includes a comprehensive, organized experiment structure for testing different constraint types. 
+
+**Note**: Edge-insertion constraints are documented but not yet implemented in the current codebase.
 
 #### **Directory Structure**
 ```
@@ -270,7 +271,7 @@ ConStruct/slurm_jobs/
 - **Status**: Documented but not implemented in current codebase
 - **Note**: The `edge_insertion` transition and `ring_count_at_least`/`ring_length_at_least` projectors are commented out in the model configuration
 
-### 🧪 **Running Experiments**
+### 🧪 **Running Experiments (some examples)**
 
 #### **Direct Python Execution**
 ```bash
