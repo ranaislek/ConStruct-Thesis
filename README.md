@@ -1,6 +1,6 @@
 
 ---
-## Generative Modelling of Structurally Constrained Graphs
+## Constraint-Aware Molecular Graph Generation with Sampling-Time Projectors: Extending ConStruct Framework
 
 ### 🔬 **Fork Attribution & Extensions**
 
