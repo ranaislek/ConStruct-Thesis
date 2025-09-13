@@ -296,7 +296,7 @@ def create_plots(ring_count_dist, ring_length_dist, planar_count, non_planar_cou
     
     # Ring count rates
     plt.subplot(2, 1, 1)
-    ring_count_constraints = ['≤0', '≤1', '≤2', '≤3', '≤4', '≤5']
+    ring_count_constraints = ['≤0', '≤1', '≤2', '≤3', '≤4', '≤5', '≤6', '≤7', '≤8', '≤9', '>9']
     ring_count_rates_list = [ring_count_rates[c][0] for c in ring_count_constraints]
     
     bars = plt.bar(ring_count_constraints, ring_count_rates_list, alpha=0.7, color='gold', edgecolor='orange')
@@ -312,7 +312,7 @@ def create_plots(ring_count_dist, ring_length_dist, planar_count, non_planar_cou
     
     # Ring length rates
     plt.subplot(2, 1, 2)
-    ring_length_constraints = ['≤0', '≤3', '≤4', '≤5', '≤6', '≤7', '≤8', '≤9']
+    ring_length_constraints = ['≤0', '≤3', '≤4', '≤5', '≤6', '≤7', '≤8', '≤9', '>9']
     ring_length_rates_list = [ring_length_rates[c][0] for c in ring_length_constraints]
     
     bars = plt.bar(ring_length_constraints, ring_length_rates_list, alpha=0.7, color='lightblue', edgecolor='navy')
@@ -378,7 +378,7 @@ def save_results(ring_count_dist, ring_length_dist, ring_count_rates, ring_lengt
         f.write("Distribution of molecules by ring count:\n")
         for count, num_mols in sorted(ring_count_dist.items()):
             percentage = (num_mols / total_molecules) * 100
-            f.write(f"  {count} rings: {num_mols:,} molecules ({percentage:.1f}%)\n")
+            f.write(f"  {count} rings: {num_mols:,} molecules ({percentage:.4f}%)\n")
         
         f.write("\nRING LENGTH ANALYSIS\n")
         f.write("-" * 20 + "\n")
@@ -386,26 +386,26 @@ def save_results(ring_count_dist, ring_length_dist, ring_count_rates, ring_lengt
         for length, num_molecules in sorted(ring_length_dist.items()):
             percentage = (num_molecules / total_molecules) * 100
             if length == 0:
-                f.write(f"  0-atom rings (acyclic): {num_molecules:,} molecules ({percentage:.3f}%)\n")
+                f.write(f"  0-atom rings (acyclic): {num_molecules:,} molecules ({percentage:.4f}%)\n")
             else:
-                f.write(f"  {length}-atom rings: {num_molecules:,} molecules ({percentage:.3f}%)\n")
+                f.write(f"  {length}-atom rings: {num_molecules:,} molecules ({percentage:.4f}%)\n")
         
         f.write("\nCONSTRAINT SATISFACTION RATES\n")
         f.write("-" * 30 + "\n")
         f.write("Ring Count Constraints (cumulative per molecule):\n")
         for constraint, (rate, count) in ring_count_rates.items():
-            f.write(f"  {constraint}: {rate*100:.3f}%\n")
+            f.write(f"  {constraint}: {rate*100:.4f}%\n")
         
         f.write("\nRing Length Constraints (cumulative per molecule by max ring length):\n")
         for constraint, (rate, count) in ring_length_rates.items():
-            f.write(f"  {constraint}: {rate*100:.3f}%\n")
+            f.write(f"  {constraint}: {rate*100:.4f}%\n")
         
         if planar_count is not None:
             f.write(f"\nPLANARITY ANALYSIS\n")
             f.write("-" * 20 + "\n")
             f.write(f"Planar molecules: {planar_count:,}\n")
             f.write(f"Non-planar molecules: {non_planar_count:,}\n")
-            f.write(f"Planarity rate: {planar_count/(planar_count+non_planar_count):.3f} ({(planar_count/(planar_count+non_planar_count))*100:.1f}%)\n")
+            f.write(f"Planarity rate: {planar_count/(planar_count+non_planar_count):.3f} ({(planar_count/(planar_count+non_planar_count))*100:.4f}%)\n")
         
         f.write(f"\n\nAnalysis completed on: {time.strftime('%Y-%m-%d %H:%M:%S')}\n")
     
