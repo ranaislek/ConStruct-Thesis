@@ -1,0 +1,45 @@
+Moses Comprehensive Dataset Split Comparison Report
+======================================================================
+
+DATASET SIZE COMPARISON
+------------------------------
+Training dataset: 1,584,663 molecules
+Validation dataset: 176,225 molecules
+Test dataset: 176,074 molecules
+Full dataset: 1,936,962 molecules
+Total (sum of splits): 1,936,962 molecules
+
+DATASET PROPORTIONS
+--------------------
+Training: 81.8%
+Validation: 9.1%
+Test: 9.1%
+
+RING COUNT COMPARISON
+-------------------------
+≤0 rings: Train=0.000, Val=0.000, Test=0.001, Full=0.000
+≤1 rings: Train=0.073, Val=0.000, Test=0.072, Full=0.066
+≤2 rings: Train=0.432, Val=0.375, Test=0.431, Full=0.427
+≤3 rings: Train=0.686, Val=0.656, Test=0.685, Full=0.684
+≤4 rings: Train=0.903, Val=0.899, Test=0.903, Full=0.903
+≤5 rings: Train=0.961, Val=0.961, Test=0.961, Full=0.961
+≤6 rings: Train=0.984, Val=0.983, Test=0.983, Full=0.984
+≤7 rings: Train=0.996, Val=0.995, Test=0.996, Full=0.996
+≤8 rings: Train=0.998, Val=0.998, Test=0.998, Full=0.998
+≤9 rings: Train=0.999, Val=0.998, Test=0.998, Full=0.999
+>9 rings: Train=0.001, Val=0.002, Test=0.002, Full=0.001
+
+RING LENGTH COMPARISON
+---------------------------
+≤0 atoms: Train=0.000, Val=0.000, Test=0.001, Full=0.000
+≤3 atoms: Train=0.001, Val=0.000, Test=0.001, Full=0.000
+≤4 atoms: Train=0.001, Val=0.000, Test=0.001, Full=0.001
+≤5 atoms: Train=0.045, Val=0.038, Test=0.045, Full=0.044
+≤6 atoms: Train=0.662, Val=0.635, Test=0.660, Full=0.659
+≤7 atoms: Train=0.673, Val=0.646, Test=0.672, Full=0.671
+≤8 atoms: Train=0.688, Val=0.661, Test=0.686, Full=0.685
+≤9 atoms: Train=0.861, Val=0.848, Test=0.860, Full=0.860
+>9 atoms: Train=0.139, Val=0.152, Test=0.140, Full=0.140
+
+
+Comprehensive comparison completed on: 2025-09-14 18:14:34

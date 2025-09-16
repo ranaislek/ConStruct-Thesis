@@ -1,0 +1,106 @@
+Moses Full Analysis Report
+============================================================
+
+DATASET OVERVIEW
+--------------------
+Analysis type: full
+Total molecules analyzed: 1,936,962
+Total rings found: 5,781,975
+Average rings per molecule: 2.985
+
+RING COUNT ANALYSIS
+--------------------
+Distribution of molecules by ring count:
+  0 rings: 674 molecules (0.0348%)
+  1 rings: 127,735 molecules (6.5946%)
+  2 rings: 698,507 molecules (36.0620%)
+  3 rings: 497,042 molecules (25.6609%)
+  4 rings: 425,310 molecules (21.9576%)
+  5 rings: 111,992 molecules (5.7818%)
+  6 rings: 43,792 molecules (2.2609%)
+  7 rings: 23,627 molecules (1.2198%)
+  8 rings: 4,181 molecules (0.2159%)
+  9 rings: 1,311 molecules (0.0677%)
+  10 rings: 1,657 molecules (0.0855%)
+  11 rings: 578 molecules (0.0298%)
+  12 rings: 141 molecules (0.0073%)
+  13 rings: 30 molecules (0.0015%)
+  14 rings: 34 molecules (0.0018%)
+  15 rings: 210 molecules (0.0108%)
+  16 rings: 14 molecules (0.0007%)
+  17 rings: 56 molecules (0.0029%)
+  18 rings: 19 molecules (0.0010%)
+  19 rings: 11 molecules (0.0006%)
+  20 rings: 1 molecules (0.0001%)
+  21 rings: 8 molecules (0.0004%)
+  22 rings: 3 molecules (0.0002%)
+  23 rings: 1 molecules (0.0001%)
+  24 rings: 15 molecules (0.0008%)
+  26 rings: 4 molecules (0.0002%)
+  28 rings: 1 molecules (0.0001%)
+  29 rings: 1 molecules (0.0001%)
+  31 rings: 1 molecules (0.0001%)
+  33 rings: 2 molecules (0.0001%)
+  36 rings: 2 molecules (0.0001%)
+  91 rings: 2 molecules (0.0001%)
+
+RING LENGTH ANALYSIS
+--------------------
+Distribution of molecules by maximum ring length:
+  0-atom rings (acyclic): 674 molecules (0.0348%)
+  3-atom rings: 277 molecules (0.0143%)
+  4-atom rings: 198 molecules (0.0102%)
+  5-atom rings: 84,707 molecules (4.3732%)
+  6-atom rings: 1,190,516 molecules (61.4631%)
+  7-atom rings: 22,524 molecules (1.1629%)
+  8-atom rings: 28,386 molecules (1.4655%)
+  9-atom rings: 338,172 molecules (17.4589%)
+  10-atom rings: 223,241 molecules (11.5253%)
+  11-atom rings: 13,098 molecules (0.6762%)
+  12-atom rings: 7,961 molecules (0.4110%)
+  13-atom rings: 18,561 molecules (0.9583%)
+  14-atom rings: 5,303 molecules (0.2738%)
+  15-atom rings: 1,370 molecules (0.0707%)
+  16-atom rings: 784 molecules (0.0405%)
+  17-atom rings: 752 molecules (0.0388%)
+  18-atom rings: 250 molecules (0.0129%)
+  19-atom rings: 72 molecules (0.0037%)
+  20-atom rings: 52 molecules (0.0027%)
+  21-atom rings: 34 molecules (0.0018%)
+  22-atom rings: 24 molecules (0.0012%)
+  24-atom rings: 6 molecules (0.0003%)
+
+CONSTRAINT SATISFACTION RATES
+------------------------------
+Ring Count Constraints (cumulative per molecule):
+  ≤0: 0.0348%
+  ≤1: 6.6294%
+  ≤2: 42.6914%
+  ≤3: 68.3523%
+  ≤4: 90.3099%
+  ≤5: 96.0917%
+  ≤6: 98.3526%
+  ≤7: 99.5724%
+  ≤8: 99.7882%
+  ≤9: 99.8559%
+  >9: 0.1441%
+
+Ring Length Constraints (cumulative per molecule by max ring length):
+  ≤0: 0.0348%
+  ≤3: 0.0491%
+  ≤4: 0.0593%
+  ≤5: 4.4325%
+  ≤6: 65.8956%
+  ≤7: 67.0584%
+  ≤8: 68.5239%
+  ≤9: 85.9828%
+  >9: 14.0172%
+
+PLANARITY ANALYSIS
+--------------------
+Planar molecules: 1,936,962
+Non-planar molecules: 0
+Planarity rate: 1.000 (100.0000%)
+
+
+Analysis completed on: 2025-09-14 18:14:28

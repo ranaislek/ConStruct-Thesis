@@ -1,0 +1,92 @@
+Moses Validation Analysis Report
+============================================================
+
+DATASET OVERVIEW
+--------------------
+Analysis type: validation
+Total molecules analyzed: 176,225
+Total rings found: 552,910
+Average rings per molecule: 3.138
+
+RING COUNT ANALYSIS
+--------------------
+Distribution of molecules by ring count:
+  2 rings: 66,153 molecules (37.5389%)
+  3 rings: 49,382 molecules (28.0221%)
+  4 rings: 42,927 molecules (24.3592%)
+  5 rings: 10,825 molecules (6.1427%)
+  6 rings: 3,975 molecules (2.2556%)
+  7 rings: 2,108 molecules (1.1962%)
+  8 rings: 434 molecules (0.2463%)
+  9 rings: 112 molecules (0.0636%)
+  10 rings: 168 molecules (0.0953%)
+  11 rings: 59 molecules (0.0335%)
+  12 rings: 17 molecules (0.0096%)
+  13 rings: 3 molecules (0.0017%)
+  14 rings: 1 molecules (0.0006%)
+  15 rings: 51 molecules (0.0289%)
+  16 rings: 1 molecules (0.0006%)
+  17 rings: 4 molecules (0.0023%)
+  19 rings: 1 molecules (0.0006%)
+  21 rings: 3 molecules (0.0017%)
+  22 rings: 1 molecules (0.0006%)
+
+RING LENGTH ANALYSIS
+--------------------
+Distribution of molecules by maximum ring length:
+  3-atom rings: 11 molecules (0.0062%)
+  4-atom rings: 5 molecules (0.0028%)
+  5-atom rings: 6,726 molecules (3.8167%)
+  6-atom rings: 105,112 molecules (59.6465%)
+  7-atom rings: 1,964 molecules (1.1145%)
+  8-atom rings: 2,630 molecules (1.4924%)
+  9-atom rings: 32,955 molecules (18.7005%)
+  10-atom rings: 22,725 molecules (12.8954%)
+  11-atom rings: 1,224 molecules (0.6946%)
+  12-atom rings: 677 molecules (0.3842%)
+  13-atom rings: 1,276 molecules (0.7241%)
+  14-atom rings: 532 molecules (0.3019%)
+  15-atom rings: 214 molecules (0.1214%)
+  16-atom rings: 58 molecules (0.0329%)
+  17-atom rings: 66 molecules (0.0375%)
+  18-atom rings: 29 molecules (0.0165%)
+  19-atom rings: 4 molecules (0.0023%)
+  20-atom rings: 9 molecules (0.0051%)
+  21-atom rings: 4 molecules (0.0023%)
+  22-atom rings: 2 molecules (0.0011%)
+  24-atom rings: 2 molecules (0.0011%)
+
+CONSTRAINT SATISFACTION RATES
+------------------------------
+Ring Count Constraints (cumulative per molecule):
+  ≤0: 0.0000%
+  ≤1: 0.0000%
+  ≤2: 37.5389%
+  ≤3: 65.5611%
+  ≤4: 89.9203%
+  ≤5: 96.0630%
+  ≤6: 98.3186%
+  ≤7: 99.5148%
+  ≤8: 99.7611%
+  ≤9: 99.8247%
+  >9: 0.1753%
+
+Ring Length Constraints (cumulative per molecule by max ring length):
+  ≤0: 0.0000%
+  ≤3: 0.0062%
+  ≤4: 0.0091%
+  ≤5: 3.8258%
+  ≤6: 63.4723%
+  ≤7: 64.5867%
+  ≤8: 66.0792%
+  ≤9: 84.7797%
+  >9: 15.2203%
+
+PLANARITY ANALYSIS
+--------------------
+Planar molecules: 176,225
+Non-planar molecules: 0
+Planarity rate: 1.000 (100.0000%)
+
+
+Analysis completed on: 2025-09-14 15:33:47

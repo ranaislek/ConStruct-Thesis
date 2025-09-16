@@ -223,6 +223,9 @@ def create_plots(ring_count_dist, ring_length_dist, planar_count, non_planar_cou
     """Create comprehensive visualization plots"""
     print(f"\n📈 Creating visualization plots for {analysis_name}...")
     
+    # Ensure output directory exists
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
     # Set style
     plt.style.use('default')
     
@@ -334,6 +337,9 @@ def save_results(ring_count_dist, ring_length_dist, ring_count_rates, ring_lengt
     """Save analysis results to files"""
     print(f"\n💾 Saving {analysis_name} results...")
     
+    # Ensure output directory exists
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
     # Prepare results dictionary
     results = {
         'analysis_type': analysis_name,
@@ -410,6 +416,9 @@ def save_results(ring_count_dist, ring_length_dist, ring_count_rates, ring_lengt
 def create_comparison_analysis(train_results, val_results, test_results, full_results, output_dir):
     """Create comparison analysis between all dataset splits"""
     print("\n📊 Creating comparison analysis...")
+    
+    # Ensure output directory exists
+    output_dir.mkdir(parents=True, exist_ok=True)
     
     # Create comparison plots
     plt.figure(figsize=(20, 15))
