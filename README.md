@@ -1,6 +1,6 @@
 
 ---
-## Constraint-Aware Molecular Graph Generation with Sampling-Time Projectors: Extending ConStruct Framework
+## Hard-Constrained Molecular Graph Generation with Diffusion Models: Extending the ConStruct Framework
 
 ### 🔬 **Fork Attribution & Extensions**
 
