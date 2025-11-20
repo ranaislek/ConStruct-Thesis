@@ -1,6 +1,6 @@
 
 ---
-## Hard-Constrained Molecular Graph Generation with Diffusion Models: Extending the ConStruct Framework
+## Constrained Molecular Graph Generation with Diffusion Models: Extending the ConStruct Framework
 
 ### 🔬 **Fork Attribution & Extensions**
 
